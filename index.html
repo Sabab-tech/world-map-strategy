@@ -1,203 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Age 3 - Global Map Engine</title>
+    <title>Modern Age 3 - Tactical Engine</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root {
-            /* জুম অনুযায়ী ফন্ট সাইজ চেঞ্জ হওয়ার জন্য ভেরিয়েবল */
-            --label-size: 8px;
-        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #4b7899; /* গেমের মতো নীলচে ব্যাকগ্রাউন্ড */ }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #050b14; }
         #map { width: 100%; height: 100vh; }
         
-        /* HUD Control Panel */
-        .hud-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(5, 11, 20, 0.9);
-            border: 1px solid #3a4d5c;
-            color: #8fa0af;
-            padding: 12px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 11px;
-            z-index: 1000;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-            pointer-events: none;
-        }
-
-        /* Modern Age Style Country Text - NEW STYLING */
+        /* MODERN AGE PREMIUM FONT STYLE */
         .country-text-icon {
             background: transparent !important;
             border: none !important;
-            box-shadow: none !important;
-            color: #f0f4f8; /* একদম কড়া সাদা না দিয়ে হালকা গ্লোয়িং সাদা */
-            font-family: 'Arial', sans-serif;
-            font-weight: 900; 
-            font-size: var(--label-size);
-            text-align: center;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.25em; /* গেমের মতো অক্ষরগুলোর মাঝে স্পেস */
-            /* থ্রিডি শ্যাডো এবং গ্লো ইফেক্ট */
+            letter-spacing: 0.1em;
+            /* 3D EMBOSSED EFFECT: শ্যাডো দিয়ে থ্রিডি ভাইব আনা হয়েছে */
             text-shadow: 
-                -1px -1px 0 #000,  
-                 1px -1px 0 #000,
-                -1px  1px 0 #000,
-                 1px  1px 0 #000,
-                 0px 4px 6px rgba(0,0,0,0.9); 
-            opacity: 0.9; /* ম্যাপের সাথে ব্লেন্ড হওয়ার জন্য */
-            pointer-events: none; /* নামের ওপর ক্লিক করলেও যেন দেশের বর্ডার সিলেক্ট হয় */
-            white-space: normal;
+                0px 1px 0px #333,
+                0px 2px 0px #222,
+                0px 3px 2px rgba(0,0,0,0.8); 
+            text-align: center;
+            white-space: nowrap;
+            pointer-events: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            transform: rotate(-2deg); /* হালকা বাঁকা করে দেওয়া, যাতে অর্গানিক লাগে */
         }
     </style>
 </head>
 <body>
-
     <div id="map"></div>
-    
-    <div class="hud-panel">
-        <b style="color:#fff;">MODERN AGE III: CORE ENGINE</b><br><br>
-        • VISUAL: 3D PHYSICAL TERRAIN<br>
-        • TEXT: SPACED TYPOGRAPHY<br>
-        • BORDERS: INVISIBLE (DEFAULT)<br>
-        • TACTICAL TOUCH: WHITE HIGHLIGHT
-    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ১. কোর ইঞ্জিন চালুকরণ (আপনার আগের জুম লজিক অক্ষুণ্ণ আছে)
         const map = L.map('map', {
             center: [25.0, 40.0],
             zoom: 4,
             minZoom: 3,
-            maxZoom: 5,
-            zoomControl: true,
-            maxBoundsViscosity: 1.0
+            maxZoom: 5
         });
 
-        // ২. নতুন থ্রিডি ফিজিক্যাল বেস ম্যাপ (গেমের মতো লুক)
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Esri',
-            maxZoom: 8
+        // স্যাটেলাইট ম্যাপ (প্রিমিয়াম লুকের জন্য)
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Esri'
         }).addTo(map);
 
-        // জুম লেভেলের ওপর ভিত্তি করে ফন্ট সাইজ কন্ট্রোল
-        map.on('zoomend', function() {
-            let zoom = map.getZoom();
-            let size = '8px'; // Zoom 3
-            if (zoom === 4) size = '10px'; 
-            if (zoom === 5) size = '13px'; 
-            document.documentElement.style.setProperty('--label-size', size);
-        });
-
-        // ৩. বর্ডার স্টাইলিং আর্কিটেকচার (আপনার আগের টাচ সিস্টেম)
         let geojsonLayer;
-        const invisibleStyle = { color: "transparent", weight: 0, fillOpacity: 0 };
-        const tacticalHighlightStyle = { color: "#ffffff", weight: 2.0, fillColor: "#ffffff", fillOpacity: 0.15 };
-        let textLabelsLayer = L.layerGroup().addTo(map);
 
-        // ৪. Largest Polygon Algorithm (আপনার আগের সাগরে নাম না পড়ার লজিক)
-        function getLandCenter(feature, layer) {
-            if (feature.geometry.type === "Polygon") {
-                return layer.getBounds().getCenter();
-            } else if (feature.geometry.type === "MultiPolygon") {
-                let maxArea = 0;
-                let bestCenter = layer.getBounds().getCenter();
-                let subLayers = layer.getLayers ? layer.getLayers() : [];
-                
-                subLayers.forEach(subLayer => {
-                    let bounds = subLayer.getBounds();
-                    let area = (bounds.getNorth() - bounds.getSouth()) * (bounds.getEast() - bounds.getWest());
-                    if (area > maxArea) {
-                        maxArea = area;
-                        bestCenter = bounds.getCenter();
-                    }
-                });
-                return bestCenter;
-            }
-            return layer.getBounds().getCenter();
-        }
-
-        // ৫. ডেটাবেজ লোড ও রেন্ডারিং
-        function initializeMapLayer(geoData) {
-            if (geojsonLayer) map.removeLayer(geojsonLayer);
-            textLabelsLayer.clearLayers();
-
+        function initializeMap(geoData) {
             geojsonLayer = L.geoJSON(geoData, {
-                style: invisibleStyle, // ডিফল্ট বর্ডার হাইড করা আছে
+                style: { color: "transparent", weight: 0, fillOpacity: 0 },
                 onEachFeature: function (feature, layer) {
-                    
-                    // --- ট্যাকটিক্যাল সাদা বর্ডার টাচ লজিক ---
-                    layer.on('click', function (e) {
-                        L.DomEvent.stopPropagation(e);
-                        geojsonLayer.resetStyle();
-                        layer.setStyle(tacticalHighlightStyle); // সাদায় জ্বলে উঠবে
-                        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                            layer.bringToFront();
-                        }
+                    let name = (feature.properties.ADMIN || feature.properties.name || "").toUpperCase();
+                    if (name === "UNITED STATES OF AMERICA") name = "USA";
+                    if (name === "RUSSIAN FEDERATION") name = "RUSSIA";
+
+                    // লজিক: দেশের এলাকা অনুযায়ী ফন্ট সাইজ নির্ধারণ (Dynamic Scaling)
+                    let bounds = layer.getBounds();
+                    let area = (bounds.getNorth() - bounds.getSouth()) * (bounds.getEast() - bounds.getWest());
+                    let fontSize = Math.min(Math.max(area * 0.8, 9), 20); // এলাকা অনুযায়ী ৯px থেকে ২০px পর্যন্ত
+
+                    let icon = L.divIcon({
+                        className: 'country-text-icon',
+                        html: `<span style="font-size: ${fontSize}px;">${name}</span>`,
+                        iconSize: [200, 40]
                     });
 
-                    // --- দেশের নাম বসানোর লজিক ---
-                    let countryName = feature.properties.ADMIN || feature.properties.name || "N/A";
-                    
-                    if (countryName !== "N/A") {
-                        countryName = countryName.toUpperCase();
-                        
-                        // লম্বা নাম শর্ট করা
-                        if (countryName === "UNITED STATES OF AMERICA") countryName = "USA";
-                        if (countryName === "UNITED KINGDOM") countryName = "UK";
-                        if (countryName === "RUSSIAN FEDERATION") countryName = "RUSSIA";
-                        if (countryName === "DEMOCRATIC REPUBLIC OF THE CONGO") countryName = "DR CONGO";
-                        if (countryName === "CENTRAL AFRICAN REPUBLIC") countryName = "CAR";
+                    L.marker(bounds.getCenter(), { icon: icon, interactive: false }).addTo(map);
 
-                        let centerCoords = getLandCenter(feature, layer);
-                        
-                        let labelIcon = L.divIcon({
-                            className: 'country-text-icon',
-                            html: `<span>${countryName}</span>`,
-                            iconSize: [120, 40],   // স্পেস বেশি নেওয়ার জন্য বক্স বড় করা হয়েছে
-                            iconAnchor: [60, 20]  
-                        });
-
-                        L.marker(centerCoords, {
-                            icon: labelIcon,
-                            interactive: false // নামে ক্লিক করলে নিচের দেশ সিলেক্ট হবে
-                        }).addTo(textLabelsLayer);
-                    }
+                    // বর্ডার হাইলাইট ক্লিক লজিক
+                    layer.on('click', function(e) {
+                        L.DomEvent.stopPropagation(e);
+                        geojsonLayer.resetStyle();
+                        layer.setStyle({ color: "#ffffff", weight: 2, fillOpacity: 0.1 });
+                    });
                 }
             }).addTo(map);
         }
 
-        map.on('click', function(e) {
-            if (geojsonLayer) geojsonLayer.resetStyle(); // সাগরে ক্লিক করলে সিলেকশন মুছবে
-        });
+        // ডেটা লোড
+        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+            .then(res => res.json())
+            .then(data => initializeMap(data));
 
-        // ৬. আপনার আগের অফলাইন ও ব্যাকআপ ইঞ্জিন (সম্পূর্ণ সুরক্ষিত)
-        const localSource = './countries.geojson';
-        const backupSource = 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson';
-
-        function loadTacticalDatabase(url, isBackupSystem = false) {
-            fetch(url).then(res => {
-                if (!res.ok) throw new Error("Source Offline");
-                return res.json();
-            }).then(data => {
-                initializeMapLayer(data);
-            }).catch(err => {
-                if (!isBackupSystem) loadTacticalDatabase(backupSource, true);
-            });
-        }
-
-        loadTacticalDatabase(localSource);
+        map.on('click', () => geojsonLayer.resetStyle());
     </script>
 </body>
-    </html>
-    
+</html>
