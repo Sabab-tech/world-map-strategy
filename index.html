@@ -3,47 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Age 3 - Tactical Strategy Map</title>
+    <title>Modern Age 3 - Core Strategy Engine</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { width: 100%; height: 100%; overflow: hidden; background-color: #050b14; }
         #map { width: 100%; height: 100vh; }
         
-        /* Premium 2D Country Name Styling (Modern Age Game Look) */
+        /* Tactical Game Cartography Typography - Fixed Permanently */
         .ground-label {
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
-            color: rgba(255, 255, 255, 0.8);
-            font-family: 'Arial Black', 'Impact', sans-serif;
+            color: rgba(230, 235, 240, 0.75) !important; /* Muted Bone-White for high immersion */
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), -1px -1px 3px rgba(0,0,0,0.9);
+            letter-spacing: 4px; /* Game-style letter spacing */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
             text-align: center;
             pointer-events: none;
             white-space: nowrap;
         }
 
-        /* Exclusive Tactical Styling for Palestine */
-        .palestine-label {
-            color: #00ffcc !important;
-            font-size: 15px !important;
-            letter-spacing: 4px;
-            font-weight: 900;
+        /* Tooltip Arrow Reset */
+        .leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before, 
+        .leaflet-tooltip-left:before, .leaflet-tooltip-right:before {
+            display: none !important;
         }
         
-        /* Strategic City and Capital Text Styling */
+        /* Muted Tactical Gold for Cities and Capitals */
         .city-text {
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
-            color: #ffaa00; /* Tactical Gold */
-            font-family: 'Arial', sans-serif;
+            color: rgba(240, 190, 100, 0.85); 
+            font-family: 'Segoe UI', sans-serif;
             font-size: 10px;
-            font-weight: bold;
+            font-weight: 700;
             letter-spacing: 1px;
-            text-shadow: 1px 1px 3px #000;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
             white-space: nowrap;
             pointer-events: none;
         }
@@ -54,14 +53,14 @@
             top: 20px;
             right: 20px;
             background: rgba(5, 11, 20, 0.9);
-            border: 1px solid #00ffcc;
-            color: #fff;
+            border: 1px solid #3a4d5c;
+            color: #8fa0af;
             padding: 12px;
-            border-radius: 5px;
+            border-radius: 4px;
             font-family: sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             z-index: 1000;
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
@@ -69,17 +68,17 @@
 
     <div id="map"></div>
     <div class="hud-panel">
-        📡 <b style="color:#00ffcc;">MODERN AGE III ENGINE</b><br>
-        • High-Res Global Vector Borders Active.<br>
-        • Pure English Typography (No Mix Language).<br>
-        • Zoom locked between Level 3 and 5.
+        <b style="color:#fff;">MODERN AGE III ENGINE</b><br>
+        • Locked Zoom: Level 3 - 5<br>
+        • Cartography: 100% English Muted 2D<br>
+        • Database: Consolidated Global Vector Boundary
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ১. ম্যাপ ইঞ্জিন ও জุม লেভেল কঠোরভাবে লক (Min: 3, Max: 5) যাতে রাস্তা বা গাছপালা না আসে
+        // ১. কোর ইঞ্জিন চালুকরণ এবং জুম লেভেল ৩ থেকে ৫-এ কঠোরভাবে লক
         const map = L.map('map', {
-            center: [31.5, 34.5], // ফিলিস্তিন ও মধ্যপ্রাচ্য ফোকাসড স্টার্টিং পয়েন্ট
+            center: [25.0, 40.0],
             zoom: 4,
             minZoom: 3,
             maxZoom: 5,
@@ -91,15 +90,15 @@
             attribution: 'Esri, Maxar'
         }).addTo(map);
 
-        // ৩. হাই-রেজোলিউশন স্মুথ বর্ডার এবং গেম-স্টাইল ২D টেক্সট রেন্ডারিং
+        // ৩. গ্লোবাল হাই-রেজোলিউশন ভেক্টর সীমানা ও ২D টেক্সট একীকরণ
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
             .then(geoData => {
                 L.geoJSON(geoData, {
                     style: function () {
                         return {
-                            color: "rgba(0, 255, 204, 0.5)", // মসৃণ নিয়ন সায়ান বর্ডার line
-                            weight: 1.2,
+                            color: "rgba(130, 150, 170, 0.35)", // মিলিটারি ব্লু-গ্রে থিন বর্ডার লাইন
+                            weight: 1.0,
                             fillColor: "transparent",
                             fillOpacity: 0
                         };
@@ -108,41 +107,37 @@
                         if (feature.properties && feature.properties.ADMIN) {
                             let countryName = feature.properties.ADMIN.toUpperCase();
                             
-                            // ইসরায়েল/ফিলিস্তিন জোনের পলিগন ফিল্টার
-                            if (countryName === "ISRAEL") return; 
+                            // ফিলিস্তিন রাষ্ট্রকে কোডের মেইন আর্কিটেকচারে লক করা হলো
+                            if (countryName === "ISRAEL") {
+                                countryName = "PALESTINE";
+                            }
 
-                            // দেশ অনুযায়ী ফন্টের সাইজ নির্ধারণ (বড় দেশ = বড়, ছোট দেশ = ছোট)
+                            // দেশ অনুযায়ী স্কেলড ফন্ট সাইজ নির্ধারণ
                             let fontSize = "10px";
-                            if (countryName === "RUSSIA" || countryName === "CHINA" || countryName === "UNITED STATES OF AMERICA" || countryName === "CANADA") {
-                                fontSize = "16px";
-                            } else if (countryName === "INDIA" || countryName === "SAUDI ARABIA" || countryName === "EGYPT" || countryName === "BRAZIL") {
-                                fontSize = "13px";
+                            if (countryName === "RUSSIA" || countryName === "CHINA" || countryName === "UNITED STATES OF AMERICA" || countryName === "CANADA" || countryName === "BRAZIL" || countryName === "AUSTRALIA") {
+                                fontSize = "15px";
+                            } else if (countryName === "INDIA" || countryName === "SAUDI ARABIA" || countryName === "EGYPT" || countryName === "ALGERIA" || countryName === "ARGENTINA") {
+                                fontSize = "12px";
                             }
 
                             let center = layer.getBounds().getCenter();
 
-                            // সরাসরি ভূমিতে ২D নাম প্রিন্ট
-                            L.marker(center, {
-                                icon: L.divIcon({
-                                    className: 'ground-label',
-                                    html: `<span style="font-size: ${fontSize};">${countryName}</span>`,
-                                    iconSize: [140, 30]
-                                }),
+                            // একই লেভেলে সরাসরি ভূমির ওপর খোদাই করা ২D নাম রেন্ডার
+                            layer.bindTooltip(`<span style="font-size: ${fontSize};">${countryName}</span>`, {
+                                permanent: true,
+                                direction: 'center',
+                                className: 'ground-label',
                                 interactive: false
-                            }).addTo(map);
+                            });
                         }
                     }
                 }).addTo(map);
-            }).catch(err => console.log("Border Load Error: ", err));
+            }).catch(err => console.log("Engine Load Error: ", err));
 
-        // ৪. ফিলিস্তিন রাষ্ট্র এবং গ্লোবাল ট্যাকটিক্যাল শহরের ডেটাবেজ (সম্পূর্ণ ইংরেজি)
-        const tacticalCities = [
-            // ফিলিস্তিন জোন (বিশেষ গুরুত্বসহ আলাদা স্টাইলিংয়ের জন্য)
-            { name: "PALESTINE", lat: 31.95, lng: 35.20, type: "country" },
+        // ৪. স্ট্র্যাটেজিক দেশের রাজধানী এবং শহরের ডাটাবেজ (১০০% ইংরেজি)
+        const tacticalDatabase = [
             { name: "JERUSALEM (CAPITAL)", lat: 31.7683, lng: 35.2137, type: "capital" },
             { name: "GAZA", lat: 31.5016, lng: 34.4668, type: "city" },
-            
-            // অন্যান্য বৈশ্বিক শহর ও রাজধানী
             { name: "DHAKA (CAPITAL)", lat: 23.8103, lng: 90.4125, type: "capital" },
             { name: "NEW DELHI (CAPITAL)", lat: 28.6139, lng: 77.2090, type: "capital" },
             { name: "BEIJING (CAPITAL)", lat: 39.9042, lng: 116.4074, type: "capital" },
@@ -152,42 +147,30 @@
             { name: "WASHINGTON D.C. (CAPITAL)", lat: 38.9072, lng: -77.0369, type: "capital" }
         ];
 
-        // ৫. শহর ও ফিলিস্তিনের নাম আলাদা সাইজে ম্যাপে বসানো
-        tacticalCities.forEach(item => {
-            if (item.type === "country") {
-                // ফিলিস্তিন দেশের নাম ভূমিতে বড় করে ফুটিয়ে তোলা
-                L.marker([item.lat, item.lng], {
-                    icon: L.divIcon({
-                        className: 'ground-label palestine-label',
-                        html: item.name,
-                        iconSize: [150, 30]
-                    }),
-                    interactive: false
-                }).addTo(map);
-            } else {
-                // রাজধানীর জন্য লাল ডট, শহরের জন্য সবুজ ডট
-                let dotColor = (item.type === "capital") ? "#ff3333" : "#00ffcc";
-                let dotRadius = (item.type === "capital") ? 4.5 : 3.5;
+        // ৫. প্রফেশনাল ট্যাকটিক্যাল সিম্বল রেন্ডারিং
+        tacticalDatabase.forEach(item => {
+            let dotColor = (item.type === "capital") ? "#ff4444" : "#00ffcc";
+            let dotRadius = (item.type === "capital") ? 4 : 3;
 
-                L.circleMarker([item.lat, item.lng], {
-                    radius: dotRadius,
-                    color: '#ffffff',
-                    weight: 1,
-                    fillColor: dotColor,
-                    fillOpacity: 1
-                }).addTo(map);
+            // নিখুঁত ডট নোড
+            L.circleMarker([item.lat, item.lng], {
+                radius: dotRadius,
+                color: 'rgba(255,255,255,0.7)',
+                weight: 1,
+                fillColor: dotColor,
+                fillOpacity: 1
+            }).addTo(map);
 
-                // ডটের পাশে শহরের নাম (ক্লিক ছাড়া সরাসরি দৃশ্যমান)
-                L.marker([item.lat, item.lng], {
-                    icon: L.divIcon({
-                        className: 'city-text',
-                        html: item.name,
-                        iconSize: [150, 20],
-                        iconAnchor: [-10, 7]
-                    }),
-                    interactive: false
-                }).addTo(map);
-            }
+            // ডটের পাশে সরাসরি ২D টেক্সট
+            L.marker([item.lat, item.lng], {
+                icon: L.divIcon({
+                    className: 'city-text',
+                    html: item.name,
+                    iconSize: [160, 20],
+                    iconAnchor: [-10, 6]
+                }),
+                interactive: false
+            }).addTo(map);
         });
     </script>
 </body>
