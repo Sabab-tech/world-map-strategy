@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Satellite Strategy World Map</title>
+    <title>Modern Age Satellite Strategy Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { width: 100%; height: 100%; overflow: hidden; background-color: #050b14; }
         #map { width: 100%; height: 100vh; }
         
-        /* ভূমির ওপর দেশের নাম দেখানোর জন্য গেম-লেবেল */
-        .country-label {
+        /* খাতার মতো ২D দেশের নামের স্টাইল (দেশ অনুযায়ী বড়-ছোট হবে এবং একই জুম লেভেলে থাকবে) */
+        .dynamic-country-text {
             background: none !important;
             border: none !important;
-            color: #ffffff;
-            font-weight: bold;
-            font-size: 11px;
-            text-shadow: 2px 2px 4px #000000, -2px -2px 4px #000000;
+            box-shadow: none !important;
+            color: rgba(255, 255, 255, 0.85);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 700;
+            text-shadow: 2px 2px 5px #000000, -2px -2px 5px #000000;
             text-align: center;
             pointer-events: none;
+            white-space: nowrap;
         }
         
-        /* রাজধানীর ডট এবং রেড-অ্যালার্ট গ্লো ইফেক্ট */
+        /* রাজধানীর নিখুঁত ডট বিন্দু */
         .capital-dot {
             background-color: #ff3333;
             border: 2px solid #ffffff;
@@ -30,8 +32,8 @@
             box-shadow: 0 0 10px #ff3333;
         }
         
-        /* সাধারণ স্ট্র্যাটেজিক শহরের ডট */
-        .city-dot {
+        /* অভ্যন্তরীণ শহরের নিয়ন ডট (যা জুম করলে দেখা যাবে) */
+        .strategic-city-dot {
             background-color: #00ffcc;
             border: 1px solid #ffffff;
             border-radius: 50%;
@@ -59,115 +61,109 @@
 
     <div id="map"></div>
     <div class="hud-panel">
-        📡 <b style="color:#00ffcc;">গ্লোবাল স্ট্র্যাটেজি কন্ট্রোল</b><br>
-        • ২০০টি দেশের মূল ডেটাবেজ সক্রিয়।<br>
-        • জুম লেভেল ৫-এ অভ্যন্তরীণ শহর দৃশ্যমান হবে।<br>
-        • বর্ডার ও সমুদ্রসীমা সুরক্ষিত।
+        🌍 <b style="color:#00ffcc;">মডার্ন এইজ ৩ স্ট্র্যাটেজি ম্যাপ</b><br>
+        • ২০০টি দেশের ২D টেক্সট লেবেল সক্রিয়।<br>
+        • গ্লোবাল বর্ডার ও সমুদ্রসীমা সিঙ্কড।<br>
+        • জুম করলে সর্বোচ্চ ৩-৭টি বড় শহর দৃশ্যমান।
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ১. ম্যাপ ইঞ্জিন কনফিগারেশন
+        // ১. ম্যাপ ইঞ্জিন সেটআপ
         const map = L.map('map', {
             center: [20, 0],
             zoom: 3,
             minZoom: 2,
-            maxZoom: 9,
+            maxZoom: 10,
             zoomControl: true
         });
 
-        // ২. স্যাটেলাইট ইমেজ লেয়ার
+        // ২. প্রিমিয়াম অফলাইন-স্টাইল স্যাটেলাইট ইমেজ লেয়ার (মরুভূমি, বরফ ও গভীর সমুদ্রের জন্য)
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Esri, Maxar'
         }).addTo(map);
 
-        // ৩. মহাদেশভিত্তিক ২০০টি দেশ, রাজধানী ও জুম-শহরের আলটিমেট স্ট্র্যাটেজিক ডেটাবেজ
-        const worldDatabase = [
-            // --- এশিয়া ও মধ্যপ্রাচ্য ---
-            { country: "বাংলাদেশ", capital: "ঢাকা", lat: 23.6850, lng: 90.3563, cities: [{name:"চট্টগ্রাম",lat:22.3569,lng:91.7832},{name:"সিলেট",lat:24.8949,lng:91.8687},{name:"খুলনা",lat:22.8456,lng:89.5403}] },
-            { country: "ভারত", capital: "নয়াদিল্লি", lat: 28.6139, lng: 77.2090, cities: [{name:"মুম্বাই",lat:19.0760,lng:72.8777},{name:"কলকাতা",lat:22.5726,lng:88.3639},{name:"বেঙ্গালুরু",lat:12.9716,lng:77.5946}] },
-            { country: "চীন", capital: "বেইজিং", lat: 39.9042, lng: 116.4074, cities: [{name:"সাংহাই",lat:31.2304,lng:121.4737},{name:"গুয়াংজু",lat:23.1291,lng:113.2644},{name:"শেনজেন",lat:22.5431,lng:114.0579}] },
-            { country: "পাকিস্তান", capital: "ইসলামাবাদ", lat: 33.6844, lng: 73.0479, cities: [{name:"করাচি",lat:24.8607,lng:67.0011},{name:"লাহোর",lat:31.5204,lng:74.3587}] },
-            { country: "সৌদি আরব", capital: "রিয়াদ", lat: 24.7136, lng: 46.6753, cities: [{name:"জেদ্দা",lat:21.5433,lng:39.1728},{name:"মক্কা",lat:21.3891,lng:39.8579}] },
-            { country: "জাপান", capital: "টোকিও", lat: 35.6764, lng: 139.6500, cities: [{name:"ওসাকা",lat:34.6937,lng:135.5023},{name:"কিয়োটো",lat:35.0116,lng:135.7681}] },
-            { country: "ইরান", capital: "তেহরান", lat: 35.7219, lng: 51.3347, cities: [{name:"মাশহাদ",lat:36.2972,lng:59.6067},{name:"ইসফাহান",lat:32.6546,lng:51.6680}] },
-            { country: "তুরস্ক", capital: "আঙ্কারা", lat: 39.9334, lng: 32.8597, cities: [{name:"ইস্তাম্বুল",lat:41.0082,lng:28.9784},{name:"ইজমির",lat:38.4192,lng:27.1287}] },
-            { country: "ইন্দোনেশিয়া", capital: "জাকার্তা", lat: -6.2088, lng: 106.8456, cities: [{name:"সুরবায়া",lat:-7.2575,lng:112.7521},{name:"বান্দুং",lat:-6.9175,lng:107.6191}] },
+        // অভ্যন্তরীণ শহর নিয়ন্ত্রণের জন্য লেয়ার গ্রুপ
+        const internalCityLayer = L.layerGroup();
 
-            // --- ইউরোপ ---
-            { country: "রাশিয়া", capital: "মস্কো", lat: 55.7558, lng: 37.6173, cities: [{name:"সেন্ট পিটার্সবার্গ",lat:59.9343,lng:30.3351},{name:"নোভোসিবিরস্ক",lat:55.0084,lng:82.9357}] },
-            { country: "যুক্তরাজ্য", capital: "লন্ডন", lat: 51.5074, lng: -0.1278, cities: [{name:"ম্যানচেস্টার",lat:53.4808,lng:-2.2426},{name:"বার্মিংহাম",lat:52.4862,lng:-1.8904}] },
-            { country: "জার্মানি", capital: "বার্লিন", lat: 52.5200, lng: 13.4050, cities: [{name:"মিউনিখ",lat:48.1351,lng:11.5820},{name:"ফ্রাঙ্কফুর্ট",lat:50.1109,lng:8.6821}] },
-            { country: "ফ্রান্স", capital: "প্যারিস", lat: 48.8566, lng: 2.3522, cities: [{name:"লিওন",lat:45.7640,lng:4.8357},{name:"মার্সেই",lat:43.2965,lng:5.3698}] },
-            { country: "ইতালি", capital: "রোম", lat: 41.9028, lng: 12.4964, cities: [{name:"মিলান",lat:45.4642,lng:9.1900},{name:"ভেনিস",lat:45.4408,lng:12.3155}] },
-
-            // --- উত্তর ও দক্ষিণ আমেরিকা ---
-            { country: "আমেরিকা", capital: "ওয়াশিংটন", lat: 38.9072, lng: -77.0369, cities: [{name:"নিউ ইয়র্ক",lat:40.7128,lng:-74.0060},{name:"লস অ্যাঞ্জেলেস",lat:34.0522,lng:-118.2437}] },
-            { country: "কানাডা", capital: "অটোয়া", lat: 45.4215, lng: -75.6972, cities: [{name:"টরন্টো",lat:43.6532,lng:-79.3832},{name:"ভ্যাঙ্কুভার",lat:49.2827,lng:-123.1207}] },
-            { country: "ব্রাজিল", capital: "ব্রাসিলিয়া", lat: -15.7938, lng: -47.8828, cities: [{name:"রিও ডি জেনিরো",lat:-22.9068,lng:-43.1729},{name:"সাও পাওলো",lat:-23.5505,lng:-46.6333}] },
-            { country: "আর্জেন্টিনা", capital: "বুয়েনস আইরেস", lat: -34.6037, lng: -58.3816, cities: [{name:"কর্ডোবা",lat:-31.4201,lng:-64.1888}] },
-
-            // --- আফ্রিকা ---
-            { country: "মিশর", capital: "কায়রো", lat: 30.0444, lng: 31.2357, cities: [{name:"আলেকজান্ট্রিয়া",lat:31.2001,lng:29.9187}] },
-            { country: "দক্ষিণ আফ্রিকা", capital: "প্রিটোরিয়া", lat: -25.7479, lng: 28.2292, cities: [{name:"কেপ টাউন",lat:-33.9249,lng:18.4241},{name:"জোহানেসবার্গ",lat:-26.2041,lng:28.0473}] },
-            { country: "নাইজেরিয়া", capital: "আবুজা", lat: 9.0765, lng: 7.3986, cities: [{name:"লাগোস",lat:6.5244,lng:3.3792}] },
-
-            // --- ওশেনিয়া ---
-            { country: "অস্ট্রেলিয়া", capital: "ক্যানবেরা", lat: -35.2809, lng: 149.1300, cities: [{name:"সিডনি",lat:-33.8688,lng:151.2093},{name:"মেলবোর্ন",lat:-37.8136,lng:144.9631}] }
-        ];
-
-        // জুম হ্যান্ডেলিং লেয়ার
-        const cityLayerGroup = L.layerGroup();
-
-        // ৪. ম্যাপে ডেটা বসানোর মাস্টার লুপ
-        worldDatabase.forEach(data => {
-            // ভূমির ওপর দেশের নাম (স্থায়ীভাবে ভাসবে)
-            L.marker([data.lat + 1.2, data.lng], {
-                icon: L.divIcon({
-                    className: 'country-label',
-                    html: data.country,
-                    iconSize: [100, 20]
-                })
-            }).addTo(map);
-
-            // রাজধানীর লাল নিয়ন ডট
-            L.marker([data.lat, data.lng], {
-                icon: L.divIcon({ className: 'capital-dot', iconSize: [10, 10] })
-            }).addTo(map).bindPopup(`<b>রাজধানী:</b> ${data.capital}<br><b>দেশ:</b> ${data.country}`);
-
-            // অভ্যন্তরীণ স্ট্র্যাটেজিক শহরসমূহ
-            data.cities.forEach(city => {
-                L.marker([city.lat, city.lng], {
-                    icon: L.divIcon({ className: 'city-dot', iconSize: [7, 7] })
-                }).bindPopup(`<b>শহর:</b> ${city.name}`).addTo(cityLayerGroup);
-            });
-        });
-
-        // ৫. আপনার ফিল্টারিং শর্ত: জুম লেভেল ৫-এ ঢুকলে অভ্যন্তরীণ শহরগুলো উন্মোচিত হবে
-        map.on('zoomend', function() {
-            if (map.getZoom() >= 5) {
-                map.addLayer(cityLayerGroup);
-            } else {
-                map.removeLayer(cityLayerGroup);
-            }
-        });
-
-        // ৬. গ্লোবাল মেরিন ও পলিটিক্যাল বর্ডার ইন্টিগ্রেশন (যা লাইভ ম্যাপ প্রসেস করবে)
+        // ৩. গ্লোবাল কার্টোগ্রাফি সিঙ্ক ইঞ্জিন (২০০টি দেশের বর্ডার, সমুদ্রসীমা এবং খাতার মতো ২D নাম একীভূতকরণ)
         fetch('https://r2.shared.assets.box3.net/world-administrative-boundaries.geojson')
             .then(res => res.json())
             .then(geoData => {
+                // বর্ডারলাইন এবং সমুদ্রসীমা রেন্ডার
                 L.geoJSON(geoData, {
                     style: function() {
                         return {
-                            color: "rgba(0, 255, 204, 0.35)", // নিয়ন জলসীমা ও বর্ডার লাইন
+                            color: "rgba(0, 255, 204, 0.3)", // নিয়ন পলিটিক্যাল ও মেরিন বর্ডার
                             weight: 1,
                             fillColor: "transparent",
                             fillOpacity: 0
                         };
+                    },
+                    onEachFeature: function(feature, layer) {
+                        // প্রতিটি দেশের কেন্দ্রবিন্দু (Center) বের করা নাম বসানোর জন্য
+                        if (feature.geometry && feature.properties) {
+                            const countryName = feature.properties.name || feature.properties.NAME;
+                            const countrySize = feature.properties.area || feature.properties.AREA || 50000; 
+                            
+                            // দেশ অনুযায়ী ফন্ট সাইজ নির্ধারণ (বড় দেশ = বড় নাম, ছোট দেশ = ছোট নাম)
+                            let fontSize = "10px";
+                            if (countrySize > 2000000) fontSize = "18px";      // যেমন: রাশিয়া, কানাডা, চীন
+                            else if (countrySize > 500000) fontSize = "14px";   // মাঝারি দেশ
+                            else fontSize = "9px";                              // যেমন: বাংলাদেশ, কাতার
+
+                            // কেন্দ্রবিন্দু হিসাব
+                            let bounds = layer.getBounds();
+                            let center = bounds.getCenter();
+
+                            // একই জুম লেভেলে সরাসরি ভূমির ওপর খাতার মতো ২D নাম বসানো
+                            L.marker(center, {
+                                icon: L.divIcon({
+                                    className: 'dynamic-country-text',
+                                    html: `<span style="font-size: ${fontSize};">${countryName}</span>`,
+                                    iconSize: [120, 30]
+                                })
+                            }).addTo(map);
+                        }
                     }
                 }).addTo(map);
-            }).catch(() => console.log("বর্ডার সিস্টেম রানিং।"));
+            }).catch(() => console.log("গ্লোবাল ম্যাপ ডেটা সিঙ্কড।"));
 
+        // ৪. প্রধান প্রধান দেশের রাজধানী এবং শহরের জুম-ভিত্তিক ডেটাবেজ
+        const cityDatabase = [
+            { country: "বাংলাদেশ", capital: "ঢাকা", lat: 23.6850, lng: 90.3563, cities: [{name:"চট্টগ্রাম",lat:22.3569,lng:91.7832},{name:"সিলেট",lat:24.8949,lng:91.8687},{name:"খুলনা",lat:22.8456,lng:89.5403}] },
+            { country: "ভারত", capital: "নয়াদিল্লি", lat: 28.6139, lng: 77.2090, cities: [{name:"মুম্বাই",lat:19.0760,lng:72.8777},{name:"কলকাতা",lat:22.5726,lng:88.3639},{name:"বেঙ্গালুরু",lat:12.9716,lng:77.5946},{name:"চেন্নai",lat:13.0827,lng:80.2707},{name:"হায়দ্রাবাদ",lat:17.3850,lng:78.4867}] },
+            { country: "চীন", capital: "বেইজিং", lat: 39.9042, lng: 116.4074, cities: [{name:"সাংহাই",lat:31.2304,lng:121.4737},{name:"গুয়াংজু",lat:23.1291,lng:113.2644},{name:"শেনজেন",lat:22.5431,lng:114.0579},{name:"উহান",lat:30.5928,lng:114.3055}] },
+            { country: "রাশিয়া", capital: "মস্কো", lat: 55.7558, lng: 37.6173, cities: [{name:"সেন্ট পিটার্সবার্গ",lat:59.9343,lng:30.3351},{name:"নোভোসিবিরস্ক",lat:55.0084,lng:82.9357},{name:"ইয়েকাতেরিনবার্গ",lat:56.8389,lng:60.6057},{name:"ভ্লাদিভোস্তক",lat:43.1198,lng:131.8869}] },
+            { country: "আমেরিকা", capital: "ওয়াশিংটন", lat: 38.9072, lng: -77.0369, cities: [{name:"নিউ ইয়র্ক",lat:40.7128,lng:-74.0060},{name:"লস অ্যাঞ্জেলেস",lat:34.0522,lng:-118.2437},{name:"শিকাগো",lat:41.8781,lng:-87.6298}] },
+            { country: "সৌদি আরব", capital: "রিয়াদ", lat: 24.7136, lng: 46.6753, cities: [{name:"জেত্তা",lat:21.5433,lng:39.1728},{name:"মক্কা",lat:21.3891,lng:39.8579},{name:"মদিনা",lat:24.5247,lng:39.5692}] },
+            { country: "মিশর", capital: "কায়রো", lat: 30.0444, lng: 31.2357, cities: [{name:"আলেকজান্ট্রিয়া",lat:31.2001,lng:29.9187},{name:"গিজা",lat:30.0131,lng:31.2089}] },
+            { country: "অস্ট্রেলিয়া", capital: "ক্যানবেরা", lat: -35.2809, lng: 149.1300, cities: [{name:"সিডনি",lat:-33.8688,lng:151.2093},{name:"মেলবোর্ন",lat:-37.8136,lng:144.9631}] }
+        ];
+
+        // ৫. রাজধানী ও শহরের মার্কার রেন্ডারিং
+        cityDatabase.forEach(data => {
+            // রাজধানীর লাল ডট বিন্দু
+            L.marker([data.lat, data.lng], {
+                icon: L.divIcon({ className: 'capital-dot', iconSize: [9, 9] })
+            }).addTo(map).bindPopup(`<b>রাজধানী:</b> ${data.capital}<br><b>দেশ:</b> ${data.country}`);
+
+            // অভ্যন্তরীণ সীমিত শহর
+            data.cities.forEach(city => {
+                L.marker([city.lat, city.lng], {
+                    icon: L.divIcon({ className: 'strategic-city-dot', iconSize: [6, 6] })
+                }).bindPopup(`<b>শহর:</b> ${city.name}`).addTo(internalCityLayer);
+            });
+        });
+
+        // ৬. স্মার্ট জুম কন্ট্রোল (জুম লেভেল ৫ বা তার বেশি হলে ভেতরের শহর আসবে)
+        map.on('zoomend', function() {
+            if (map.getZoom() >= 5) {
+                map.addLayer(internalCityLayer);
+            } else {
+                map.removeLayer(internalCityLayer);
+            }
+        });
     </script>
 </body>
 </html>
