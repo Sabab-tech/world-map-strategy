@@ -1,1 +1,39 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive World Map</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #f4f4f4; }
+        #map { width: 100%; height: 100vh; }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // সরাসরি ম্যাপ লোড করার ক্লাউড বেসম্যাপ (যা ব্লক হবে না)
+        const map = L.map('map').setView([20, 0], 2);
+
+        // সুন্দর স্ট্যান্ডার্ড ম্যাপ লেয়ার
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            minZoom: 2,
+            maxZoom: 18
+        }).addTo(map);
+
+        // একটি স্যাম্পল মার্কার বা পপআপ দিয়ে টেস্ট করা
+        L.marker([23.6850, 90.3563]).addTo(map) // বাংলাদেশের লোকেশন
+            .bindPopup('<b>স্বাগতম!</b><br>আপনার বিশ্ব মানচিত্র সফলভাবে কাজ করছে।')
+            .openPopup();
+    </script>
+</body>
+  </html>
 
