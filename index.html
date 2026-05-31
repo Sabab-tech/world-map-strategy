@@ -1,59 +1,67 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Age 3 - Realtime Strategy Map</title>
-    <!-- Leaflet CSS -->
+    <title>Modern Age 3 - Tactical Strategy Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { width: 100%; height: 100%; overflow: hidden; background-color: #050b14; }
         #map { width: 100%; height: 100vh; }
         
-        /* ১. ভূমিতে লেখা দেশের নামের স্টাইল (গেমের মতো 2D) */
+        /* Premium 2D Country Name Styling (Modern Age Game Look) */
         .ground-label {
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
-            color: rgba(220, 220, 220, 0.9); /* হালকা সাদা/ধূসর */
-            font-family: 'Arial', sans-serif;
-            font-weight: bold;
+            color: rgba(255, 255, 255, 0.8);
+            font-family: 'Arial Black', 'Impact', sans-serif;
             text-transform: uppercase;
-            text-shadow: 2px 2px 4px #000, -2px -2px 4px #000; /* লেখার চারপাশে কালো শ্যাডো যাতে স্পষ্ট হয় */
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), -1px -1px 3px rgba(0,0,0,0.9);
             text-align: center;
-            font-size: 11px;
-            pointer-events: none; /* লেখার ওপর ক্লিক লাগবে না */
+            pointer-events: none;
+            white-space: nowrap;
         }
 
-        /* ২. শহরের নামের স্টাইল (সরাসরি ম্যাপে লেখা থাকবে) */
+        /* Exclusive Tactical Styling for Palestine */
+        .palestine-label {
+            color: #00ffcc !important;
+            font-size: 15px !important;
+            letter-spacing: 4px;
+            font-weight: 900;
+        }
+        
+        /* Strategic City and Capital Text Styling */
         .city-text {
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
-            color: #00ffcc; /* নিয়ন কালার */
-            font-family: sans-serif;
+            color: #ffaa00; /* Tactical Gold */
+            font-family: 'Arial', sans-serif;
             font-size: 10px;
             font-weight: bold;
-            text-shadow: 1px 1px 2px #000;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 3px #000;
             white-space: nowrap;
             pointer-events: none;
         }
 
-        /* কন্ট্রোল প্যানেল */
+        /* HUD Control Panel */
         .hud-panel {
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(5, 11, 20, 0.85);
-            border: 1px solid #ffaa00;
+            background: rgba(5, 11, 20, 0.9);
+            border: 1px solid #00ffcc;
             color: #fff;
             padding: 12px;
             border-radius: 5px;
             font-family: sans-serif;
             font-size: 12px;
             z-index: 1000;
-            box-shadow: 0 0 10px rgba(255, 170, 0, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
         }
     </style>
 </head>
@@ -61,97 +69,126 @@
 
     <div id="map"></div>
     <div class="hud-panel">
-        ⚔️ <b style="color:#ffaa00;">মডার্ন এইজ ট্যাকটিক্যাল ভিউ</b><br>
-        • পপ-আপ রিমুভড: সব নাম 2D ফরমেটে ভূমিতে প্রিন্ট করা।<br>
-        • গ্লোবাল বর্ডার সিস্টেম: সুস্পষ্ট সীমানা।<br>
-        • ফিলিস্তিন ও জেরুজালেম ম্যাপে সরাসরি দৃশ্যমান।
+        📡 <b style="color:#00ffcc;">MODERN AGE III ENGINE</b><br>
+        • High-Res Global Vector Borders Active.<br>
+        • Pure English Typography (No Mix Language).<br>
+        • Zoom locked between Level 3 and 5.
     </div>
 
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ১. ম্যাপ ইঞ্জিন এবং জুম লেভেল (রাস্তাঘাটের ঝামেলা বাদ দিতে লিমিট করা হলো)
+        // ১. ম্যাপ ইঞ্জিন ও জุม লেভেল কঠোরভাবে লক (Min: 3, Max: 5) যাতে রাস্তা বা গাছপালা না আসে
         const map = L.map('map', {
-            center: [23.68, 90.35], // শুরুতে বাংলাদেশ ও এশিয়ার দিকে ফোকাস
+            center: [31.5, 34.5], // ফিলিস্তিন ও মধ্যপ্রাচ্য ফোকাসড স্টার্টিং পয়েন্ট
             zoom: 4,
             minZoom: 3,
-            maxZoom: 6, // এর বেশি জুম হবে না
+            maxZoom: 5,
             zoomControl: true
         });
 
-        // ২. স্থায়ী স্যাটেলাইট ইমেজ
+        // ২. প্রিমিয়াম স্যাটেলাইট ইমেজ লেয়ার
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Esri, Maxar'
         }).addTo(map);
 
-        // ৩. পৃথিবীর সব দেশের বর্ডার এবং 2D নাম সরাসরি ভূমিতে আঁকা (পপ-আপ ছাড়া)
-        fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+        // ৩. হাই-রেজোলিউশন স্মুথ বর্ডার এবং গেম-স্টাইল ২D টেক্সট রেন্ডারিং
+        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
-            .then(data => {
-                L.geoJSON(data, {
-                    style: function (feature) {
+            .then(geoData => {
+                L.geoJSON(geoData, {
+                    style: function () {
                         return {
-                            color: "#ffaa00", // গেমের মতো বর্ডারের কালার (কমলা/হলুদ)
-                            weight: 1.2,      // বর্ডারের পুরুত্ব
-                            fillColor: "#000000",
-                            fillOpacity: 0.15 // হালকা অন্ধকার শেড
+                            color: "rgba(0, 255, 204, 0.5)", // মসৃণ নিয়ন সায়ান বর্ডার line
+                            weight: 1.2,
+                            fillColor: "transparent",
+                            fillOpacity: 0
                         };
                     },
                     onEachFeature: function (feature, layer) {
-                        let countryName = feature.properties.name;
-                        
-                        // ইসরায়েল/ফিলিস্তিন এরিয়ার নাম কাস্টমাইজ করা
-                        if(countryName === "Israel") {
-                            countryName = "ফিলিস্তিন / ইসরায়েল";
-                        }
+                        if (feature.properties && feature.properties.ADMIN) {
+                            let countryName = feature.properties.ADMIN.toUpperCase();
+                            
+                            // ইসরায়েল/ফিলিস্তিন জোনের পলিগন ফিল্টার
+                            if (countryName === "ISRAEL") return; 
 
-                        // Tooltip ব্যবহার করে সরাসরি পলিগনের মাঝখানে নাম বসানো (কোনো ক্লিক ছাড়া)
-                        layer.bindTooltip(countryName, {
-                            permanent: true,        // সবসময় স্ক্রিনে থাকবে
-                            direction: 'center',    // একদম মাঝখানে
-                            className: 'ground-label'
-                        });
+                            // দেশ অনুযায়ী ফন্টের সাইজ নির্ধারণ (বড় দেশ = বড়, ছোট দেশ = ছোট)
+                            let fontSize = "10px";
+                            if (countryName === "RUSSIA" || countryName === "CHINA" || countryName === "UNITED STATES OF AMERICA" || countryName === "CANADA") {
+                                fontSize = "16px";
+                            } else if (countryName === "INDIA" || countryName === "SAUDI ARABIA" || countryName === "EGYPT" || countryName === "BRAZIL") {
+                                fontSize = "13px";
+                            }
+
+                            let center = layer.getBounds().getCenter();
+
+                            // সরাসরি ভূমিতে ২D নাম প্রিন্ট
+                            L.marker(center, {
+                                icon: L.divIcon({
+                                    className: 'ground-label',
+                                    html: `<span style="font-size: ${fontSize};">${countryName}</span>`,
+                                    iconSize: [140, 30]
+                                }),
+                                interactive: false
+                            }).addTo(map);
+                        }
                     }
                 }).addTo(map);
-            }).catch(err => console.log("বর্ডার লোড হচ্ছে না: ", err));
+            }).catch(err => console.log("Border Load Error: ", err));
 
-        // ৪. গুরুত্বপূর্ণ শহর ও রাজধানীর ডেটা (পপ-আপ ছাড়াই সরাসরি লেখা থাকবে)
-        const cities = [
-            { name: "ঢাকা (রাজধানী)", lat: 23.8103, lng: 90.4125, color: "#ff3333" },
-            { name: "জেরুজালেম (ফিলিস্তিনের রাজধানী)", lat: 31.7683, lng: 35.2137, color: "#ff3333" },
-            { name: "গাজা", lat: 31.5016, lng: 34.4668, color: "#00ffcc" },
-            { name: "নয়াদিল্লি", lat: 28.6139, lng: 77.2090, color: "#ff3333" },
-            { name: "বেইজিং", lat: 39.9042, lng: 116.4074, color: "#ff3333" },
-            { name: "রিয়াদ", lat: 24.7136, lng: 46.6753, color: "#ff3333" },
-            { name: "কায়রো", lat: 30.0444, lng: 31.2357, color: "#ff3333" },
-            { name: "মস্কো", lat: 55.7558, lng: 37.6173, color: "#ff3333" },
-            { name: "ওয়াশিংটন", lat: 38.9072, lng: -77.0369, color: "#ff3333" }
+        // ৪. ফিলিস্তিন রাষ্ট্র এবং গ্লোবাল ট্যাকটিক্যাল শহরের ডেটাবেজ (সম্পূর্ণ ইংরেজি)
+        const tacticalCities = [
+            // ফিলিস্তিন জোন (বিশেষ গুরুত্বসহ আলাদা স্টাইলিংয়ের জন্য)
+            { name: "PALESTINE", lat: 31.95, lng: 35.20, type: "country" },
+            { name: "JERUSALEM (CAPITAL)", lat: 31.7683, lng: 35.2137, type: "capital" },
+            { name: "GAZA", lat: 31.5016, lng: 34.4668, type: "city" },
+            
+            // অন্যান্য বৈশ্বিক শহর ও রাজধানী
+            { name: "DHAKA (CAPITAL)", lat: 23.8103, lng: 90.4125, type: "capital" },
+            { name: "NEW DELHI (CAPITAL)", lat: 28.6139, lng: 77.2090, type: "capital" },
+            { name: "BEIJING (CAPITAL)", lat: 39.9042, lng: 116.4074, type: "capital" },
+            { name: "RIYADH (CAPITAL)", lat: 24.7136, lng: 46.6753, type: "capital" },
+            { name: "CAIRO (CAPITAL)", lat: 30.0444, lng: 31.2357, type: "capital" },
+            { name: "MOSCOW (CAPITAL)", lat: 55.7558, lng: 37.6173, type: "capital" },
+            { name: "WASHINGTON D.C. (CAPITAL)", lat: 38.9072, lng: -77.0369, type: "capital" }
         ];
 
-        // ৫. শহরগুলোকে গেমের মতো রেন্ডার করা (ছোট ডট + পাশের টেক্সট)
-        cities.forEach(city => {
-            // শহরের ডট
-            L.circleMarker([city.lat, city.lng], {
-                radius: 4,
-                color: '#fff',
-                weight: 1,
-                fillColor: city.color,
-                fillOpacity: 1
-            }).addTo(map);
+        // ৫. শহর ও ফিলিস্তিনের নাম আলাদা সাইজে ম্যাপে বসানো
+        tacticalCities.forEach(item => {
+            if (item.type === "country") {
+                // ফিলিস্তিন দেশের নাম ভূমিতে বড় করে ফুটিয়ে তোলা
+                L.marker([item.lat, item.lng], {
+                    icon: L.divIcon({
+                        className: 'ground-label palestine-label',
+                        html: item.name,
+                        iconSize: [150, 30]
+                    }),
+                    interactive: false
+                }).addTo(map);
+            } else {
+                // রাজধানীর জন্য লাল ডট, শহরের জন্য সবুজ ডট
+                let dotColor = (item.type === "capital") ? "#ff3333" : "#00ffcc";
+                let dotRadius = (item.type === "capital") ? 4.5 : 3.5;
 
-            // শহরের নাম (ডটের ঠিক পাশে লেখা থাকবে, কোনো পপআপ না)
-            L.marker([city.lat, city.lng], {
-                icon: L.divIcon({
-                    className: 'city-text',
-                    html: city.name,
-                    iconSize: [120, 20],
-                    iconAnchor: [-8, 8] // ডট থেকে একটু ডানদিকে সরানো
-                }),
-                interactive: false // এতে ক্লিক করা যাবে না, শুধু দেখা যাবে
-            }).addTo(map);
+                L.circleMarker([item.lat, item.lng], {
+                    radius: dotRadius,
+                    color: '#ffffff',
+                    weight: 1,
+                    fillColor: dotColor,
+                    fillOpacity: 1
+                }).addTo(map);
+
+                // ডটের পাশে শহরের নাম (ক্লিক ছাড়া সরাসরি দৃশ্যমান)
+                L.marker([item.lat, item.lng], {
+                    icon: L.divIcon({
+                        className: 'city-text',
+                        html: item.name,
+                        iconSize: [150, 20],
+                        iconAnchor: [-10, 7]
+                    }),
+                    interactive: false
+                }).addTo(map);
+            }
         });
-
     </script>
 </body>
-    </html>
-    
+</html>
