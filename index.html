@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Age 3 - Tactical Overlay System</title>
+    <title>Modern Age 3 - Core Tactical Engine (Permanent Build)</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,7 +24,7 @@
             font-size: 11px;
             z-index: 1000;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-            pointer-events: none; /* যাতে প্যানেলের ওপর ক্লিক না পড়ে */
+            pointer-events: none;
         }
     </style>
 </head>
@@ -33,15 +33,18 @@
     <div id="map"></div>
     
     <div class="hud-panel">
-        <b style="color:#fff;">MODERN AGE III: OVERLAY SYSTEM</b><br><br>
-        • TEXT: DISABLED<br>
-        • BORDERS: INVISIBLE (DEFAULT)<br>
-        • TACTICAL TOUCH: WHITE HIGHLIGHT ON
+        <b style="color:#fff;">MODERN AGE III: CORE ENGINE</b><br><br>
+        • STATUS: ACTIVE (PERMANENT)<br>
+        • TEXT LAYER: BYPASS<br>
+        • OVERLAY: DYNAMIC WHITE HIGHLIGHT<br>
+        • BACKUP ENGINE: ONLINE
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ১. কোর ইঞ্জিন চালুকরণ (জুম লেভেল ৩ থেকে ৫-এ লকড)
+        // ==========================================
+        // ১. কোর ম্যাপ ইঞ্জিন কনফিগারেশন (স্থায়ী লক)
+        // ==========================================
         const map = L.map('map', {
             center: [25.0, 40.0],
             zoom: 4,
@@ -51,64 +54,94 @@
             maxBoundsViscosity: 1.0
         });
 
-        // ২. পরিষ্কার স্যাটেলাইট ইমেজ লেয়ার
+        // স্যাটেলাইট বেস লেয়ার
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Esri, Maxar'
         }).addTo(map);
 
-        // ৩. ইন্টারেক্টিভ অদৃশ্য বর্ডার ইঞ্জিন
+        // ==========================================
+        // ২. বর্ডার স্টাইলিং আর্কিটেকচার
+        // ==========================================
         let geojsonLayer;
 
-        // ডিফল্ট স্টাইল (অদৃশ্য বর্ডার)
-        const defaultStyle = {
+        // ডিফল্ট অদৃশ্য বর্ডার স্টাইল
+        const invisibleStyle = {
             color: "transparent",
             weight: 0,
             fillOpacity: 0
         };
 
-        // টাচ বা ক্লিক করলে যে স্টাইল হবে (সাদা স্মুথ বর্ডার)
-        const highlightStyle = {
-            color: "#ffffff",     // একদম সলিড সাদা রেখা
-            weight: 1.5,          // অত্যন্ত স্মুথ রেখা
+        // টাচ বা ক্লিক করলে সলিড সাদা বর্ডার ও হালকা ইন-গ্লো স্টাইল
+        const tacticalHighlightStyle = {
+            color: "#ffffff",     // সলিড সাদা রেখা
+            weight: 1.5,          // প্রফেশনাল ১.৫ পিক্সেল শার্পনেস
             fillColor: "#ffffff", 
-            fillOpacity: 0.1      // ভেতরের অংশে হালকা সাদা গ্লো
+            fillOpacity: 0.1      // ১০% অভ্যন্তরীণ সাদা গ্লো
         };
 
-        // হাই-রেজোলিউশন ভেক্টর ডাটাবেজ ফেচ করা
-        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
-            .then(res => res.json())
-            .then(geoData => {
-                geojsonLayer = L.geoJSON(geoData, {
-                    style: defaultStyle, // ম্যাপ লোড হওয়ার সময় সব অদৃশ্য থাকবে
-                    onEachFeature: function (feature, layer) {
+        // ==========================================
+        // ৩. ইন্টারেকশন ও রেন্ডারিং ফাংশন
+        // ==========================================
+        function initializeMapLayer(geoData) {
+            // যদি আগে কোনো লেয়ার থেকে থাকে তা রিমুভ করে ফ্রেস রেন্ডার করবে
+            if (geojsonLayer) {
+                map.removeLayer(geojsonLayer);
+            }
+
+            geojsonLayer = L.geoJSON(geoData, {
+                style: invisibleStyle,
+                onEachFeature: function (feature, layer) {
+                    layer.on('click', function (e) {
+                        L.DomEvent.stopPropagation(e); // ইভেন্ট বাবলিং ফিক্সড (ক্লিক বাইরে ছড়াবে না)
                         
-                        // টাচ/ক্লিক ইভেন্ট লিসেনার
-                        layer.on('click', function (e) {
-                            L.DomEvent.stopPropagation(e); // ফিক্স: ক্লিক ইভেন্ট ম্যাপে ছড়ানো বন্ধ করা হলো
-                            
-                            // নতুন দেশে টাচ করার সাথে সাথে আগের সব বর্ডার আবার অদৃশ্য হয়ে যাবে
-                            geojsonLayer.resetStyle();
-                            
-                            // যে দেশে টাচ করা হয়েছে, শুধু সেটি হাইলাইট হবে
-                            layer.setStyle(highlightStyle);
-                            
-                            // হাইলাইট করা বর্ডারটিকে সবার ওপরে নিয়ে আসা
-                            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                                layer.bringToFront();
-                            }
-                        });
-                    }
-                }).addTo(map);
-                
-                // ম্যাপের ফাঁকা জায়গায় (সাগরে) ক্লিক করলে সিলেকশন মুছে যাবে
-                map.on('click', function(e) {
-                    if (geojsonLayer) {
-                        geojsonLayer.resetStyle();
+                        geojsonLayer.resetStyle(); // আগের সিলেক্টেড দেশের বর্ডার রি-হাইড
+                        layer.setStyle(tacticalHighlightStyle); // বর্তমান দেশকে হাইলাইট
+                        
+                        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                            layer.bringToFront(); // বর্ডার লাইন সবার ওপরে ফুটিয়ে তুলবে
+                        }
+                    });
+                }
+            }).addTo(map);
+        }
+
+        // সাগরের ফাঁকা জায়গায় ক্লিক করলে বর্ডার সিলেকশন ক্লিয়ার করার গ্লোবাল লিসেনার
+        map.on('click', function(e) {
+            if (geojsonLayer) {
+                geojsonLayer.resetStyle();
+            }
+        });
+
+        // ==========================================
+        // ৪. অফলাইন ও স্বয়ংক্রিয় ব্যাকআপ ডেটা ইঞ্জিন (Dual-Layer Core)
+        // ==========================================
+        const localSource = './countries.geojson'; // লোকাল/অফলাইন ফাইল পাথ
+        const backupSource = 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson'; // গ্লোবাল ক্লাউড ব্যাকআপ
+
+        function loadTacticalDatabase(url, isBackupSystem = false) {
+            fetch(url)
+                .then(res => {
+                    if (!res.ok) throw new Error("Source Offline/Missing");
+                    return res.json();
+                })
+                .then(data => {
+                    initializeMapLayer(data);
+                    console.log(isBackupSystem ? "Core Engine: Loaded via Cloud Backup System." : "Core Engine: Loaded via Offline Local Repository.");
+                })
+                .catch(err => {
+                    if (!isBackupSystem) {
+                        console.warn("Local Map Data Missing. Activating Automatic Cloud Backup Layer...");
+                        loadTacticalDatabase(backupSource, true); // লোকাল ফেইল করলে অটোমেটিক ব্যাকআপ চালু
+                    } else {
+                        console.error("Critical Error: Core Tactical Database could not be initialized.");
                     }
                 });
+        }
 
-            }).catch(err => console.log("Border Engine Error: ", err));
+        // কোর ইঞ্জিন এক্সিকিউশন
+        loadTacticalDatabase(localSource);
 
     </script>
 </body>
-</html>
+    </html>
+    
