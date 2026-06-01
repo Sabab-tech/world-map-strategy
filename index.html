@@ -1,60 +1,127 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
     <meta charset="UTF-8">
-    <title>Modern Age 3 - Tactical Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Age 3 - Baked Text Engine</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; background: #0b1015; }
-        #map { height: 100vh; background: #0b1015; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #050b14; }
+        #map { width: 100%; height: 100vh; background-color: #050b14; }
         
-        /* গেমের মতো টেক্সট স্টাইল */
-        .country-label {
-            color: #ffffff;
-            font-family: 'Roboto Condensed', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            text-shadow: 1px 1px 2px #000, 0 0 5px rgba(0,0,0,0.5);
+        /* গেমের মতো ব্লেন্ডেড টেক্সট স্টাইল */
+        .country-text-container {
+            background: transparent !important;
+            border: none !important;
             pointer-events: none;
-            text-align: center;
-            opacity: 0.85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+        }
+
+        .country-name {
+            color: rgba(255, 255, 255, 0.75); /* গেমের মতো মিউটেড সাদা, যা মাটির সাথে মিশে থাকে */
+            font-family: 'Arial', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            /* হালকা শ্যাডো দিয়ে মাটির সাথে ব্লেন্ড করা */
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.8), -1px -1px 1px rgba(0,0,0,0.4);
+            white-space: nowrap;
+            transform-origin: center center;
+            transition: transform 0.1s linear; /* জুম করার সময় স্মুথ ট্রানজিশন */
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ক্যানভাস রেন্ডারার ব্যবহার করে স্মুথ বর্ডার
-        const map = L.map('map', { 
-            center: [20, 0], zoom: 3, 
-            renderer: L.canvas() 
+        const map = L.map('map', {
+            center: [25.0, 40.0],
+            zoom: 3, // বেস জুম লেভেল ৩
+            minZoom: 3,
+            maxZoom: 5,
+            zoomSnap: 0.1 // স্মুথ জুমের জন্য
         });
 
-        // স্যাটেলাইট লুক
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
-            attribution: 'Map'
+        // আপনার পছন্দের ডার্ক স্যাটেলাইট ম্যাপ (সাদা ম্যাপ ফিক্স করা হয়েছে)
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Esri',
+            maxZoom: 8
         }).addTo(map);
 
+        let geojsonLayer;
+
+        function initializeMap(geoData) {
+            geojsonLayer = L.geoJSON(geoData, {
+                style: { 
+                    color: "rgba(255, 255, 255, 0.4)", // গেমের মতো হালকা সাদা বর্ডার
+                    weight: 1.2, 
+                    fillOpacity: 0 
+                },
+                onEachFeature: function (feature, layer) {
+                    let name = (feature.properties.ADMIN || feature.properties.name || "").toUpperCase();
+                    if (name === "UNITED STATES OF AMERICA") name = "USA";
+                    if (name === "RUSSIAN FEDERATION") name = "RUSSIA";
+                    if (name === "DEMOCRATIC REPUBLIC OF THE CONGO") name = "DR CONGO";
+
+                    // এরিয়া অনুযায়ী বেস সাইজ ক্যালকুলেশন
+                    let bounds = layer.getBounds();
+                    let area = (bounds.getNorth() - bounds.getSouth()) * (bounds.getEast() - bounds.getWest());
+                    
+                    // বেস জুম (৩) এর জন্য ফন্ট সাইজ নির্ধারণ (ছোট দেশের জন্য ৬, বড় দেশের জন্য ১৪)
+                    let baseFontSize = Math.min(Math.max(area * 0.5, 6), 14);
+
+                    let icon = L.divIcon({
+                        className: 'country-text-container',
+                        html: `<span class="country-name" data-base-size="${baseFontSize}" style="font-size: ${baseFontSize}px;">${name}</span>`,
+                        iconSize: [0, 0] // জিরো সাইজ দিয়ে একদম সেন্টারে লক করা
+                    });
+
+                    L.marker(bounds.getCenter(), { icon: icon, interactive: false }).addTo(map);
+
+                    // বর্ডার হাইলাইট ক্লিক লজিক
+                    layer.on('click', function(e) {
+                        L.DomEvent.stopPropagation(e);
+                        geojsonLayer.resetStyle();
+                        layer.setStyle({ color: "#ffffff", weight: 2, fillOpacity: 0.1 });
+                    });
+                }
+            }).addTo(map);
+            
+            // প্রথমবার লোডের সময় টেক্সট স্কেল আপডেট করা
+            updateTextScale();
+        }
+
+        // --- কোর ইঞ্জিন: ম্যাট্রিক্স স্কেলিং (মাটির সাথে লেখা আটকে রাখার লজিক) ---
+        function updateTextScale() {
+            let currentZoom = map.getZoom();
+            // বেস জুম ৩। জুম বাড়লে লেখা ম্যাপের সাথেই জ্যামিতিক হারে বড় হবে
+            let scaleMultiplier = Math.pow(2, currentZoom - 3); 
+
+            document.querySelectorAll('.country-name').forEach(span => {
+                span.style.transform = `scale(${scaleMultiplier})`;
+            });
+        }
+
+        // জুম করার সময় এবং জুম শেষ হলে স্কেল আপডেট করা
+        map.on('zoom', updateTextScale);
+        map.on('zoomend', updateTextScale);
+
+        map.on('click', function() {
+            if (geojsonLayer) geojsonLayer.resetStyle();
+        });
+
+        // ডেটা লোড
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
-            .then(data => {
-                L.geoJSON(data, {
-                    style: { color: "#ffffff", weight: 0.8, fillOpacity: 0.1 },
-                    onEachFeature: function (feature, layer) {
-                        let name = feature.properties.ADMIN.toUpperCase();
-                        let center = layer.getBounds().getCenter();
-                        
-                        L.marker(center, {
-                            icon: L.divIcon({
-                                className: 'country-label',
-                                html: `<div style="font-size: 10px;">${name}</div>`,
-                                iconSize: [100, 20]
-                            })
-                        }).addTo(map);
-                    }
-                }).addTo(map);
-            });
+            .then(data => initializeMap(data));
+
     </script>
 </body>
 </html>
