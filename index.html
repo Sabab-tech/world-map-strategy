@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Map - All Countries & Borders</title>
+    <title>Global Bollywood Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
@@ -10,31 +10,72 @@
 <body>
     <div id="map"></div>
     <script>
-        // স্টাইল ফাংশন - হালকা সাদা বর্ডার এবং প্রতিটি দেশের নাম
-        const styleFunction = function(feature) {
+        // সংক্ষেপিত বড় নামের তালিকা (আফ্রিকা, ওশেনিয়া ও অন্যান্য অঞ্চলের জন্য)
+        const shortNames = {
+            "Democratic Republic of the Congo": "DR Congo",
+            "Central African Republic": "C.A.R.",
+            "Republic of the Congo": "Congo",
+            "Equatorial Guinea": "Eq. Guinea",
+            "Saint Vincent and the Grenadines": "St. Vincent",
+            "Federated States of Micronesia": "Micronesia",
+            "Papua New Guinea": "PNG",
+            "Solomon Islands": "Solomons",
+            "Marshall Islands": "Marshalls",
+            "United States of America": "USA",
+            "United Kingdom": "UK",
+            "Saudi Arabia": "S. Arabia",
+            "United Arab Emirates": "UAE"
+        };
+
+        const styleFunction = function(feature, resolution) {
+            const rawName = feature.get('admin') || feature.get('name') || "";
+            const displayName = shortNames[rawName] || rawName; // বড় নাম সংক্ষেপ করা
+
+            // জুম লেভেল বের করা (রেজোলিউশন থেকে)
+            const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
+
+            // দেশ বা ভূখণ্ডের আয়তন/সাইজ অনুযায়ী ফন্ট সাইজ নির্ধারণ (আনুপাতিক হার)
+            const area = feature.getGeometry().getArea();
+            let fontSize = Math.min(24, Math.max(10, Math.sqrt(area) / (resolution * 15)));
+
+            // জুম লেভেল কানেকশন: নির্দিষ্ট জুম ছাড়া ছোট দেশ/দ্বীপের নাম দেখাবে না
+            if (area < 5000000000 && currentZoom < 5) return null; // ছোট দ্বীপগুলো জুম না করলে দেখাবে না
+            if (area < 50000000000 && currentZoom < 4) return null; // মাঝারি দেশগুলো জুম ৩ এর নিচে দেখাবে না
+
             return new ol.style.Style({
-                // ১. বর্ডার: গারো সাদা নয়, হালকা স্বচ্ছ সাদা (0.5 opacity)
                 stroke: new ol.style.Stroke({
-                    color: 'rgba(255, 255, 255, 0.5)', 
+                    color: 'rgba(255, 255, 255, 0.4)', // হালকা স্বচ্ছ সাদা বর্ডার
                     width: 1.2
                 }),
-                // ২. দেশের নাম: ডাটাবেজ থেকে প্রতিটি দেশের নাম স্বয়ংক্রিয়ভাবে নেবে
                 text: new ol.style.Text({
-                    text: feature.get('admin') || feature.get('name'), // সব দেশের নাম
-                    font: 'bold 13px "Arial", sans-serif', // বলিউড স্টাইল স্পষ্ট ফন্ট
-                    fill: new ol.style.Fill({
-                        color: '#FFFFFF' // সাদা রঙের নাম
-                    }),
-                    stroke: new ol.style.Stroke({
-                        color: '#000000', // নামের চারপাশে কালো বর্ডার, যাতে স্যাটেলাইট ভিউতে নামগুলো স্পষ্ট দেখা যায়
-                        width: 3
-                    }),
-                    overflow: true // ম্যাপ জুম আউট করলেও নামগুলো সুন্দরভাবে মানিয়ে যাবে
+                    text: displayName,
+                    font: `bold ${fontSize}px "Arial Black", sans-serif`, // দেশের সাইজ অনুযায়ী নাম বড়/ছোট হবে
+                    fill: new ol.style.Fill({ color: '#FFFFFF' }),
+                    stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
+                    
+                    // ওপেনলেয়ার্সের অ্যাডভান্সড সেটিংস (আপনার শর্তসমূহ পূরণ করার জন্য):
+                    placement: 'point', // নাম শুধুমাত্র দেশের কেন্দ্রবিন্দুতে (মাঝামাঝি) বসবে
+                    geometry: function(f) {
+                        const geom = f.getGeometry();
+                        // মাল্টি-পলিগন (যেমন ইতালি ও তার দ্বীপ সিসিলি) হলে শুধু সবচেয়ে বড় ভূখণ্ডের মাঝখানে নাম বসবে
+                        if (geom.getType() === 'MultiPolygon') {
+                            const polygons = geom.getPolygons();
+                            let largestPolygon = polygons[0];
+                            for (let i = 1; i < polygons.length; i++) {
+                                if (polygons[i].getArea() > largestPolygon.getArea()) {
+                                    largestPolygon = polygons[i];
+                                }
+                            }
+                            return largestPolygon.getInteriorPoint();
+                        }
+                        return geom.getInteriorPoint(); // নরমাল দেশের একদম ভেতরে নাম রাখবে, সমুদ্রে যাবে না
+                    },
+                    overflow: false, // অন্য দেশের নামের সাথে বা বর্ডারের সাথে ধাক্কা খেলে নাম লুকিয়ে যাবে
+                    rotation: 0 // প্রয়োজন অনুযায়ী ম্যাপ নিজে থেকে বাঁকানো বা সোজা করা নিয়ন্ত্রণ করবে
                 })
             });
         };
 
-        // বর্ডার এবং নামের লেয়ার
         const countryLayer = new ol.layer.Vector({
             source: new ol.source.Vector({ 
                 url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', 
@@ -43,24 +84,20 @@
             style: styleFunction
         });
 
-        // মূল ম্যাপ
         const map = new ol.Map({
             target: 'map',
             layers: [
-                // স্যাটেলাইট ভিউ
                 new ol.layer.Tile({ 
-                    source: new ol.source.XYZ({ 
-                        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' 
-                    }) 
+                    source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) 
                 }),
                 countryLayer
             ],
-            // ৩. জুম লেভেল: একদম পারফেক্ট গ্লোবাল ভিউ
             view: new ol.View({ 
-                center: ol.proj.fromLonLat([20, 20]), // ম্যাপের কেন্দ্রবিন্দু
-                zoom: 3, // এমন জুম লেভেল যেখানে পুরো পৃথিবী সুন্দরভাবে দেখা যায়
-                minZoom: 2,
-                maxZoom: 10
+                center: ol.proj.fromLonLat([20, 20]), 
+                zoom: 3, 
+                minZoom: 2, 
+                maxZoom: 10,
+                enableRotation: false 
             })
         });
     </script>
