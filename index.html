@@ -2,62 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Tactical Map Final</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfect World Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #0b1521; }
-        #map { width: 100vw; height: 100vh; }
+        body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }
     </style>
 </head>
 <body>
     <div id="map"></div>
-
     <script>
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
-
-        const vectorSource = new ol.source.Vector({
-            url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
-            format: new ol.format.GeoJSON()
-        });
-
         const map = new ol.Map({
             target: 'map',
             layers: [
-                new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', preload: Infinity }) }),
+                new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) }),
                 new ol.layer.Vector({
-                    source: vectorSource,
-                    style: (feature, resolution) => {
-                        const name = feature.get('ADMIN') || '';
-                        const zoom = Math.log2(156543.03392 / resolution);
-                        
-                        // লেবানন ও অন্যান্য দেশের জন্য ফিক্সড রোটেশন ও স্মার্ট সাইজিং
-                        let rotation = 0;
-                        if (name === "Lebanon") rotation = -1.35;
-                        else if (name === "Chile") rotation = -1.45;
-                        else if (name === "Vietnam") rotation = -1.15;
-                        else if (name === "Norway") rotation = -1.25;
-
-                        let fontSize = 10 + (zoom - 3.8) * 3;
-                        if (fontSize > 24) fontSize = 24;
-
-                        return new ol.style.Style({
-                            stroke: new ol.style.Stroke({ color: '#ffffff', width: 1.4 }),
-                            text: new ol.style.Text({
-                                text: zoom > 4 ? name.toUpperCase() : "",
-                                font: `bold ${fontSize}px "Arial Black", sans-serif`,
-                                fill: new ol.style.Fill({ color: '#fff' }),
-                                stroke: new ol.style.Stroke({ color: '#000', width: 3.5 }),
-                                rotation: rotation,
-                                overflow: false
-                            })
-                        });
-                    }
+                    source: new ol.source.Vector({
+                        url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
+                        format: new ol.format.GeoJSON()
+                    }),
+                    style: (feature) => new ol.style.Style({
+                        stroke: new ol.style.Stroke({ color: '#ffffff', width: 1 }),
+                        text: new ol.style.Text({
+                            text: (feature.get('ADMIN') || '').toUpperCase(),
+                            font: 'bold 14px Arial, sans-serif',
+                            fill: new ol.style.Fill({ color: '#ffffff' }),
+                            stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
+                            placement: 'point',
+                            textAlign: 'center'
+                        })
+                    })
                 })
             ],
-            view: new ol.View({ center: ol.proj.fromLonLat([25, 42]), zoom: 3.8, minZoom: 3.8, maxZoom: 8.5, enableRotation: false })
+            view: new ol.View({ center: [0, 0], zoom: 2.5 })
         });
     </script>
 </body>
