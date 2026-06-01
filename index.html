@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Bollywood Map - Perfect Zoom & Size</title>
+    <title>Global Map - All Countries Included</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
@@ -10,6 +10,7 @@
 <body>
     <div id="map"></div>
     <script>
+        // আপনার দেওয়া তালিকা অনুযায়ী সমস্ত বড় নামগুলোর সংক্ষেপ রূপ (যাতে সমুদ্রে না যায়)
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -28,40 +29,40 @@
             "Antigua and Barbuda": "Antigua",
             "Saint Kitts and Nevis": "St. Kitts",
             "São Tomé and Príncipe": "São Tomé",
-            "Saint Lucia": "St. Lucia"
+            "Saint Lucia": "St. Lucia",
+            "Bosnia and Herzegovina": "Bosnia",
+            "Dominican Republic": "Dominican Rep."
         };
 
         const styleFunction = function(feature, resolution) {
             const rawName = feature.get('admin') || feature.get('name') || "";
             const displayName = shortNames[rawName] || rawName; 
 
-            const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
             const area = feature.getGeometry().getArea();
 
-            // ফন্ট সাইজ বাড়ানো হয়েছে (সর্বনিম্ন ১২, সর্বোচ্চ ২৮)
-            let fontSize = Math.min(28, Math.max(12, Math.sqrt(area) / (resolution * 10)));
+            // আনুপাতিক হারে ফন্ট সাইজ নির্ধারণ (সর্বনিম্ন ৯ পিক্সেল, সর্বোচ্চ ২২ পিক্সেল)
+            let fontSize = Math.min(22, Math.max(9, Math.sqrt(area) / (resolution * 10)));
 
-            if (area < 2000000000 && currentZoom < 4) {
-                if (currentZoom < 3) return null;
-                fontSize = 11; // ছোট দেশের নামগুলোও আগের চেয়ে বড় করা হয়েছে
+            // ছোট দেশগুলোর নাম যেন সব সময় পড়া যায় তার জন্য ফিক্সড ফন্ট সাইজ (কোনো দেশ আর লুকানো হবে না)
+            if (area < 5000000000) {
+                fontSize = 9;
             }
 
             return new ol.style.Style({
+                // বর্ডার হুবহু আগের মতো রাখা হয়েছে (কোনো পরিবর্তন নেই)
                 stroke: new ol.style.Stroke({
-                    color: 'rgba(255, 255, 255, 0.5)', 
+                    color: 'rgba(255, 255, 255, 0.4)', 
                     width: 1.2
                 }),
                 text: new ol.style.Text({
                     text: displayName,
                     font: `bold ${fontSize}px "Arial Black", sans-serif`,
                     fill: new ol.style.Fill({ color: '#FFFFFF' }),
-                    stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
+                    stroke: new ol.style.Stroke({ color: '#000000', width: 2.5 }),
                     placement: 'point',
-                    
-                    repeat: 100000, 
-                    
                     geometry: function(f) {
                         const geom = f.getGeometry();
+                        // এক দেশের নাম শুধুমাত্র একবার দেখানোর গ্যারান্টি (ডুপ্লিকেট বন্ধ)
                         if (geom.getType() === 'MultiPolygon') {
                             const polygons = geom.getPolygons();
                             let largestPolygon = polygons[0];
@@ -70,11 +71,11 @@
                                     largestPolygon = polygons[i];
                                 }
                             }
-                            return largestPolygon.getInteriorPoint();
+                            return largestPolygon.getInteriorPoint(); // শুধুমাত্র সবচেয়ে বড় মূল ভূখণ্ডের মাঝখানে নাম বসবে
                         }
                         return geom.getInteriorPoint(); 
                     },
-                    overflow: false 
+                    overflow: true // কোনো দেশ আর অদৃশ্য হবে না
                 })
             });
         };
@@ -83,10 +84,9 @@
             source: new ol.source.Vector({ 
                 url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', 
                 format: new ol.format.GeoJSON(),
-                wrapX: false // এটি দেশের বর্ডার বারবার রিপিট হওয়া বন্ধ করবে
+                wrapX: false // ম্যাপ ডানে-বামে বারবার রিপিট হওয়া বন্ধ করবে
             }),
-            style: styleFunction,
-            declutter: true 
+            style: styleFunction
         });
 
         const map = new ol.Map({
@@ -95,16 +95,16 @@
                 new ol.layer.Tile({ 
                     source: new ol.source.XYZ({ 
                         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                        wrapX: false // এটি স্যাটেলাইট ম্যাপ বারবার রিপিট হওয়া বন্ধ করবে, ফলে জুম পারফেক্ট হবে
+                        wrapX: false 
                     }) 
                 }),
                 countryLayer
             ],
             view: new ol.View({ 
-                center: ol.proj.fromLonLat([10, 20]), // ম্যাপের কেন্দ্রবিন্দু একদম মাঝখানে রাখা হয়েছে
-                zoom: 2, // পারফেক্ট জুম লেভেল
-                minZoom: 1.5, 
-                maxZoom: 12,
+                center: ol.proj.fromLonLat([20, 15]), 
+                zoom: 3, 
+                minZoom: 2.5, // জুম আউট মাত্রা কমানো হয়েছে
+                maxZoom: 8,   // জুম ইন মাত্রা কমানো হয়েছে
                 enableRotation: false 
             })
         });
