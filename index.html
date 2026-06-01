@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Advanced Tactical Map</title>
+    <title>Modern Age 3 - Clean Tactical Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -14,12 +14,6 @@
 <body>
     <div id="map"></div>
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                for (let r of registrations) { r.unregister(); }
-            });
-        }
-
         const map = new ol.Map({
             target: 'map',
             layers: [
@@ -36,121 +30,47 @@
                         format: new ol.format.GeoJSON()
                     }),
                     style: function (feature, resolution) {
-                        let rawName = feature.get('ADMIN') || feature.get('name') || feature.get('NAME') || '';
+                        let name = feature.get('ADMIN') || feature.get('name') || '';
                         const zoom = Math.log2(156543.03392 / resolution);
 
-                        // আপনার লিস্ট অনুযায়ী গ্লোবাল স্ট্যান্ডার্ড সংক্ষেপকরণ ইঞ্জিন
-                        let name = rawName;
-                        if (rawName.includes("Democratic Republic of the Congo")) name = "DR CONGO";
-                        else if (rawName.includes("Congo (Democratic Republic of the)")) name = "DR CONGO";
-                        else if (rawName.includes("Republic of the Congo")) name = "CONGO";
-                        else if (rawName.includes("Central African Republic")) name = "CAR";
-                        else if (rawName.includes("Tanzania")) name = "TANZANIA";
-                        else if (rawName.includes("Equatorial Guinea")) name = "EQ. GUINEA";
-                        else if (rawName.includes("Bosnia and Herzegovina")) name = "BOSNIA";
-                        else if (rawName.includes("Czech Republic")) name = "CZECHIA";
-                        else if (rawName.includes("Switzerland")) name = "SWISS";
-                        else if (rawName.includes("North Macedonia")) name = "N. MACEDONIA";
-                        else if (rawName.includes("Luxembourg")) name = "LUX";
-                        else if (rawName.includes("Liechtenstein")) name = "LIECH";
-                        else if (rawName.includes("United Kingdom")) name = "UK";
-                        else if (rawName.includes("United Arab Emirates")) name = "UAE";
-                        else if (rawName.includes("Dominican Republic")) name = "DOMINICAN REP";
-                        else if (rawName.includes("United States of America")) name = "USA";
-                        
-                        // ওশেনিয়া ও দ্বীপ অঞ্চল ফিল্টার
-                        else if (rawName.includes("Federated States of Micronesia")) name = "F.S. MICRONESIA";
-                        else if (rawName.includes("Micronesia")) name = "MICRONESIA";
-                        else if (rawName.includes("Solomon Islands")) name = "SOLOMON IS.";
-                        else if (rawName.includes("Marshall Islands")) name = "MARSHALL IS.";
-                        else if (rawName.includes("Papua New Guinea")) name = "PNG";
-                        else if (rawName.includes("New Caledonia")) name = "NEW CALEDONIA";
-                        else if (rawName.includes("Fiji")) name = "FIJI";
-                        else if (rawName.includes("Vanuatu")) name = "VANUATU";
-                        else if (rawName.includes("Bahamas")) name = "BAHAMAS";
+                        // ১. ফালতু ও অপ্রয়োজনীয় এলাকা ব্ল্যাকলিস্ট (মুছে ফেলা হবে)
+                        const blacklist = ["British Indian Ocean Territory", "Christmas Island", "Cocos Islands", "Norfolk Island", "Niue", "Tokelau", "Pitcairn", "Palestine", "Western Sahara"];
+                        if (blacklist.includes(name)) return null;
 
-                        // ডিফল্ট বর্ডার স্টাইল (হালকা সাদা)
+                        // নাম সংক্ষেপকরণ ও পরিষ্কারকরণ
+                        if (name === "Democratic Republic of the Congo") name = "DR CONGO";
+                        else if (name === "United Kingdom") name = "UK";
+                        else if (name === "United States of America") name = "USA";
+
+                        // ২. কড়া জুম লজিক (ছোট দেশগুলো শুধু ৬.০ জুমের পর আসবে)
+                        const smallCountries = ["LUX", "LIECH", "Singapore", "Qatar", "Kuwait", "Fiji", "Vanuatu", "Solomon Islands", "Marshall Islands"];
+                        if (zoom < 6.0 && smallCountries.includes(name)) return null; 
+
+                        // ৩. বর্ডার স্টাইল (খুবই সূক্ষ্ম)
                         const borderStyle = new ol.style.Style({
-                            stroke: new ol.style.Stroke({
-                                color: 'rgba(255, 255, 255, 0.45)', 
-                                width: 1.4
-                            })
+                            stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.3)', width: 1.0 })
                         });
 
-                        // স্মার্ট জুম কন্ট্রোল: ছোট দেশ ও দ্বীপগুলোর নাম দূরে থাকলে সম্পূর্ণ হাইড থাকবে
-                        const ultraSmall = ["LUX", "LIECH", "F.S. MICRONESIA", "MICRONESIA", "SOLOMON IS.", "MARSHALL IS.", "FIJI", "VANUATU", "NEW CALEDONIA", "BAHAMAS", "Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore"];
-                        if (zoom < 5.2 && ultraSmall.includes(name)) {
-                            return borderStyle; 
+                        // যদি নাম না দেখানোর শর্ত থাকে, শুধু বর্ডার দেখাবে
+                        if (zoom < 4.5 && !["USA", "UK", "China", "India", "Brazil", "Russia", "Australia"].includes(name)) {
+                            return borderStyle;
                         }
-
-                        const mediumSmall = ["BOSNIA", "N. MACEDONIA", "SWISS", "CZECHIA", "EQ. GUINEA", "UAE", "Bangladesh"];
-                        if (zoom < 4.6 && mediumSmall.includes(name)) {
-                            return borderStyle; 
-                        }
-
-                        // হলিউд স্টাইল বড় ফন্ট
-                        let fontSize = 12 + (zoom - 3.8) * 4;
-                        if (fontSize > 25) fontSize = 25;
-                        if (fontSize < 11) fontSize = 11;
-
-                        // লম্বালম্বি দেশের রোটেশন
-                        let textRotation = 0;
-                        if (name === "Lebanon") textRotation = -1.35; 
-                        else if (name === "Chile") textRotation = -1.45;
-                        else if (name === "Vietnam") textRotation = -1.15;
-                        else if (name === "Norway") textRotation = -1.25;
 
                         const textStyle = new ol.style.Style({
                             text: new ol.style.Text({
                                 text: name.toUpperCase(),
-                                font: `900 ${fontSize}px "Impact", "Arial Black", sans-serif`,
+                                font: `900 ${11 + (zoom-4)*2}px "Impact", sans-serif`,
                                 fill: new ol.style.Fill({ color: '#ffffff' }),
-                                stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }),
-                                rotation: textRotation,
+                                stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
                                 placement: 'point',
-                                textAlign: 'center',
-                                textBaseline: 'middle',
-                                overflow: false // বর্ডারের বাইরে নাম যাওয়া কঠোরভাবে নিষিদ্ধ
+                                textAlign: 'center'
                             })
                         });
 
-                        // বিশেষ ইউরোপীয় দেশের মেইনল্যান্ড লোকেশন লক
-                        if (name === "Italy") {
-                            textStyle.setGeometry(new ol.geom.Point(ol.proj.fromLonLat([12.6, 42.5])));
-                            return [borderStyle, textStyle];
-                        }
-                        if (name === "France") {
-                            textStyle.setGeometry(new ol.geom.Point(ol.proj.fromLonLat([2.2, 46.2])));
-                            return [borderStyle, textStyle];
-                        }
-                        if (name === "UK") {
-                            textStyle.setGeometry(new ol.geom.Point(ol.proj.fromLonLat([-2.5, 54.5])));
-                            return [borderStyle, textStyle];
-                        }
-
-                        // সুরক্ষিত কন্টেইনমেন্ট লজিক (নাম যেন সাগরে না যায়)
+                        // সীমানার বাইরে যাওয়া বন্ধ করা
                         const geom = feature.getGeometry();
                         if (geom) {
-                            try {
-                                if (geom.getType() === 'MultiPolygon') {
-                                    const polygons = geom.getPolygons();
-                                    let maxArea = 0;
-                                    let mainPolygon = polygons[0];
-                                    
-                                    for (let i = 0; i < polygons.length; i++) {
-                                        const area = polygons[i].getArea();
-                                        if (area > maxArea) {
-                                            maxArea = area;
-                                            mainPolygon = polygons[i];
-                                        }
-                                    }
-                                    textStyle.setGeometry(mainPolygon.getInteriorPoint());
-                                } else if (geom.getType() === 'Polygon') {
-                                    textStyle.setGeometry(geom.getInteriorPoint());
-                                }
-                            } catch (e) {
-                                return borderStyle;
-                            }
+                            textStyle.setGeometry(geom.getInteriorPoint());
                         }
 
                         return [borderStyle, textStyle];
@@ -163,8 +83,7 @@
                 minZoom: 3.8,
                 maxZoom: 8.5,
                 enableRotation: false
-            }),
-            controls: []
+            })
         });
     </script>
 </body>
