@@ -1,0 +1,10 @@
+{
+  "Bangladesh": [{"n": "Dhaka", "c": [90.41, 23.81], "t": "cap"}, {"n": "Chattogram", "c": [91.83, 22.35], "t": "city"}, {"n": "Sylhet", "c": [91.86, 24.89], "t": "city"}, {"n": "Khulna", "c": [89.54, 22.81], "t": "city"}],
+  "Bahrain": [{"n": "Manama", "c": [50.58, 26.22], "t": "cap"}, {"n": "Riffa", "c": [50.56, 26.12], "t": "city"}, {"n": "Muharraq", "c": [50.61, 26.25], "t": "city"}],
+  "India": [{"n": "New Delhi", "c": [77.20, 28.61], "t": "cap"}, {"n": "Mumbai", "c": [72.87, 19.07], "t": "city"}, {"n": "Kolkata", "c": [88.36, 22.57], "t": "city"}, {"n": "Bangalore", "c": [77.59, 12.97], "t": "city"}],
+  "USA": [{"n": "Washington D.C.", "c": [-77.03, 38.90], "t": "cap"}, {"n": "New York", "c": [-74.00, 40.71], "t": "city"}, {"n": "Los Angeles", "c": [-118.24, 34.05], "t": "city"}, {"n": "Chicago", "c": [-87.62, 41.87], "t": "city"}],
+  "Saudi Arabia": [{"n": "Riyadh", "c": [46.73, 24.71], "t": "cap"}, {"n": "Jeddah", "c": [39.19, 21.48], "t": "city"}, {"n": "Mecca", "c": [39.82, 21.42], "t": "city"}],
+  "Russia": [{"n": "Moscow", "c": [37.62, 55.75], "t": "cap"}, {"n": "St. Petersburg", "c": [30.31, 59.93], "t": "city"}, {"n": "Novosibirsk", "c": [82.92, 55.00], "t": "city"}],
+  "China": [{"n": "Beijing", "c": [116.40, 39.90], "t": "cap"}, {"n": "Shanghai", "c": [121.47, 31.23], "t": "city"}, {"n": "Guangzhou", c: [113.26, 23.12], "t": "city"}]
+  }
+    
