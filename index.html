@@ -18,15 +18,14 @@
                 new ol.layer.Vector({
                     source: new ol.source.Vector({ url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', format: new ol.format.GeoJSON() }),
                     style: new ol.style.Style({
-                        stroke: new ol.style.Stroke({ color: 'yellow', width: 1.5 }), // শুধু হলুদ বর্ডার লাইন
-                        fill: null // কোনো সাদা রং থাকবে না
+                        stroke: new ol.style.Stroke({ color: '#ffffff', width: 1 }),
+                        fill: new ol.style.Fill({ color: 'rgba(0, 0, 0, 0)' })
                     })
                 })
             ],
             view: new ol.View({ center: ol.proj.fromLonLat([50, 26]), zoom: 4 })
         });
 
-        // শহর লোড করার লজিক
         fetch('countries.json')
             .then(res => res.json())
             .then(data => {
@@ -37,8 +36,14 @@
                             geometry: new ol.geom.Point(ol.proj.fromLonLat(city.c))
                         });
                         feature.setStyle(new ol.style.Style({
-                            image: new ol.style.Circle({ radius: 6, fill: new ol.style.Fill({color: 'red'}) }),
-                            text: new ol.style.Text({ text: city.n, offsetY: -15, font: '14px Arial', fill: new ol.style.Fill({color: '#fff'}) })
+                            image: new ol.style.Circle({ radius: 3, fill: new ol.style.Fill({color: 'red'}) }),
+                            text: new ol.style.Text({
+                                text: city.n,
+                                offsetY: -10,
+                                font: 'bold 12px Arial',
+                                fill: new ol.style.Fill({color: '#ffffff'}),
+                                stroke: new ol.style.Stroke({color: '#000000', width: 3})
+                            })
                         }));
                         vectorSource.addFeature(feature);
                     });
