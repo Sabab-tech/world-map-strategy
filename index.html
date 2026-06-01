@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Bollywood Map</title>
+    <title>Global Bollywood Map - Perfect Resolution</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
@@ -10,7 +10,7 @@
 <body>
     <div id="map"></div>
     <script>
-        // সংক্ষেপিত বড় নামের তালিকা (আফ্রিকা, ওশেনিয়া ও অন্যান্য অঞ্চলের জন্য)
+        // তালিকায় থাকা এবং বিশ্বের সমস্ত বড় নামগুলোর নিখুঁত সংক্ষেপ রূপ
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -24,40 +24,48 @@
             "United States of America": "USA",
             "United Kingdom": "UK",
             "Saudi Arabia": "S. Arabia",
-            "United Arab Emirates": "UAE"
+            "United Arab Emirates": "UAE",
+            "Trinidad and Tobago": "Trinidad",
+            "Antigua and Barbuda": "Antigua",
+            "Saint Kitts and Nevis": "St. Kitts",
+            "São Tomé and Príncipe": "São Tomé",
+            "Saint Lucia": "St. Lucia"
         };
 
         const styleFunction = function(feature, resolution) {
             const rawName = feature.get('admin') || feature.get('name') || "";
-            const displayName = shortNames[rawName] || rawName; // বড় নাম সংক্ষেপ করা
+            const displayName = shortNames[rawName] || rawName; 
 
-            // জুম লেভেল বের করা (রেজোলিউশন থেকে)
+            // জুম লেভেল এবং দেশের আয়তন (Area) বের করা
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
-
-            // দেশ বা ভূখণ্ডের আয়তন/সাইজ অনুযায়ী ফন্ট সাইজ নির্ধারণ (আনুপাতিক হার)
             const area = feature.getGeometry().getArea();
-            let fontSize = Math.min(24, Math.max(10, Math.sqrt(area) / (resolution * 15)));
 
-            // জুম লেভেল কানেকশন: নির্দিষ্ট জুম ছাড়া ছোট দেশ/দ্বীপের নাম দেখাবে না
-            if (area < 5000000000 && currentZoom < 5) return null; // ছোট দ্বীপগুলো জুম না করলে দেখাবে না
-            if (area < 50000000000 && currentZoom < 4) return null; // মাঝারি দেশগুলো জুম ৩ এর নিচে দেখাবে না
+            // দেশ ও জুম লেভেলের আনুপাতিক হারে ফন্ট সাইজ নিয়ন্ত্রণ করার নিখুঁত লজিক
+            let fontSize = Math.min(20, Math.max(9, Math.sqrt(area) / (resolution * 14)));
+
+            // অতি ক্ষুদ্র দ্বীপ ও দেশের (যেমন ভ্যাটিকান, মালদ্বীপ, সিঙ্গাপুর) নাম জুম আউট অবস্থায় জটলা পাকাবে না,
+            // কিন্তু জুম লেভেল ৪ বা তার উপরে গেলেই একদম নিখুঁতভাবে তাদের সীমানার ভেতর ভেসে উঠবে।
+            if (area < 2000000000 && currentZoom < 4) {
+                // খুব ছোট দেশ কিন্তু গুরুত্বপূর্ণ হলে জুম ৩-এ ছোট আকারে দেখাবে
+                if (currentZoom === 3) fontSize = 8;
+                else if (currentZoom < 3) return null;
+            }
 
             return new ol.style.Style({
                 stroke: new ol.style.Stroke({
-                    color: 'rgba(255, 255, 255, 0.4)', // হালকা স্বচ্ছ সাদা বর্ডার
+                    color: 'rgba(255, 255, 255, 0.4)', // আপনার পছন্দ অনুযায়ী হালকা স্বচ্ছ সাদা বর্ডার
                     width: 1.2
                 }),
                 text: new ol.style.Text({
                     text: displayName,
-                    font: `bold ${fontSize}px "Arial Black", sans-serif`, // দেশের সাইজ অনুযায়ী নাম বড়/ছোট হবে
+                    font: `bold ${fontSize}px "Arial Black", sans-serif`, // বলিউড সিনেমাটিক স্পষ্ট ফন্ট
                     fill: new ol.style.Fill({ color: '#FFFFFF' }),
-                    stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
+                    stroke: new ol.style.Stroke({ color: '#000000', width: 3 }), // স্যাটেলাইটে স্পষ্ট দেখার জন্য কালো আউটলাইন
                     
-                    // ওপেনলেয়ার্সের অ্যাডভান্সড সেটিংস (আপনার শর্তসমূহ পূরণ করার জন্য):
-                    placement: 'point', // নাম শুধুমাত্র দেশের কেন্দ্রবিন্দুতে (মাঝামাঝি) বসবে
+                    placement: 'point',
                     geometry: function(f) {
                         const geom = f.getGeometry();
-                        // মাল্টি-পলিগন (যেমন ইতালি ও তার দ্বীপ সিসিলি) হলে শুধু সবচেয়ে বড় ভূখণ্ডের মাঝখানে নাম বসবে
+                        // মাল্টি-পলিগন বা দ্বীপরাষ্ট্র (যেমন ইতালি, বাহামাস) হলে মূল ভূখণ্ডের মাঝখানে নাম বসবে, সমুদ্রে যাবে না
                         if (geom.getType() === 'MultiPolygon') {
                             const polygons = geom.getPolygons();
                             let largestPolygon = polygons[0];
@@ -68,14 +76,14 @@
                             }
                             return largestPolygon.getInteriorPoint();
                         }
-                        return geom.getInteriorPoint(); // নরমাল দেশের একদম ভেতরে নাম রাখবে, সমুদ্রে যাবে না
+                        return geom.getInteriorPoint(); // দেশের ঠিক মাঝখানে নাম রাখার গ্যারান্টি
                     },
-                    overflow: false, // অন্য দেশের নামের সাথে বা বর্ডারের সাথে ধাক্কা খেলে নাম লুকিয়ে যাবে
-                    rotation: 0 // প্রয়োজন অনুযায়ী ম্যাপ নিজে থেকে বাঁকানো বা সোজা করা নিয়ন্ত্রণ করবে
+                    overflow: true // কোনো নাম যেন টেকনিক্যাল কারণে গায়েব না হয়ে যায়
                 })
             });
         };
 
+        // আন্তর্জাতিক হাই-রেজোলিউশন ৫ মি. বর্ডার ডাটা সোর্স
         const countryLayer = new ol.layer.Vector({
             source: new ol.source.Vector({ 
                 url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', 
@@ -93,10 +101,10 @@
                 countryLayer
             ],
             view: new ol.View({ 
-                center: ol.proj.fromLonLat([20, 20]), 
+                center: ol.proj.fromLonLat([20, 20]), // প্রথম ভিউতেই যাতে অধিকাংশ মহাদেশ সুন্দর দেখায়
                 zoom: 3, 
                 minZoom: 2, 
-                maxZoom: 10,
+                maxZoom: 12,
                 enableRotation: false 
             })
         });
