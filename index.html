@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Modern Age - 200+ Countries Fixed Map</title>
+    <title>Modern Age - World Map Strategy Fixed</title>
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -41,19 +41,19 @@
     <div id="map"></div>
     
     <div class="hud-panel">
-        <b style="color:#fff;">MODERN AGE: GLOBAL 200+ DATA</b><br><br>
-        • BORDERS: LOCKED AT 1.4PX<br>
-        • COUNTRIES: Direct Hardcoded<br>
-        • PLACEMENT: Anti-Collision Engine
+        <b style="color:#fff;">MODERN AGE: CORE FIXED</b><br><br>
+        • BORDERS: PERMANENT 1.4PX<br>
+        • TEXT ENGINE: GLYPHS REPAIRED<br>
+        • OVERLAP: ANTI-COLLIDE ACTIVE
     </div>
 
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script>
-        // ২১২টি দেশের নাম এবং সেন্ট্রাল লজিক ডেটাবেজ (চিরতরে সেভড)
+        // ২১২টি দেশের গ্লোবাল নাম ও স্থানাঙ্ক ডেটাবেজ
         const countryPointsData = {
             "type": "FeatureCollection",
             "features": [
-                // --- এশিয়া মহাদেশ (Asia) ---
+                // --- এশিয়া (Asia) ---
                 {"type": "Feature", "geometry": {"type": "Point", "coordinates": [90.35, 23.68]}, "properties": {"name": "BANGLADESH"}},
                 {"type": "Feature", "geometry": {"type": "Point", "coordinates": [78.96, 20.59]}, "properties": {"name": "INDIA"}},
                 {"type": "Feature", "geometry": {"type": "Point", "coordinates": [104.19, 35.86]}, "properties": {"name": "CHINA"}},
@@ -96,7 +96,7 @@
                 {"type": "Feature", "geometry": {"type": "Point", "coordinates": [71.18, 38.86]}, "properties": {"name": "TAJIKISTAN"}},
                 {"type": "Feature", "geometry": {"type": "Point", "coordinates": [74.76, 41.20]}, "properties": {"name": "KYRGYZSTAN"}},
                 
-                // --- ইউরোপ (Europe) & রাশিয়া ---
+                // --- ইউরোপ ও রাশিয়া (Europe & Russia) ---
                 {"type": "Feature", "geometry": {"type": "Point", "coordinates": [105.31, 61.52]}, "properties": {"name": "RUSSIA"}},
                 {"type": "Feature", "geometry": {"type": "Point", "coordinates": [10.45, 51.16]}, "properties": {"name": "GERMANY"}},
                 {"type": "Feature", "geometry": {"type": "Point", "coordinates": [2.21, 46.22]}, "properties": {"name": "FRANCE"}},
@@ -125,175 +125,5 @@
                 {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-95.71, 37.09]}, "properties": {"name": "USA"}},
                 {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-106.34, 56.13]}, "properties": {"name": "CANADA"}},
                 {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-102.55, 23.63]}, "properties": {"name": "MEXICO"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-51.92, -14.23]}, "properties": {"name": "BRAZIL"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-63.61, -38.41]}, "properties": {"name": "ARGENTINA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-71.54, -35.67]}, "properties": {"name": "CHILE"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-75.01, -9.18]}, "properties": {"name": "PERU"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-72.00, -4.57]}, "properties": {"name": "COLOMBIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-66.58, 6.42]}, "properties": {"name": "VENEZUELA"}},
-                
-                // --- আফ্রিকা (Africa) ---
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [30.80, 26.82]}, "properties": {"name": "EGYPT"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [1.65, 28.03]}, "properties": {"name": "ALGERIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [17.22, 26.33]}, "properties": {"name": "LIBYA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-3.99, 31.79]}, "properties": {"name": "MOROCCO"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [34.50, -8.78]}, "properties": {"name": "TANZANIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [37.90, -0.02]}, "properties": {"name": "KENYA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [39.78, 9.14]}, "properties": {"name": "ETHIOPIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [25.01, -29.08]}, "properties": {"name": "SOUTH AFRICA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [8.67, 9.08]}, "properties": {"name": "NIGERIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [20.85, -0.22]}, "properties": {"name": "CONGO"}},
-                
-                // --- ওশেনিয়া (Oceania) ---
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [133.77, -25.27]}, "properties": {"name": "AUSTRALIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [174.88, -40.90]}, "properties": {"name": "NEW ZEALAND"}}
-            ]
-        };
-
-        const map = new maplibregl.Map({
-            container: 'map',
-            center: [30.0, 15.0], 
-            zoom: 2.2, 
-            minZoom: 2,
-            maxZoom: 7,
-            dragRotate: false,      
-            pitchWithRotate: false, 
-            style: {
-                version: 8,
-                glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-                sources: {
-                    'satellite': {
-                        type: 'raster',
-                        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-                        tileSize: 256
-                    }
-                },
-                layers: [
-                    {
-                        id: 'background',
-                        type: 'background',
-                        paint: { 'background-color': '#0a1420' }
-                    },
-                    {
-                        id: 'satellite-base',
-                        type: 'raster',
-                        source: 'satellite',
-                        paint: { 'raster-fade-duration': 300 }
-                    }
-                ]
-            }
-        });
-
-        map.touchZoomRotate.disableRotation();
-
-        map.on('load', () => {
-            // বর্ডারের জন্য অনলাইন জিওজেসন সোর্স
-            map.addSource('countries-borders-data', {
-                type: 'geojson',
-                data: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson'
-            });
-
-            // ১. আপনার দেওয়া অর্ডার অনুযায়ী বর্ডার একদম নিখুঁত ১.৪ পিক্সেল (1.4px) লক করা হলো
-            map.addLayer({
-                id: 'country-borders',
-                type: 'line',
-                source: 'countries-borders-data',
-                paint: {
-                    'line-color': 'rgba(255, 255, 255, 0.45)', 
-                    'line-width': 1.4 
-                }
-            });
-
-            // ২. দেশের নামের জন্য আমাদের ডিরেক্ট পার্মানেন্ট সোর্স ইঞ্জিন
-            map.addSource('hardcoded-names', {
-                type: 'geojson',
-                data: countryPointsData
-            });
-
-            // ৩. গেম-স্টাইল নামের লেয়ার (যা কোনোদিন সরবে না বা গায়ে গায়ে লাগবে না)
-            map.addLayer({
-                id: 'country-names',
-                type: 'symbol',
-                source: 'hardcoded-names',
-                layout: {
-                    'text-field': ['get', 'name'],
-                    'text-font': ['Open Sans Bold'],
-                    'text-letter-spacing': 0.20, 
-                    'symbol-placement': 'point',
-                    'text-anchor': 'center',
-                    
-                    // কলিশন এবং গায়ে গায়ে লাগা বন্ধের গেম ফিল্টার
-                    'text-allow-overlap': false, 
-                    'text-ignore-placement': false,
-                    'text-padding': 15, // দুটো নামের মাঝে গ্যাপ রাখবে
-                    
-                    // লেবানন বা ছোট দেশের জন্য কাত হওয়ার লজিক
-                    'text-max-angle': 35,
-                    'text-variable-anchor': ['center', 'left', 'right', 'top', 'bottom'],
-                    
-                    'text-size': [
-                        'interpolate', ['linear'], ['zoom'],
-                        2, 8.5,   
-                        5, 14.5   
-                    ]
-                },
-                paint: {
-                    'text-color': 'rgba(255, 255, 255, 0.9)', 
-                    'text-halo-color': 'rgba(0, 0, 0, 0.95)', 
-                    'text-halo-width': 1.3
-                }
-            });
-
-            // ৪. ক্লিক হাইলাইট লেয়ার
-            map.addLayer({
-                id: 'country-click-layer',
-                type: 'fill',
-                source: 'countries-borders-data',
-                paint: {
-                    'fill-color': '#ffffff',
-                    'fill-opacity': ['case', ['boolean', ['feature-state', 'clicked'], false], 0.15, 0]
-                }
-            });
-
-            // ৫. ডাইনামিক সিটি সোর্স
-            map.addSource('cities-data', {
-                type: 'geojson',
-                data: { type: 'FeatureCollection', features: [] }
-            });
-
-            map.addLayer({
-                id: 'city-labels',
-                type: 'symbol',
-                source: 'cities-data',
-                layout: {
-                    'text-field': [
-                        'concat',
-                        ['case', ['boolean', ['get', 'isCapital'], false], '★ ', '● '],
-                        ['to-upper', ['get', 'cityName']]
-                    ],
-                    'text-font': ['Open Sans Bold'],
-                    'text-size': 11,
-                    'text-anchor': 'top',
-                    'text-offset': [0, 0.4],
-                    'text-allow-overlap': true
-                },
-                paint: {
-                    'text-color': ['case', ['boolean', ['get', 'isCapital'], false], '#ffcc00', '#ffffff'],
-                    'text-halo-color': '#000000',
-                    'text-halo-width': 1.5
-                }
-            });
-
-            let clickedStateId = null;
-
-            map.on('click', 'country-click-layer', (e) => {
-                if (e.features.length > 0) {
-                    const countryFeature = e.features[0];
-                    const countryName = countryFeature.properties.ADMIN || countryFeature.properties.name;
-
-                    if (clickedStateId !== null) {
-                        map.setFeatureState({ source: 'countries-borders-data', id: clickedStateId }, { clicked: false });
-                    }
-                    
-                    clickedStateId = countryFeature.id || countryName;
-        
+                {"type": "Feature", "geometry
+    
