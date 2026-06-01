@@ -1,74 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Global Map Strategy</title>
+    <title>Selectable Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
-        body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #050a0f; }
+        body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #000; }
+        #info { position: absolute; top: 10px; left: 10px; z-index: 1000; background: white; padding: 10px; border-radius: 5px; display: none; }
     </style>
 </head>
 <body>
+    <div id="info"></div>
     <div id="map"></div>
     <script>
-        // মানচিত্রের বেস লেয়ার
         const map = new ol.Map({
             target: 'map',
             layers: [
                 new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) })
             ],
-            view: new ol.View({
-                center: ol.proj.fromLonLat([45, 25]),
-                zoom: 3,
-                minZoom: 2,  // সর্বোচ্চ আউট জুম
-                maxZoom: 10  // সর্বোচ্চ ইন জুম
-            })
+            view: new ol.View({ center: ol.proj.fromLonLat([45, 25]), zoom: 4, minZoom: 3, maxZoom: 8 })
         });
 
-        // বর্ডার এবং দেশের নাম (GeoJSON লেয়ার)
-        const countryLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({ url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', format: new ol.format.GeoJSON() }),
-            style: function(feature) {
-                const zoom = map.getView().getZoom();
-                // জুম ৩ এর বেশি হলে দেশের নাম দেখাবে
-                return new ol.style.Style({
-                    stroke: new ol.style.Stroke({ color: '#ffffff', width: 1 }),
-                    text: zoom > 3 ? new ol.style.Text({
-                        text: feature.get('name'),
-                        font: 'bold 12px Arial',
-                        fill: new ol.style.Fill({ color: '#ffffff' }),
-                        stroke: new ol.style.Stroke({ color: '#000', width: 2 })
-                    }) : null
-                });
-            }
-        });
-        map.addLayer(countryLayer);
-
-        // জুম পরিবর্তনের সাথে সাথে নাম আপডেট করা
-        map.on('moveend', function() { countryLayer.changed(); });
-
-        // শহর ও রাজধানীর মার্কার
+        // দেশ ও শহর লোড করা
         fetch('countries.json')
             .then(res => res.json())
             .then(data => {
                 const vectorSource = new ol.source.Vector();
-                for (let countryName in data) {
-                    data[countryName].forEach(city => {
-                        const feature = new ol.Feature({ geometry: new ol.geom.Point(ol.proj.fromLonLat(city.c)) });
+                for (let country in data) {
+                    data[country].forEach(city => {
+                        const feature = new ol.Feature({
+                            geometry: new ol.geom.Point(ol.proj.fromLonLat(city.c)),
+                            cityName: city.n,
+                            countryName: country
+                        });
                         feature.setStyle(new ol.style.Style({
-                            image: new ol.style.Circle({ radius: 4, fill: new ol.style.Fill({color: 'red'}) }),
-                            text: new ol.style.Text({
-                                text: city.n,
-                                offsetY: -12,
-                                font: '12px Arial',
-                                fill: new ol.style.Fill({color: 'yellow'})
-                            })
+                            image: new ol.style.Circle({ radius: 7, fill: new ol.style.Fill({color: 'red'}) })
                         }));
                         vectorSource.addFeature(feature);
                     });
                 }
                 map.addLayer(new ol.layer.Vector({ source: vectorSource }));
             });
+
+        // সিলেকশন বা ক্লিক লজিক
+        map.on('singleclick', function(evt) {
+            const infoDiv = document.getElementById('info');
+            map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                const country = feature.get('countryName');
+                const city = feature.get('cityName');
+                
+                infoDiv.style.display = 'block';
+                infoDiv.innerHTML = `<strong>দেশ: ${country}</strong><br>শহর: ${city}<br><button onclick="alert('আপনি ${country} সিলেক্ট করেছেন!')">সিলেক্ট করুন</button>`;
+            });
+        });
     </script>
 </body>
 </html>
