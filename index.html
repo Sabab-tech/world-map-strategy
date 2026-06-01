@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Final Perfection</title>
+    <title>Modern Age 3 - Professional Tactical Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -36,51 +36,66 @@
                         format: new ol.format.GeoJSON()
                     }),
                     style: function (feature, resolution) {
-                        let name = feature.get('ADMIN') || feature.get('name') || '';
+                        let rawName = feature.get('ADMIN') || feature.get('name') || feature.get('NAME') || '';
                         const zoom = Math.log2(156543.03392 / resolution);
 
-                        if (name === "United Kingdom") name = "UK";
+                        // ১. আপনার শর্ত অনুযায়ী বড় নাম ও দ্বীপের নাম সংক্ষেপ করার অনলাইন স্ট্যান্ডার্ড ডিকশনারি
+                        let name = rawName;
+                        if (rawName.includes("Democratic Republic of the Congo")) name = "DR CONGO";
+                        else if (rawName.includes("Congo (Democratic Republic of the)")) name = "DR CONGO";
+                        else if (rawName.includes("Tanzania")) name = "TANZANIA";
+                        else if (rawName.includes("United Kingdom")) name = "UK";
+                        else if (rawName.includes("Bahamas")) name = "BAHAMAS";
+                        else if (rawName.includes("Hong Kong")) name = "HONG KONG";
+                        else if (rawName.includes("Central African Republic")) name = "CAR";
+                        else if (rawName.includes("Dominican Republic")) name = "DOMINICAN REP";
+                        else if (rawName.includes("United Arab Emirates")) name = "UAE";
+                        else if (rawName.includes("United States of America")) name = "USA";
 
-                        // বর্ডার আঁকার জন্য স্টাইল (যা কখনো গায়েব হবে না)
-                        const borderStyle = new ol.style.Style({
-                            stroke: new ol.style.Stroke({
-                                color: 'rgba(255, 255, 255, 0.45)', // হালকা ও স্বাভাবিক বর্ডার
-                                width: 1.4
-                            })
-                        });
-
-                        // ছোট দেশের নাম ফিল্টার
-                        if (zoom < 4.2 && ["Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore", "Bangladesh"].includes(name)) {
-                            return borderStyle; // নাম না দেখালেও বর্ডার দেখাবে
+                        // ২. ছোট দেশ এবং দ্বীপ অঞ্চলগুলো কম জুম লেভেলে হাইড রাখার ডিফল্ট ফিল্টার (সাগরের জ্যাম বন্ধ করতে)
+                        const smallAndIslands = ["Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore", "Bangladesh", "BAHAMAS", "HONG KONG", "Bahama Islands"];
+                        if (zoom < 4.5 && smallAndIslands.includes(name)) {
+                            return new ol.style.Style({
+                                stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.45)', width: 1.4 })
+                            }); 
                         }
 
-                        // হলিউড স্টাইল ডায়নামিক ফন্ট
+                        // হলিউড স্টাইল ডায়নামিক ফন্ট সাইজ
                         let fontSize = 12 + (zoom - 3.8) * 4;
-                        if (fontSize > 26) fontSize = 26;
+                        if (fontSize > 25) fontSize = 25;
                         if (fontSize < 11) fontSize = 11;
 
+                        // লম্বালম্বি দেশের রোটেশন
                         let textRotation = 0;
                         if (name === "Lebanon") textRotation = -1.35; 
                         else if (name === "Chile") textRotation = -1.45;
                         else if (name === "Vietnam") textRotation = -1.15;
                         else if (name === "Norway") textRotation = -1.25;
 
-                        // নাম বা টেক্সট দেখানোর স্টাইল
+                        // ডিফল্ট বর্ডার স্টাইল
+                        const borderStyle = new ol.style.Style({
+                            stroke: new ol.style.Stroke({
+                                color: 'rgba(255, 255, 255, 0.45)', 
+                                width: 1.4
+                            })
+                        });
+
+                        // টেক্সট বা নামের স্টাইল
                         const textStyle = new ol.style.Style({
                             text: new ol.style.Text({
                                 text: name.toUpperCase(),
                                 font: `900 ${fontSize}px "Impact", "Arial Black", sans-serif`,
                                 fill: new ol.style.Fill({ color: '#ffffff' }),
-                                stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }), // থ্রিডি খাড়া লুক
+                                stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }), // খাড়া ৩ডি এফেক্ট
                                 rotation: textRotation,
                                 placement: 'point',
                                 textAlign: 'center',
                                 textBaseline: 'middle',
-                                overflow: false
+                                overflow: false // বর্ডারের বাইরে ছিটকে যাওয়া ডিফল্টভাবে বন্ধ
                             })
                         });
 
-                        // বিশেষ দেশগুলোর নামের পজিশন মূল ভূখণ্ডের মেইনল্যান্ডে লক করা
+                        // বিশেষ গুরুত্বপূর্ণ দেশের মেইনল্যান্ড ম্যাপপয়েন্ট লক
                         if (name === "Italy") {
                             textStyle.setGeometry(new ol.geom.Point(ol.proj.fromLonLat([12.6, 42.5])));
                             return [borderStyle, textStyle];
@@ -94,7 +109,7 @@
                             return [borderStyle, textStyle];
                         }
 
-                        // অন্যান্য মাল্টি-পলিল্যান্ড দেশের দ্বীপ এড়ানোর লজিক
+                        // ৩. সমুদ্রে নাম যাওয়া ডিফল্টভাবে বন্ধ করার জন্য 'সবচেয়ে বড় মূল ভূখণ্ড' খোঁজার লজিক
                         const geom = feature.getGeometry();
                         if (geom.getType() === 'MultiPolygon') {
                             const polygons = geom.getPolygons();
@@ -108,10 +123,11 @@
                                     mainPolygon = polygons[i];
                                 }
                             }
+                            // নামটিকে জোর করে শুধুমাত্র মূল মেইনল্যান্ডের ভেতরেই রাখা হলো, সাগরে যাওয়ার উপায় নেই
                             textStyle.setGeometry(new ol.geom.Point(mainPolygon.getInteriorPoint().getCoordinates()));
                         }
 
-                        return [borderStyle, textStyle]; // বর্ডার ও নাম দুটোই একসাথে রিটার্ন করা হলো
+                        return [borderStyle, textStyle];
                     }
                 })
             ],
