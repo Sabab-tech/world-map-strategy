@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - European Precision Map</title>
+    <title>Modern Age 3 - Mainland Precision Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -30,7 +30,7 @@
                     }) 
                 }),
                 new ol.layer.Vector({
-                    declutter: true, 
+                    declutter: true, // নামগুলোর মধ্যে দূরত্ব বজায় রাখবে এবং জ্যাম করবে না
                     source: new ol.source.Vector({
                         url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
                         format: new ol.format.GeoJSON()
@@ -39,18 +39,14 @@
                         let name = feature.get('ADMIN') || feature.get('name') || '';
                         const zoom = Math.log2(156543.03392 / resolution);
 
-                        // গিটহাবের ডেটাবেজে যুক্তরাজ্যের নাম "United Kingdom" হিসেবে থাকে
                         if (name === "United Kingdom") name = "UK";
 
-                        // ফ্রান্স, ইতালি এবং যুক্তরাজ্যকে একই জুম লেভেলে একসাথে দেখানোর বিশেষ নিয়ম
-                        const priorityCountries = ["France", "Italy", "UK", "United Kingdom"];
-                        
-                        // সাধারণ ছোট দেশগুলোর ফিল্টার
+                        // ছোট দেশের ফিল্টার (দূরে থাকলে দেখাবে না)
                         if (zoom < 4.2 && ["Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore", "Bangladesh"].includes(name)) {
                             return null; 
                         }
 
-                        // হলিউড স্টাইল ডায়নামিক ফন্ট সাইজ
+                        // হলিউড স্টাইল ফন্ট সাইজ
                         let fontSize = 12 + (zoom - 3.8) * 4;
                         if (fontSize > 26) fontSize = 26;
                         if (fontSize < 11) fontSize = 11;
@@ -62,38 +58,55 @@
                         else if (name === "Vietnam") textRotation = -1.15;
                         else if (name === "Norway") textRotation = -1.25;
 
-                        // ইতালির নাম সিসিলি থেকে সরিয়ে মাঝখানে আনার জন্য এবং প্রাঞ্জল রেন্ডারিংয়ের জন্য স্টাইল
-                        let textPlacement = 'point';
-                        if (priorityCountries.includes(name)) {
-                            textPlacement = 'point'; // পয়েন্ট রাখলে নাম একদম নির্দিষ্ট কোঅর্ডিনেটে লক থাকে
-                        } else {
-                            textPlacement = feature.getGeometry().getType() === 'MultiPolygon' ? 'polygon' : 'point';
-                        }
-
+                        // বেসিক স্টাইল স্ট্রাকচার (হালকা স্বাভাবিক বর্ডার সহ)
                         const baseStyle = new ol.style.Style({
                             stroke: new ol.style.Stroke({
-                                color: 'rgba(255, 255, 255, 0.45)', // আপনার পছন্দ করা সেই স্বাভাবিক হালকা বর্ডার
+                                color: 'rgba(255, 255, 255, 0.45)', 
                                 width: 1.4 
                             }),
                             text: new ol.style.Text({
                                 text: name.toUpperCase(),
                                 font: `900 ${fontSize}px "Impact", "Arial Black", sans-serif`,
                                 fill: new ol.style.Fill({ color: '#ffffff' }),
-                                stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }), // খাড়া হলিউড লুক
-                                rotation: textRotation,
-                                placement: textPlacement,
+                                stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }), 
+                                placement: 'point',
                                 textAlign: 'center',
                                 textBaseline: 'middle',
-                                overflow: priorityCountries.includes(name) ? true : false // এই তিন দেশের নাম যেন কোনোভাবেই হাইড না হয়
+                                overflow: false // নাম যেন বর্ডারের বাইরে না ছিটকে যায়
                             })
                         });
 
-                        // বিশেষ লজিক: ইতালির নামটিকে ম্যানুয়ালি সিসিলি থেকে একটু ওপরে (মূল ভূখণ্ডে) পুশ করা
+                        // বিশেষ ম্যানুয়াল পজিশন: দ্বীপ এড়াতে মূল ভূখণ্ডের কেন্দ্রবিন্দু লক করা
                         if (name === "Italy") {
-                            const italyCenter = ol.proj.fromLonLat([12.6, 42.5]); // এটি ইতালির মূল ভূখণ্ডের নিখুঁত কেন্দ্র
-                            const italyStyle = baseStyle.clone();
-                            italyStyle.setGeometry(new ol.geom.Point(italyCenter));
-                            return italyStyle;
+                            baseStyle.setGeometry(new ol.geom.Point(ol.proj.fromLonLat([12.6, 42.5])));
+                            return baseStyle;
+                        }
+                        if (name === "France") {
+                            baseStyle.setGeometry(new ol.geom.Point(ol.proj.fromLonLat([2.2, 46.2]))); // কর্সিকা দ্বীপ বাদ দিয়ে একদম ফ্রান্সের মাঝখানে
+                            return baseStyle;
+                        }
+                        if (name === "UK") {
+                            baseStyle.setGeometry(new ol.geom.Point(ol.proj.fromLonLat([-2.5, 54.5]))); // চারপাশের ছোট দ্বীপ বাদ দিয়ে যুক্তরাজ্যের মূল মেইনল্যান্ডে
+                            return baseStyle;
+                        }
+
+                        // অন্য সব দেশের ক্ষেত্রে শুধুমাত্র বড় ভূখণ্ডের ওপর নাম বসবে (দ্বীপ বাদ দেওয়ার লজিক)
+                        const geom = feature.getGeometry();
+                        if (geom.getType() === 'MultiPolygon') {
+                            const polygons = geom.getPolygons();
+                            let maxArea = 0;
+                            let mainPolygon = polygons[0];
+                            
+                            // সবচেয়ে বড় ভূখণ্ডটি খুঁজে বের করা
+                            for (let i = 0; i < polygons.length; i++) {
+                                const area = polygons[i].getArea();
+                                if (area > maxArea) {
+                                    maxArea = area;
+                                    mainPolygon = polygons[i];
+                                }
+                            }
+                            // নামটিকে শুধুমাত্র সেই বড় মূল ভূখণ্ডের মাঝখানে সেট করা
+                            baseStyle.setGeometry(new ol.geom.Point(mainPolygon.getInteriorPoint().getCoordinates()));
                         }
 
                         return baseStyle;
