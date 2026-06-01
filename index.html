@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Global Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
-    <style>#map { width: 100%; height: 100vh; background: #0b1521; }</style>
+    <style>
+        body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #000; }
+    </style>
 </head>
 <body>
     <div id="map"></div>
@@ -13,18 +16,34 @@
             layers: [
                 new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) }),
                 new ol.layer.Vector({
-                    source: new ol.source.Vector({ url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', format: new ol.format.GeoJSON() })
+                    source: new ol.source.Vector({ url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', format: new ol.format.GeoJSON() }),
+                    style: new ol.style.Style({
+                        stroke: new ol.style.Stroke({ color: 'yellow', width: 1.5 }), // শুধু হলুদ বর্ডার লাইন
+                        fill: null // কোনো সাদা রং থাকবে না
+                    })
                 })
             ],
-            view: new ol.View({ center: ol.proj.fromLonLat([0, 20]), zoom: 3 })
+            view: new ol.View({ center: ol.proj.fromLonLat([50, 26]), zoom: 4 })
         });
 
-        // অটোমেটিক সব ডাটা লোড করার সিস্টেম
+        // শহর লোড করার লজিক
         fetch('countries.json')
             .then(res => res.json())
             .then(data => {
-                console.log("সব দেশের ডাটা সফলভাবে লোড হয়েছে:", data);
-                // এখানে আপনি ম্যাপে এই ডাটা দিয়ে মার্কার বসানোর লজিক যোগ করবেন
+                const vectorSource = new ol.source.Vector();
+                for (let country in data) {
+                    data[country].forEach(city => {
+                        const feature = new ol.Feature({
+                            geometry: new ol.geom.Point(ol.proj.fromLonLat(city.c))
+                        });
+                        feature.setStyle(new ol.style.Style({
+                            image: new ol.style.Circle({ radius: 6, fill: new ol.style.Fill({color: 'red'}) }),
+                            text: new ol.style.Text({ text: city.n, offsetY: -15, font: '14px Arial', fill: new ol.style.Fill({color: '#fff'}) })
+                        }));
+                        vectorSource.addFeature(feature);
+                    });
+                }
+                map.addLayer(new ol.layer.Vector({ source: vectorSource }));
             });
     </script>
 </body>
