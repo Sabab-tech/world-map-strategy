@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Permanent Master Edition</title>
+    <title>Modern Age 3 - Tactical Map with Cities</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -14,89 +14,73 @@
 <body>
     <div id="map"></div>
     <script>
-        // ব্রাউজার ক্যাশ বা সার্ভিস ওয়ার্কার জনিত সমস্যা স্থায়ীভাবে বন্ধ করার লক
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                for (let r of registrations) { r.unregister(); }
-            });
+            navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
         }
 
-        // মাস্টার কোড প্রোটেকশন - সাধারণ অবস্থায় বর্ডার এবং টেক্সট স্টাইল ফাংশন
+        // ==========================================
+        // ১. দেশের বর্ডার এবং নামের পার্মানেন্ট লজিক
+        // ==========================================
         function countryStyle(feature, resolution) {
             const name = feature.get('ADMIN') || feature.get('name') || '';
             const zoom = Math.log2(156543.03392 / resolution);
 
-            // ১. ফালতু অঞ্চল ও দ্বীপ ব্লক লিস্ট (পার্মানেন্ট ফিল্টার)
             const blacklist = ["British Indian Ocean Territory", "Christmas Island", "Cocos Islands", "Norfolk Island", "Niue", "Tokelau", "Palestine", "Western Sahara"];
             if (blacklist.includes(name)) return null;
 
-            // বর্ডার স্টাইল (হালকা ও সূক্ষ্ম সাদা)
             const borderStyle = new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.2 });
-            
-            // অদৃশ্য টাচ লক ফিল (Invisible Touch Lock) - যার কারণে যেকোনো খালি জায়গায় টাচ কাজ করবে
-            const invisibleFill = new ol.style.Fill({ color: 'rgba(0, 0, 0, 0.001)' });
+            const invisibleFill = new ol.style.Fill({ color: 'rgba(0, 0, 0, 0.001)' }); // টাচ লক
 
-            let displayName = name;
-            if (name === "Democratic Republic of the Congo") displayName = "DR CONGO";
-            else if (name === "United Kingdom") displayName = "UK";
-            else if (name === "United States of America") displayName = "USA";
+            let dName = name;
+            if (name === "Democratic Republic of the Congo") dName = "DR CONGO";
+            else if (name === "United Kingdom") dName = "UK";
+            else if (name === "United States of America") dName = "USA";
 
-            // কড়া জুম স্তর বিন্যাস: জুম ৬.০ এর নিচে ছোট দেশের নাম স্ক্রিনে আসবে না
             const smallOnes = ["Luxembourg", "Liechtenstein", "Singapore", "Fiji", "Vanuatu", "Solomon Islands", "Marshall Islands", "Qatar", "Kuwait", "Lebanon"];
             if (zoom < 6.0 && smallOnes.includes(name)) {
                 return new ol.style.Style({ stroke: borderStyle, fill: invisibleFill });
             }
 
-            // হলিউড স্টাইল ডাইনামিক ফন্ট
-            let fontSize = 12 + (zoom - 3.8) * 3;
-            if (fontSize > 24) fontSize = 24;
-            if (fontSize < 11) fontSize = 11;
+            let fSize = 12 + (zoom - 3.8) * 3;
+            if (fSize > 24) fSize = 24; if (fSize < 11) fSize = 11;
 
             return new ol.style.Style({
-                stroke: borderStyle,
-                fill: invisibleFill, 
+                stroke: borderStyle, fill: invisibleFill,
                 text: new ol.style.Text({
-                    text: displayName.toUpperCase(),
-                    font: `900 ${fontSize}px "Impact", "Arial Black", sans-serif`,
+                    text: dName.toUpperCase(),
+                    font: `900 ${fSize}px "Impact", "Arial Black", sans-serif`,
                     fill: new ol.style.Fill({ color: '#ffffff' }),
                     stroke: new ol.style.Stroke({ color: '#000000', width: 4 }),
-                    placement: 'point',
-                    textAlign: 'center',
-                    textBaseline: 'middle',
-                    overflow: false
+                    placement: 'point', textAlign: 'center', textBaseline: 'middle', overflow: false
                 })
             });
         }
 
-        // ২. সিলেক্ট করার পর প্রিমিয়াম গেম লুক (সফট হাইলাইট আভা)
         function selectStyle(feature, resolution) {
             const name = feature.get('ADMIN') || feature.get('name') || '';
             const zoom = Math.log2(156543.03392 / resolution);
+            let dName = name;
+            if (name === "Democratic Republic of the Congo") dName = "DR CONGO";
+            else if (name === "United Kingdom") dName = "UK";
+            else if (name === "United States of America") dName = "USA";
 
-            let displayName = name;
-            if (name === "Democratic Republic of the Congo") displayName = "DR CONGO";
-            else if (name === "United Kingdom") displayName = "UK";
-            else if (name === "United States of America") displayName = "USA";
-
-            let fontSize = 12 + (zoom - 3.8) * 3;
-            if (fontSize > 24) fontSize = 24;
+            let fSize = 12 + (zoom - 3.8) * 3;
+            if (fSize > 24) fSize = 24;
 
             return new ol.style.Style({
-                fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.12)' }), // হালকা প্রিমিয়াম স্যাটেলাইট গ্লো
+                fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.12)' }),
                 stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.8)', width: 2.0 }),
                 text: new ol.style.Text({
-                    text: displayName.toUpperCase(),
-                    font: `900 ${fontSize}px "Impact", "Arial Black", sans-serif`,
-                    fill: new ol.style.Fill({ color: '#ffff33' }), 
+                    text: dName.toUpperCase(),
+                    font: `900 ${fSize}px "Impact", "Arial Black", sans-serif`,
+                    fill: new ol.style.Fill({ color: '#ffff33' }),
                     stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }),
-                    placement: 'point',
-                    textAlign: 'center',
-                    textBaseline: 'middle'
+                    placement: 'point', textAlign: 'center', textBaseline: 'middle'
                 })
             });
         }
 
-        const vectorLayer = new ol.layer.Vector({
+        const countryLayer = new ol.layer.Vector({
             declutter: true,
             source: new ol.source.Vector({
                 url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
@@ -105,24 +89,109 @@
             style: countryStyle
         });
 
+        // ==========================================
+        // ২. লাইটওয়েট শহরের ডাটাবেজ (ল্যাগ ফ্রি)
+        // ==========================================
+        const cityData = {
+            "Bangladesh": [
+                { name: "Dhaka", coords: [90.4125, 23.8103], type: "cap" },
+                { name: "Chattogram", coords: [91.8315, 22.3569], type: "city" }
+            ],
+            "India": [
+                { name: "New Delhi", coords: [77.2090, 28.6139], type: "cap" },
+                { name: "Mumbai", coords: [72.8777, 19.0760], type: "city" },
+                { name: "Kolkata", coords: [88.3639, 22.5726], type: "city" }
+            ],
+            "United States of America": [
+                { name: "Washington D.C.", coords: [-77.0369, 38.9072], type: "cap" },
+                { name: "New York", coords: [-74.0060, 40.7128], type: "city" },
+                { name: "Los Angeles", coords: [-118.2437, 34.0522], type: "city" }
+            ],
+            "United Kingdom": [
+                { name: "London", coords: [-0.1276, 51.5072], type: "cap" },
+                { name: "Manchester", coords: [-2.2426, 53.4808], type: "city" }
+            ],
+            "Fiji": [
+                { name: "Suva", coords: [178.4415, -18.1416], type: "cap" } // শুধু রাজধানী
+            ]
+        };
+
+        const cityFeatures = [];
+        for (const country in cityData) {
+            cityData[country].forEach(city => {
+                cityFeatures.push(new ol.Feature({
+                    geometry: new ol.geom.Point(ol.proj.fromLonLat(city.coords)),
+                    name: city.name,
+                    countryName: country,
+                    type: city.type
+                }));
+            });
+        }
+
+        let activeCountry = ""; // কোন দেশ সিলেক্ট করা আছে তার রেকর্ড
+
+        // শহরের ডাইনামিক স্টাইল
+        const cityLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({ features: cityFeatures }),
+            declutter: true,
+            style: function(feature, resolution) {
+                const zoom = Math.log2(156543.03392 / resolution);
+                
+                // শর্ত: জুম ৬.২ এর নিচে এবং দেশ সিলেক্ট না থাকলে শহর দেখাবে না
+                if (zoom < 6.2) return null; 
+                if (feature.get('countryName') !== activeCountry) return null;
+
+                const isCap = feature.get('type') === 'cap';
+                const dotColor = isCap ? '#ff0000' : '#ffa500'; // রাজধানী লাল, অন্য শহর কমলা
+                const dotSize = isCap ? 5 : 4;
+
+                return new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: dotSize,
+                        fill: new ol.style.Fill({ color: dotColor }),
+                        stroke: new ol.style.Stroke({ color: '#ffffff', width: 1.5 })
+                    }),
+                    text: new ol.style.Text({
+                        text: feature.get('name').toUpperCase(),
+                        font: 'bold 11px "Arial Black", sans-serif',
+                        fill: new ol.style.Fill({ color: '#ffffff' }),
+                        stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
+                        offsetY: -12 // ডটের একটু ওপরে নাম থাকবে
+                    })
+                });
+            }
+        });
+
+        // ==========================================
+        // ৩. ম্যাপ ইঞ্জিন এবং ক্লিক লজিক
+        // ==========================================
         const map = new ol.Map({
             target: 'map',
             layers: [
-                new ol.layer.Tile({ 
-                    source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) 
-                }),
-                vectorLayer
+                new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) }),
+                countryLayer,
+                cityLayer // শহরের লেয়ারটি সবার ওপরে যোগ করা হলো
             ],
             view: new ol.View({ center: ol.proj.fromLonLat([25.0, 42.0]), zoom: 3.8, minZoom: 3.8, maxZoom: 8.5, enableRotation: false }),
             controls: []
         });
 
-        // ৩. টাচ অ্যান্ড ক্লিক লকিং সিস্টেম (পার্মানেন্ট অ্যাক্টিভেটেড)
         const selectInteraction = new ol.interaction.Select({
             style: selectStyle,
-            layers: [vectorLayer]
+            layers: [countryLayer]
         });
         map.addInteraction(selectInteraction);
+
+        // ক্লিক করলেই শহর ভেসে ওঠার ম্যাজিক লজিক
+        selectInteraction.on('select', function(e) {
+            if (e.selected.length > 0) {
+                activeCountry = e.selected[0].get('ADMIN') || e.selected[0].get('name') || '';
+            } else {
+                activeCountry = ""; // ফাঁকা জায়গায় ক্লিক করলে শহর গায়েব
+            }
+            cityLayer.changed(); // শহরের লেয়ারকে সাথে সাথে আপডেট নির্দেশ
+        });
+
     </script>
 </body>
 </html>
