@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Clean Tactical Map</title>
+    <title>Modern Age 3 - Final Fixed Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -14,76 +14,55 @@
 <body>
     <div id="map"></div>
     <script>
+        // বর্ডার এবং নাম দেখানোর জন্য আলাদা লেয়ার সেটআপ
         const map = new ol.Map({
             target: 'map',
             layers: [
-                new ol.layer.Tile({ 
-                    source: new ol.source.XYZ({ 
-                        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                        maxZoom: 19
-                    }) 
-                }),
+                new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) }),
                 new ol.layer.Vector({
-                    declutter: true, 
+                    declutter: true,
                     source: new ol.source.Vector({
                         url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
                         format: new ol.format.GeoJSON()
                     }),
                     style: function (feature, resolution) {
-                        let name = feature.get('ADMIN') || feature.get('name') || '';
+                        const name = feature.get('ADMIN') || feature.get('name') || '';
                         const zoom = Math.log2(156543.03392 / resolution);
 
-                        // ১. ফালতু ও অপ্রয়োজনীয় এলাকা ব্ল্যাকলিস্ট (মুছে ফেলা হবে)
-                        const blacklist = ["British Indian Ocean Territory", "Christmas Island", "Cocos Islands", "Norfolk Island", "Niue", "Tokelau", "Pitcairn", "Palestine", "Western Sahara"];
+                        // ১. ফালতু অঞ্চল ও দ্বীপ ব্লক লিস্ট
+                        const blacklist = ["British Indian Ocean Territory", "Christmas Island", "Cocos Islands", "Niue", "Tokelau", "Palestine", "Western Sahara"];
                         if (blacklist.includes(name)) return null;
 
-                        // নাম সংক্ষেপকরণ ও পরিষ্কারকরণ
-                        if (name === "Democratic Republic of the Congo") name = "DR CONGO";
-                        else if (name === "United Kingdom") name = "UK";
-                        else if (name === "United States of America") name = "USA";
-
-                        // ২. কড়া জুম লজিক (ছোট দেশগুলো শুধু ৬.০ জুমের পর আসবে)
-                        const smallCountries = ["LUX", "LIECH", "Singapore", "Qatar", "Kuwait", "Fiji", "Vanuatu", "Solomon Islands", "Marshall Islands"];
-                        if (zoom < 6.0 && smallCountries.includes(name)) return null; 
-
-                        // ৩. বর্ডার স্টাইল (খুবই সূক্ষ্ম)
+                        // ২. বর্ডার স্টাইল (সবসময় থাকবে)
                         const borderStyle = new ol.style.Style({
-                            stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.3)', width: 1.0 })
+                            stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.2 })
                         });
 
-                        // যদি নাম না দেখানোর শর্ত থাকে, শুধু বর্ডার দেখাবে
-                        if (zoom < 4.5 && !["USA", "UK", "China", "India", "Brazil", "Russia", "Australia"].includes(name)) {
-                            return borderStyle;
-                        }
+                        // ৩. নামের ফিল্টার ও সংক্ষেপন
+                        let displayName = name;
+                        if (name === "Democratic Republic of the Congo") displayName = "DR CONGO";
+                        if (name === "United Kingdom") displayName = "UK";
+                        if (name === "United States of America") displayName = "USA";
+
+                        // জুম লজিক: জুম ৬.০ এর নিচে ছোট দেশ নাম দেখাবে না
+                        const smallOnes = ["Luxembourg", "Liechtenstein", "Singapore", "Fiji", "Vanuatu"];
+                        if (zoom < 6.0 && smallOnes.includes(name)) return borderStyle;
 
                         const textStyle = new ol.style.Style({
                             text: new ol.style.Text({
-                                text: name.toUpperCase(),
-                                font: `900 ${11 + (zoom-4)*2}px "Impact", sans-serif`,
+                                text: displayName.toUpperCase(),
+                                font: `900 13px "Impact", sans-serif`,
                                 fill: new ol.style.Fill({ color: '#ffffff' }),
                                 stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
-                                placement: 'point',
-                                textAlign: 'center'
+                                placement: 'point'
                             })
                         });
-
-                        // সীমানার বাইরে যাওয়া বন্ধ করা
-                        const geom = feature.getGeometry();
-                        if (geom) {
-                            textStyle.setGeometry(geom.getInteriorPoint());
-                        }
 
                         return [borderStyle, textStyle];
                     }
                 })
             ],
-            view: new ol.View({
-                center: ol.proj.fromLonLat([25.0, 42.0]),
-                zoom: 3.8,
-                minZoom: 3.8,
-                maxZoom: 8.5,
-                enableRotation: false
-            })
+            view: new ol.View({ center: ol.proj.fromLonLat([25.0, 42.0]), zoom: 3.8, minZoom: 3.8, maxZoom: 8.5 })
         });
     </script>
 </body>
