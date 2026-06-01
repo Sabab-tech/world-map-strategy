@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Stable Tactical Map</title>
+    <title>Modern Age 3 - Advanced Tactical Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -39,25 +39,37 @@
                         let rawName = feature.get('ADMIN') || feature.get('name') || feature.get('NAME') || '';
                         const zoom = Math.log2(156543.03392 / resolution);
 
-                        // ১. আন্তর্জাতিক স্ট্যান্ডার্ড অনুযায়ী বড় নামের সংক্ষেপকরণ ডিকশনারি
+                        // আপনার লিস্ট অনুযায়ী গ্লোবাল স্ট্যান্ডার্ড সংক্ষেপকরণ ইঞ্জিন
                         let name = rawName;
                         if (rawName.includes("Democratic Republic of the Congo")) name = "DR CONGO";
                         else if (rawName.includes("Congo (Democratic Republic of the)")) name = "DR CONGO";
                         else if (rawName.includes("Republic of the Congo")) name = "CONGO";
-                        else if (rawName.includes("Tanzania")) name = "TANZANIA";
-                        else if (rawName.includes("United Kingdom")) name = "UK";
-                        else if (rawName.includes("Bahamas")) name = "BAHAMAS";
-                        else if (rawName.includes("Hong Kong")) name = "HONG KONG";
                         else if (rawName.includes("Central African Republic")) name = "CAR";
-                        else if (rawName.includes("Dominican Republic")) name = "DOMINICAN REP";
-                        else if (rawName.includes("United Arab Emirates")) name = "UAE";
-                        else if (rawName.includes("United States of America")) name = "USA";
+                        else if (rawName.includes("Tanzania")) name = "TANZANIA";
                         else if (rawName.includes("Equatorial Guinea")) name = "EQ. GUINEA";
                         else if (rawName.includes("Bosnia and Herzegovina")) name = "BOSNIA";
-                        else if (rawName.includes("Papua New Guinea")) name = "PNG";
+                        else if (rawName.includes("Czech Republic")) name = "CZECHIA";
+                        else if (rawName.includes("Switzerland")) name = "SWISS";
+                        else if (rawName.includes("North Macedonia")) name = "N. MACEDONIA";
+                        else if (rawName.includes("Luxembourg")) name = "LUX";
+                        else if (rawName.includes("Liechtenstein")) name = "LIECH";
+                        else if (rawName.includes("United Kingdom")) name = "UK";
+                        else if (rawName.includes("United Arab Emirates")) name = "UAE";
+                        else if (rawName.includes("Dominican Republic")) name = "DOMINICAN REP";
+                        else if (rawName.includes("United States of America")) name = "USA";
+                        
+                        // ওশেনিয়া ও দ্বীপ অঞ্চল ফিল্টার
+                        else if (rawName.includes("Federated States of Micronesia")) name = "F.S. MICRONESIA";
+                        else if (rawName.includes("Micronesia")) name = "MICRONESIA";
                         else if (rawName.includes("Solomon Islands")) name = "SOLOMON IS.";
+                        else if (rawName.includes("Marshall Islands")) name = "MARSHALL IS.";
+                        else if (rawName.includes("Papua New Guinea")) name = "PNG";
+                        else if (rawName.includes("New Caledonia")) name = "NEW CALEDONIA";
+                        else if (rawName.includes("Fiji")) name = "FIJI";
+                        else if (rawName.includes("Vanuatu")) name = "VANUATU";
+                        else if (rawName.includes("Bahamas")) name = "BAHAMAS";
 
-                        // হালকা এবং স্বাভাবিক ১.৪ পিক্সেল বর্ডার স্টাইল
+                        // ডিফল্ট বর্ডার স্টাইল (হালকা সাদা)
                         const borderStyle = new ol.style.Style({
                             stroke: new ol.style.Stroke({
                                 color: 'rgba(255, 255, 255, 0.45)', 
@@ -65,24 +77,29 @@
                             })
                         });
 
-                        // ছোট দেশ ও সাগরের দ্বীপ কম জুম লেভেলে হাইড রাখার নিয়ম
-                        const smallAndIslands = ["Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore", "Bangladesh", "BAHAMAS", "HONG KONG", "SOLOMON IS."];
-                        if (zoom < 4.5 && smallAndIslands.includes(name)) {
+                        // স্মার্ট জুম কন্ট্রোল: ছোট দেশ ও দ্বীপগুলোর নাম দূরে থাকলে সম্পূর্ণ হাইড থাকবে
+                        const ultraSmall = ["LUX", "LIECH", "F.S. MICRONESIA", "MICRONESIA", "SOLOMON IS.", "MARSHALL IS.", "FIJI", "VANUATU", "NEW CALEDONIA", "BAHAMAS", "Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore"];
+                        if (zoom < 5.2 && ultraSmall.includes(name)) {
                             return borderStyle; 
                         }
 
-                        // হলিউড স্টাইল খাড়া ফন্ট সাইজ
+                        const mediumSmall = ["BOSNIA", "N. MACEDONIA", "SWISS", "CZECHIA", "EQ. GUINEA", "UAE", "Bangladesh"];
+                        if (zoom < 4.6 && mediumSmall.includes(name)) {
+                            return borderStyle; 
+                        }
+
+                        // হলিউд স্টাইল বড় ফন্ট
                         let fontSize = 12 + (zoom - 3.8) * 4;
                         if (fontSize > 25) fontSize = 25;
                         if (fontSize < 11) fontSize = 11;
 
+                        // লম্বালম্বি দেশের রোটেশন
                         let textRotation = 0;
                         if (name === "Lebanon") textRotation = -1.35; 
                         else if (name === "Chile") textRotation = -1.45;
                         else if (name === "Vietnam") textRotation = -1.15;
                         else if (name === "Norway") textRotation = -1.25;
 
-                        // নাম দেখানোর জন্য টেক্সট স্টাইল
                         const textStyle = new ol.style.Style({
                             text: new ol.style.Text({
                                 text: name.toUpperCase(),
@@ -93,11 +110,11 @@
                                 placement: 'point',
                                 textAlign: 'center',
                                 textBaseline: 'middle',
-                                overflow: false 
+                                overflow: false // বর্ডারের বাইরে নাম যাওয়া কঠোরভাবে নিষিদ্ধ
                             })
                         });
 
-                        // বিশেষ দেশগুলোর নাম মূল মেইনল্যান্ডের মাঝখানে লক করা
+                        // বিশেষ ইউরোপীয় দেশের মেইনল্যান্ড লোকেশন লক
                         if (name === "Italy") {
                             textStyle.setGeometry(new ol.geom.Point(ol.proj.fromLonLat([12.6, 42.5])));
                             return [borderStyle, textStyle];
@@ -111,7 +128,7 @@
                             return [borderStyle, textStyle];
                         }
 
-                        // ২. সুরক্ষিত মেইনল্যান্ড লজিক (ক্র্যাশ প্রোটেকশন সহ)
+                        // সুরক্ষিত কন্টেইনমেন্ট লজিক (নাম যেন সাগরে না যায়)
                         const geom = feature.getGeometry();
                         if (geom) {
                             try {
@@ -127,13 +144,11 @@
                                             mainPolygon = polygons[i];
                                         }
                                     }
-                                    // ইন্টেরিয়র পয়েন্ট ব্যবহার করে নাম সবসময় স্থলভাগের ভেতরেই থাকবে
                                     textStyle.setGeometry(mainPolygon.getInteriorPoint());
                                 } else if (geom.getType() === 'Polygon') {
                                     textStyle.setGeometry(geom.getInteriorPoint());
                                 }
                             } catch (e) {
-                                // কোনো কারণে কোঅর্ডিনেট রিড করতে সমস্যা হলে ডিফল্ট মেথডে ব্যাকআপ নেবে, ক্র্যাশ করবে না
                                 return borderStyle;
                             }
                         }
