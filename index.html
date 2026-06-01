@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Tactical Map Fixed</title>
+    <title>Modern Age 3 - Hollywood Style Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -14,13 +14,6 @@
 <body>
     <div id="map"></div>
     <script>
-        // পুরনো ক্যাশ ডিলিট করে জোর করে নতুন কোড লোড করার মেকানিজম
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                for (let registration of registrations) { registration.unregister(); }
-            });
-        }
-
         const map = new ol.Map({
             target: 'map',
             layers: [
@@ -31,20 +24,26 @@
                     }) 
                 }),
                 new ol.layer.Vector({
+                    declutter: true, // এক নাম বারবার আসবে না, জ্যাম হবে না
                     source: new ol.source.Vector({
                         url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
                         format: new ol.format.GeoJSON()
                     }),
                     style: function (feature, resolution) {
-                        const name = feature.get('ADMIN') || feature.get('name') || '';
+                        const name = feature.get('ADMIN') || '';
                         const zoom = Math.log2(156543.03392 / resolution);
 
-                        // জুম অনুযায়ী ফন্ট সাইজ বড় হওয়া
-                        let fontSize = 11 + (zoom - 3.8) * 3.5;
-                        if (fontSize > 26) fontSize = 26;
+                        // ছোট দেশের নাম শুরুতে দেখাবে না, জুম করলে বড় হবে
+                        if (zoom < 4.2 && ["Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore"].includes(name)) {
+                            return null; 
+                        }
+
+                        // জুম অনুযায়ী ডায়নামিক সাইজ (হলিউড স্টাইল বড় অক্ষর)
+                        let fontSize = 12 + (zoom - 3.8) * 4;
+                        if (fontSize > 28) fontSize = 28;
                         if (fontSize < 11) fontSize = 11;
 
-                        // লেবানন ও লম্বালম্বি দেশের পারফেক্ট রোটেশন
+                        // লম্বালম্বি দেশের জন্য নিখুঁত বাঁকানো লজিক
                         let textRotation = 0;
                         if (name === "Lebanon") textRotation = -1.35; 
                         else if (name === "Chile") textRotation = -1.45;
@@ -53,17 +52,21 @@
 
                         return new ol.style.Style({
                             stroke: new ol.style.Stroke({
-                                color: 'rgba(255, 255, 255, 0.7)',
-                                width: 1.4 // আপনার দেওয়া ১.৪ পিক্সেল বর্ডার
+                                color: 'rgba(255, 255, 255, 0.8)',
+                                width: 1.4 // আপনার ফিক্সড ১.৪ পিক্সেল বর্ডার
                             }),
                             text: new ol.style.Text({
                                 text: name.toUpperCase(),
-                                font: `900 ${fontSize}px "Arial Black", sans-serif`,
+                                // Impact ফন্ট ব্যবহার করা হয়েছে হলিউড সাইনের মতো খাড়া লুক দেওয়ার জন্য
+                                font: `900 ${fontSize}px "Impact", "Arial Black", sans-serif`,
                                 fill: new ol.style.Fill({ color: '#ffffff' }),
-                                stroke: new ol.style.Stroke({ color: '#000000', width: 3.5 }),
+                                // কালো স্ট্রোক টেক্সটকে থ্রিডি স্টাইলে খাড়া দেখাবে
+                                stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }),
                                 rotation: textRotation,
                                 placement: 'point',
-                                overflow: true // নাম যেন কোনোভাবেই হাইড না হয়
+                                textAlign: 'center',
+                                textBaseline: 'middle',
+                                overflow: false // বর্ডারের বাইরে নাম যাওয়া কঠোরভাবে বন্ধ
                             })
                         });
                     }
