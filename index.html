@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Precision Touch Map</title>
+    <title>Modern Age 3 - Permanent Master Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -14,25 +14,26 @@
 <body>
     <div id="map"></div>
     <script>
+        // ব্রাউজার ক্যাশ বা সার্ভিস ওয়ার্কার জনিত সমস্যা স্থায়ীভাবে বন্ধ করার লক
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(registrations => {
                 for (let r of registrations) { r.unregister(); }
             });
         }
 
-        // সাধারণ অবস্থায় বর্ডার এবং টেক্সট স্টাইল
+        // মাস্টার কোড প্রোটেকশন - সাধারণ অবস্থায় বর্ডার এবং টেক্সট স্টাইল ফাংশন
         function countryStyle(feature, resolution) {
             const name = feature.get('ADMIN') || feature.get('name') || '';
             const zoom = Math.log2(156543.03392 / resolution);
 
-            // অপ্রয়োজনীয় অঞ্চল ও দ্বীপ ব্ল্যাকলিস্ট
+            // ১. ফালতু অঞ্চল ও দ্বীপ ব্লক লিস্ট (পার্মানেন্ট ফিল্টার)
             const blacklist = ["British Indian Ocean Territory", "Christmas Island", "Cocos Islands", "Norfolk Island", "Niue", "Tokelau", "Palestine", "Western Sahara"];
             if (blacklist.includes(name)) return null;
 
-            // বর্ডার স্টাইল (হালকা সাদা)
+            // বর্ডার স্টাইল (হালকা ও সূক্ষ্ম সাদা)
             const borderStyle = new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.2 });
             
-            // অদৃশ্য ফিল (Invisible Fill) - এর কারণে দেশের বর্ডারের ভেতরে যেকোনো জায়গায় টাচ কাজ করবে
+            // অদৃশ্য টাচ লক ফিল (Invisible Touch Lock) - যার কারণে যেকোনো খালি জায়গায় টাচ কাজ করবে
             const invisibleFill = new ol.style.Fill({ color: 'rgba(0, 0, 0, 0.001)' });
 
             let displayName = name;
@@ -40,19 +41,20 @@
             else if (name === "United Kingdom") displayName = "UK";
             else if (name === "United States of America") displayName = "USA";
 
-            // কড়া জুম লজিক: জুম ৬.০ এর নিচে ছোট দেশ নাম দেখাবে না
+            // কড়া জুম স্তর বিন্যাস: জুম ৬.০ এর নিচে ছোট দেশের নাম স্ক্রিনে আসবে না
             const smallOnes = ["Luxembourg", "Liechtenstein", "Singapore", "Fiji", "Vanuatu", "Solomon Islands", "Marshall Islands", "Qatar", "Kuwait", "Lebanon"];
             if (zoom < 6.0 && smallOnes.includes(name)) {
                 return new ol.style.Style({ stroke: borderStyle, fill: invisibleFill });
             }
 
+            // হলিউড স্টাইল ডাইনামিক ফন্ট
             let fontSize = 12 + (zoom - 3.8) * 3;
             if (fontSize > 24) fontSize = 24;
             if (fontSize < 11) fontSize = 11;
 
             return new ol.style.Style({
                 stroke: borderStyle,
-                fill: invisibleFill, // টাচ লকিং সক্রিয় করা হলো
+                fill: invisibleFill, 
                 text: new ol.style.Text({
                     text: displayName.toUpperCase(),
                     font: `900 ${fontSize}px "Impact", "Arial Black", sans-serif`,
@@ -66,7 +68,7 @@
             });
         }
 
-        // সিলেক্ট করার পর প্রিমিয়াম লাইট হাইলাইট স্টাইল (অতিরিক্ত সাদা ভাব কমানো হয়েছে)
+        // ২. সিলেক্ট করার পর প্রিমিয়াম গেম লুক (সফট হাইলাইট আভা)
         function selectStyle(feature, resolution) {
             const name = feature.get('ADMIN') || feature.get('name') || '';
             const zoom = Math.log2(156543.03392 / resolution);
@@ -80,14 +82,12 @@
             if (fontSize > 24) fontSize = 24;
 
             return new ol.style.Style({
-                // একদম সফট হালকা সাদা আভা যেন স্যাটেলাইট ব্যাকগ্রাউন্ড চেনা যায়
-                fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.12)' }),
-                // বর্ডার কিছুটা লাইট এবং প্রফেশনাল ২.০ পিক্সেল মোটা
+                fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.12)' }), // হালকা প্রিমিয়াম স্যাটেলাইট গ্লো
                 stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.8)', width: 2.0 }),
                 text: new ol.style.Text({
                     text: displayName.toUpperCase(),
                     font: `900 ${fontSize}px "Impact", "Arial Black", sans-serif`,
-                    fill: new ol.style.Fill({ color: '#ffff33' }), // হালকা ডার্ক হলুদ নাম
+                    fill: new ol.style.Fill({ color: '#ffff33' }), 
                     stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }),
                     placement: 'point',
                     textAlign: 'center',
@@ -117,7 +117,7 @@
             controls: []
         });
 
-        // ইন্টারঅ্যাক্টিভ সিলেক্ট সিস্টেম
+        // ৩. টাচ অ্যান্ড ক্লিক লকিং সিস্টেম (পার্মানেন্ট অ্যাক্টিভেটেড)
         const selectInteraction = new ol.interaction.Select({
             style: selectStyle,
             layers: [vectorLayer]
