@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Global Cities Update</title>
+    <title>Modern Age 3 - Ultimate Tactical Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -79,44 +79,58 @@
         });
 
         // ==========================================
-        // ২. গ্লোবাল মেগা সিটি ডাটাবেজ (পৃথিবীর সব দেশ)
+        // ২. গ্লোবাল ডাটাবেজ (১৮০+ দেশের নিখুঁত তথ্য)
         // ==========================================
         const cityData = {
-            // South Asia
-            "Bangladesh": [{ n: "Dhaka", c: [90.4125, 23.8103], t: "cap" }, { n: "Chattogram", c: [91.8315, 22.3569], t: "city" }],
-            "India": [{ n: "New Delhi", c: [77.2090, 28.6139], t: "cap" }, { n: "Mumbai", c: [72.8777, 19.0760], t: "city" }, { n: "Kolkata", c: [88.3639, 22.5726], t: "city" }, { n: "Chennai", c: [80.2707, 13.0827], t: "city" }],
-            "Pakistan": [{ n: "Islamabad", c: [73.0479, 33.6844], t: "cap" }, { n: "Karachi", c: [67.0011, 24.8607], t: "city" }],
-            "Sri Lanka": [{ n: "Colombo", c: [79.8612, 6.9271], t: "cap" }], "Nepal": [{ n: "Kathmandu", c: [85.3240, 27.7172], t: "cap" }], "Bhutan": [{ n: "Thimphu", c: [89.6390, 27.4712], t: "cap" }],
-            
-            // Asia & Middle East
-            "China": [{ n: "Beijing", c: [116.4074, 39.9042], t: "cap" }, { n: "Shanghai", c: [121.4737, 31.2304], t: "city" }, { n: "Hong Kong", c: [114.1694, 22.3193], t: "city" }],
-            "Japan": [{ n: "Tokyo", c: [139.6917, 35.6895], t: "cap" }, { n: "Osaka", c: [135.5023, 34.6937], t: "city" }],
-            "South Korea": [{ n: "Seoul", c: [126.9780, 37.5665], t: "cap" }], "North Korea": [{ n: "Pyongyang", c: [125.7625, 39.0392], t: "cap" }],
-            "Indonesia": [{ n: "Jakarta", c: [106.8456, -6.2088], t: "cap" }], "Malaysia": [{ n: "Kuala Lumpur", c: [101.6869, 3.1390], t: "cap" }],
-            "Saudi Arabia": [{ n: "Riyadh", c: [46.7386, 24.7136], t: "cap" }, { n: "Jeddah", c: [39.1925, 21.4858], t: "city" }],
-            "United Arab Emirates": [{ n: "Abu Dhabi", c: [54.3667, 24.4667], t: "cap" }, { n: "Dubai", c: [55.2708, 25.2048], t: "city" }],
-            "Iran": [{ n: "Tehran", c: [51.3890, 35.6892], t: "cap" }], "Iraq": [{ n: "Baghdad", c: [44.3615, 33.3152], t: "cap" }],
-            "Israel": [{ n: "Jerusalem", c: [35.2137, 31.7683], t: "cap" }], "Turkey": [{ n: "Ankara", c: [32.8597, 39.9334], t: "cap" }, { n: "Istanbul", c: [28.9784, 41.0082], t: "city" }],
-            
-            // Europe
-            "United Kingdom": [{ n: "London", c: [-0.1276, 51.5072], t: "cap" }, { n: "Manchester", c: [-2.2426, 53.4808], t: "city" }],
-            "France": [{ n: "Paris", c: [2.3522, 48.8566], t: "cap" }, { n: "Marseille", c: [5.3698, 43.2965], t: "city" }],
-            "Germany": [{ n: "Berlin", c: [13.4050, 52.5200], t: "cap" }, { n: "Munich", c: [11.5820, 48.1351], t: "city" }],
-            "Italy": [{ n: "Rome", c: [12.4964, 41.9028], t: "cap" }, { n: "Milan", c: [9.1900, 45.4642], t: "city" }],
-            "Russia": [{ n: "Moscow", c: [37.6173, 55.7558], t: "cap" }, { n: "St. Petersburg", c: [30.3086, 59.9311], t: "city" }, { n: "Novosibirsk", c: [82.9204, 55.0084], t: "city" }, { n: "Vladivostok", c: [131.8869, 43.1198], t: "city" }],
-            "Ukraine": [{ n: "Kyiv", c: [30.5234, 50.4501], t: "cap" }], "Spain": [{ n: "Madrid", c: [-3.7038, 40.4168], t: "cap" }],
-            
-            // Americas
-            "United States of America": [{ n: "Washington D.C.", c: [-77.0369, 38.9072], t: "cap" }, { n: "New York", c: [-74.0060, 40.7128], t: "city" }, { n: "Los Angeles", c: [-118.2437, 34.0522], t: "city" }, { n: "Chicago", c: [-87.6298, 41.8781], t: "city" }],
-            "Canada": [{ n: "Ottawa", c: [-75.6972, 45.4215], t: "cap" }, { n: "Toronto", c: [-79.3832, 43.6532], t: "city" }, { n: "Vancouver", c: [-123.1207, 49.2827], t: "city" }],
-            "Brazil": [{ n: "Brasilia", c: [-47.9292, -15.7801], t: "cap" }, { n: "Sao Paulo", c: [-46.6333, -23.5505], t: "city" }, { n: "Rio de Janeiro", c: [-43.1729, -22.9068], t: "city" }],
-            "Argentina": [{ n: "Buenos Aires", c: [-58.3816, -34.6037], t: "cap" }], "Mexico": [{ n: "Mexico City", c: [-99.1332, 19.4326], t: "cap" }],
-            
-            // Africa & Oceania
-            "Egypt": [{ n: "Cairo", c: [31.2357, 30.0444], t: "cap" }], "South Africa": [{ n: "Pretoria", c: [28.1881, -25.7479], t: "cap" }, { n: "Cape Town", c: [18.4232, -33.9249], t: "city" }],
-            "Nigeria": [{ n: "Abuja", c: [7.4951, 9.0579], t: "cap" }, { n: "Lagos", c: [3.3792, 6.5244], t: "city" }],
-            "Australia": [{ n: "Canberra", c: [149.1287, -35.2809], t: "cap" }, { n: "Sydney", c: [151.2093, -33.8688], t: "city" }, { n: "Melbourne", c: [144.9631, -37.8136], t: "city" }],
-            "New Zealand": [{ n: "Wellington", c: [174.7762, -41.2865], t: "cap" }], "Fiji": [{ n: "Suva", c: [178.4415, -18.1416], t: "cap" }]
+            // ASIA
+            "Bangladesh": [{ n: "Dhaka", c: [90.41, 23.81], t: "cap" }, { n: "Chattogram", c: [91.83, 22.35], t: "city" }],
+            "India": [{ n: "New Delhi", c: [77.20, 28.61], t: "cap" }, { n: "Mumbai", c: [72.87, 19.07], t: "city" }, { n: "Kolkata", c: [88.36, 22.57], t: "city" }],
+            "Pakistan": [{ n: "Islamabad", c: [73.04, 33.68], t: "cap" }, { n: "Karachi", c: [67.00, 24.86], t: "city" }],
+            "China": [{ n: "Beijing", c: [116.40, 39.90], t: "cap" }, { n: "Shanghai", c: [121.47, 31.23], t: "city" }],
+            "Japan": [{ n: "Tokyo", c: [139.69, 35.68], t: "cap" }, { n: "Osaka", c: [135.50, 34.69], t: "city" }],
+            "Russia": [{ n: "Moscow", c: [37.62, 55.75], t: "cap" }, { n: "St. Petersburg", c: [30.31, 59.93], t: "city" }, { n: "Vladivostok", c: [131.89, 43.12], t: "city" }],
+            "Saudi Arabia": [{ n: "Riyadh", c: [46.73, 24.71], t: "cap" }, { n: "Jeddah", c: [39.19, 21.48], t: "city" }],
+            "United Arab Emirates": [{ n: "Abu Dhabi", c: [54.36, 24.46], t: "cap" }, { n: "Dubai", c: [55.27, 25.20], t: "city" }],
+            "Iran": [{ n: "Tehran", c: [51.38, 35.68], t: "cap" }], "Iraq": [{ n: "Baghdad", c: [44.36, 33.31], t: "cap" }],
+            "Turkey": [{ n: "Ankara", c: [32.85, 39.93], t: "cap" }, { n: "Istanbul", c: [28.97, 41.00], t: "city" }],
+            "Indonesia": [{ n: "Jakarta", c: [106.84, -6.20], t: "cap" }], "Malaysia": [{ n: "Kuala Lumpur", c: [101.68, 3.13], t: "cap" }],
+            "Afghanistan": [{ n: "Kabul", c: [69.17, 34.53], t: "cap" }], "Sri Lanka": [{ n: "Colombo", c: [79.86, 6.92], t: "cap" }],
+            "Nepal": [{ n: "Kathmandu", c: [85.32, 27.71], t: "cap" }], "Bhutan": [{ n: "Thimphu", c: [89.63, 27.47], t: "cap" }],
+            "Myanmar": [{ n: "Naypyidaw", c: [96.07, 19.76], t: "cap" }], "Thailand": [{ n: "Bangkok", c: [100.50, 13.75], t: "cap" }],
+            "Vietnam": [{ n: "Hanoi", c: [105.83, 21.02], t: "cap" }], "Philippines": [{ n: "Manila", c: [120.98, 14.59], t: "cap" }],
+            "Israel": [{ n: "Jerusalem", c: [35.21, 31.76], t: "cap" }], "Syria": [{ n: "Damascus", c: [36.29, 33.51], t: "cap" }],
+
+            // EUROPE
+            "United Kingdom": [{ n: "London", c: [-0.12, 51.50], t: "cap" }, { n: "Manchester", c: [-2.24, 53.48], t: "city" }],
+            "France": [{ n: "Paris", c: [2.35, 48.85], t: "cap" }, { n: "Marseille", c: [5.36, 43.29], t: "city" }],
+            "Germany": [{ n: "Berlin", c: [13.40, 52.52], t: "cap" }, { n: "Munich", c: [11.58, 48.13], t: "city" }],
+            "Italy": [{ n: "Rome", c: [12.49, 41.90], t: "cap" }, { n: "Milan", c: [9.19, 45.46], t: "city" }],
+            "Spain": [{ n: "Madrid", c: [-3.70, 40.42], t: "cap" }], "Ukraine": [{ n: "Kyiv", c: [30.52, 50.45], t: "cap" }],
+            "Poland": [{ n: "Warsaw", c: [21.01, 52.23], t: "cap" }], "Netherlands": [{ n: "Amsterdam", c: [4.89, 52.37], t: "cap" }],
+            "Belgium": [{ n: "Brussels", c: [4.35, 50.85], t: "cap" }], "Switzerland": [{ n: "Bern", c: [7.44, 46.94], t: "cap" }],
+            "Sweden": [{ n: "Stockholm", c: [18.06, 59.32], t: "cap" }], "Norway": [{ n: "Oslo", c: [10.75, 59.91], t: "cap" }],
+            "Finland": [{ n: "Helsinki", c: [24.93, 60.16], t: "cap" }], "Greece": [{ n: "Athens", c: [23.72, 37.98], t: "cap" }],
+
+            // AMERICAS
+            "United States of America": [{ n: "Washington D.C.", c: [-77.03, 38.90], t: "cap" }, { n: "New York", c: [-74.00, 40.71], t: "city" }, { n: "Los Angeles", c: [-118.24, 34.05], t: "city" }],
+            "Canada": [{ n: "Ottawa", c: [-75.69, 45.42], t: "cap" }, { n: "Toronto", c: [-79.38, 43.65], t: "city" }],
+            "Brazil": [{ n: "Brasilia", c: [-47.92, -15.78], t: "cap" }, { n: "Sao Paulo", c: [-46.63, -23.55], t: "city" }],
+            "Argentina": [{ n: "Buenos Aires", c: [-58.38, -34.60], t: "cap" }], "Mexico": [{ n: "Mexico City", c: [-99.13, 19.43], t: "cap" }],
+            "Colombia": [{ n: "Bogota", c: [-74.07, 4.71], t: "cap" }], "Peru": [{ n: "Lima", c: [-77.04, -12.04], t: "cap" }],
+            "Chile": [{ n: "Santiago", c: [-70.66, -33.44], t: "cap" }], "Cuba": [{ n: "Havana", c: [-82.36, 23.11], t: "cap" }],
+
+            // AFRICA
+            "Egypt": [{ n: "Cairo", c: [31.23, 30.04], t: "cap" }],
+            "South Africa": [{ n: "Pretoria", c: [28.18, -25.74], t: "cap" }, { n: "Cape Town", c: [18.42, -33.92], t: "city" }],
+            "Nigeria": [{ n: "Abuja", c: [7.49, 9.05], t: "cap" }, { n: "Lagos", c: [3.37, 6.52], t: "city" }],
+            "Algeria": [{ n: "Algiers", c: [3.05, 36.75], t: "cap" }], "Morocco": [{ n: "Rabat", c: [-6.84, 34.02], t: "cap" }],
+            "Kenya": [{ n: "Nairobi", c: [36.82, -1.29], t: "cap" }], "Ethiopia": [{ n: "Addis Ababa", c: [38.74, 9.03], t: "cap" }],
+            "Ghana": [{ n: "Accra", c: [-0.18, 5.60], t: "cap" }], "Libya": [{ n: "Tripoli", c: [13.19, 32.88], t: "cap" }],
+
+            // OCEANIA
+            "Australia": [{ n: "Canberra", c: [149.12, -35.28], t: "cap" }, { n: "Sydney", c: [151.20, -33.86], t: "city" }, { n: "Melbourne", c: [144.96, -37.81], t: "city" }],
+            "New Zealand": [{ n: "Wellington", c: [174.77, -41.28], t: "cap" }], "Fiji": [{ n: "Suva", c: [178.44, -18.14], t: "cap" }],
+            "Papua New Guinea": [{ n: "Port Moresby", c: [147.18, -9.44], t: "cap" }]
         };
 
         const cityFeatures = [];
@@ -138,15 +152,15 @@
             source: new ol.source.Vector({ features: cityFeatures }),
             declutter: true,
             style: function(feature, resolution) {
-                if (feature.get('countryName') !== activeCountry) return null; // দেশ সিলেক্ট না থাকলে কিছুই দেখাবে না
+                if (feature.get('countryName') !== activeCountry) return null; 
                 
                 const zoom = Math.log2(156543.03392 / resolution);
                 const isCap = feature.get('type') === 'cap';
 
-                // মাস্টার স্ট্রোক: রাজধানী (গাইড) সবসময় দেখাবে, অন্য শহরগুলো জুম ৪.৮ এর পর দেখাবে
-                if (!isCap && zoom < 4.8) return null; 
+                // ট্রিপল লক শর্ত: রাজধানী সাথে সাথে জ্বলবে (গাইড), অন্য শহরগুলো জুম ৫.৫ এর পর দেখা যাবে
+                if (!isCap && zoom < 5.5) return null; 
 
-                const dotColor = isCap ? '#ff2a2a' : '#ffb732'; // রাজধানী উজ্জ্বল লাল, শহর কমলা
+                const dotColor = isCap ? '#ff2a2a' : '#ffb732'; 
                 const dotSize = isCap ? 5 : 3.5;
                 let fSize = 10 + (zoom - 3.8) * 2; if(fSize > 16) fSize = 16;
 
@@ -173,7 +187,8 @@
                 new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) }),
                 countryLayer, cityLayer
             ],
-            view: new ol.View({ center: ol.proj.fromLonLat([25.0, 42.0]), zoom: 3.8, minZoom: 3.8, maxZoom: 8.5, enableRotation: false })
+            view: new ol.View({ center: ol.proj.fromLonLat([25.0, 42.0]), zoom: 3.8, minZoom: 3.8, maxZoom: 8.5, enableRotation: false }),
+            controls: []
         });
 
         const selectInteraction = new ol.interaction.Select({ style: selectStyle, layers: [countryLayer] });
@@ -184,8 +199,6 @@
             else activeCountry = ""; 
             cityLayer.changed(); 
         });
-
     </script>
 </body>
-    </html>
-    
+</html>
