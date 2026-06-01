@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Bollywood Map - 100% Verified</title>
+    <title>Global Bollywood Map - Perfect Zoom & Size</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
@@ -10,7 +10,6 @@
 <body>
     <div id="map"></div>
     <script>
-        // বড় নামগুলোর সঠিক সংক্ষেপ রূপ
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -39,18 +38,17 @@
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
             const area = feature.getGeometry().getArea();
 
-            // আনুপাতিক হারে ফন্ট সাইজ নির্ধারণ করার নিখুঁত লজিক
-            let fontSize = Math.min(20, Math.max(10, Math.sqrt(area) / (resolution * 14)));
+            // ফন্ট সাইজ বাড়ানো হয়েছে (সর্বনিম্ন ১২, সর্বোচ্চ ২৮)
+            let fontSize = Math.min(28, Math.max(12, Math.sqrt(area) / (resolution * 10)));
 
-            // ছোট দেশগুলোর জন্য জুম লেভেল কানেকশন (জুম ৩ এর নিচে ছোট দেশ জটলা পাকাবে না)
             if (area < 2000000000 && currentZoom < 4) {
                 if (currentZoom < 3) return null;
-                fontSize = 9;
+                fontSize = 11; // ছোট দেশের নামগুলোও আগের চেয়ে বড় করা হয়েছে
             }
 
             return new ol.style.Style({
                 stroke: new ol.style.Stroke({
-                    color: 'rgba(255, 255, 255, 0.4)', // হালকা স্বচ্ছ সাদা বর্ডার
+                    color: 'rgba(255, 255, 255, 0.5)', 
                     width: 1.2
                 }),
                 text: new ol.style.Text({
@@ -60,12 +58,10 @@
                     stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
                     placement: 'point',
                     
-                    // ওপেনলেয়ার্সের নিজস্ব ডুপ্লিকেট রিমুভার (এক নাম স্ক্রিনে বারবার আসবে না)
                     repeat: 100000, 
                     
                     geometry: function(f) {
                         const geom = f.getGeometry();
-                        // মাল্টি-পলিগন বা দ্বীপরাষ্ট্রের ক্ষেত্রে শুধুমাত্র সবচেয়ে বড় মূল ভূখণ্ডের মাঝখানে নাম বসবে
                         if (geom.getType() === 'MultiPolygon') {
                             const polygons = geom.getPolygons();
                             let largestPolygon = polygons[0];
@@ -78,7 +74,7 @@
                         }
                         return geom.getInteriorPoint(); 
                     },
-                    overflow: false // অন্য দেশের নামের সাথে ওভারল্যাপ বা ধাক্কা খাওয়া বন্ধ করবে
+                    overflow: false 
                 })
             });
         };
@@ -86,10 +82,10 @@
         const countryLayer = new ol.layer.Vector({
             source: new ol.source.Vector({ 
                 url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', 
-                format: new ol.format.GeoJSON() 
+                format: new ol.format.GeoJSON(),
+                wrapX: false // এটি দেশের বর্ডার বারবার রিপিট হওয়া বন্ধ করবে
             }),
             style: styleFunction,
-            // অত্যন্ত গুরুত্বপূর্ণ: এটি ম্যাপের টেক্সট বা মার্কারের জটলা স্বয়ংক্রিয়ভাবে পরিষ্কার রাখে
             declutter: true 
         });
 
@@ -97,14 +93,17 @@
             target: 'map',
             layers: [
                 new ol.layer.Tile({ 
-                    source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) 
+                    source: new ol.source.XYZ({ 
+                        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                        wrapX: false // এটি স্যাটেলাইট ম্যাপ বারবার রিপিট হওয়া বন্ধ করবে, ফলে জুম পারফেক্ট হবে
+                    }) 
                 }),
                 countryLayer
             ],
             view: new ol.View({ 
-                center: ol.proj.fromLonLat([15, 12]), 
-                zoom: 2.3, // পুরো বিশ্বকে একটি স্ক্রিনে পারফেক্টলি ফিট করার জন্য
-                minZoom: 2, 
+                center: ol.proj.fromLonLat([10, 20]), // ম্যাপের কেন্দ্রবিন্দু একদম মাঝখানে রাখা হয়েছে
+                zoom: 2, // পারফেক্ট জুম লেভেল
+                minZoom: 1.5, 
                 maxZoom: 12,
                 enableRotation: false 
             })
