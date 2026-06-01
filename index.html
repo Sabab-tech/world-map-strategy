@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Professional Tactical Map</title>
+    <title>Modern Age 3 - Stable Tactical Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -39,7 +39,7 @@
                         let rawName = feature.get('ADMIN') || feature.get('name') || feature.get('NAME') || '';
                         const zoom = Math.log2(156543.03392 / resolution);
 
-                        // ১. বড় এবং দ্বীপ অঞ্চলের নামের আন্তর্জাতিক সংক্ষেপকরণ ডিকশনারি
+                        // ১. আন্তর্জাতিক স্ট্যান্ডার্ড অনুযায়ী বড় নামের সংক্ষেপকরণ ডিকশনারি
                         let name = rawName;
                         if (rawName.includes("Democratic Republic of the Congo")) name = "DR CONGO";
                         else if (rawName.includes("Congo (Democratic Republic of the)")) name = "DR CONGO";
@@ -57,27 +57,7 @@
                         else if (rawName.includes("Papua New Guinea")) name = "PNG";
                         else if (rawName.includes("Solomon Islands")) name = "SOLOMON IS.";
 
-                        // কম জুম লেভেলে ছোট দেশ ও সাগরের দ্বীপের নাম হাইড রাখার লজিক
-                        const smallAndIslands = ["Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore", "Bangladesh", "BAHAMAS", "HONG KONG", "SOLOMON IS."];
-                        if (zoom < 4.5 && smallAndIslands.includes(name)) {
-                            return new ol.style.Style({
-                                stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.45)', width: 1.4 })
-                            }); 
-                        }
-
-                        // হলিউড স্টাইল ডায়নামিক ফন্ট সাইজ
-                        let fontSize = 12 + (zoom - 3.8) * 4;
-                        if (fontSize > 25) fontSize = 25;
-                        if (fontSize < 11) fontSize = 11;
-
-                        // নির্দিষ্ট দেশের টেক্সট রোটেশন
-                        let textRotation = 0;
-                        if (name === "Lebanon") textRotation = -1.35; 
-                        else if (name === "Chile") textRotation = -1.45;
-                        else if (name === "Vietnam") textRotation = -1.15;
-                        else if (name === "Norway") textRotation = -1.25;
-
-                        // ডিফল্ট বর্ডার স্টাইল
+                        // হালকা এবং স্বাভাবিক ১.৪ পিক্সেল বর্ডার স্টাইল
                         const borderStyle = new ol.style.Style({
                             stroke: new ol.style.Stroke({
                                 color: 'rgba(255, 255, 255, 0.45)', 
@@ -85,7 +65,24 @@
                             })
                         });
 
-                        // টেক্সট বা নামের মূল স্টাইল
+                        // ছোট দেশ ও সাগরের দ্বীপ কম জুম লেভেলে হাইড রাখার নিয়ম
+                        const smallAndIslands = ["Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore", "Bangladesh", "BAHAMAS", "HONG KONG", "SOLOMON IS."];
+                        if (zoom < 4.5 && smallAndIslands.includes(name)) {
+                            return borderStyle; 
+                        }
+
+                        // হলিউড স্টাইল খাড়া ফন্ট সাইজ
+                        let fontSize = 12 + (zoom - 3.8) * 4;
+                        if (fontSize > 25) fontSize = 25;
+                        if (fontSize < 11) fontSize = 11;
+
+                        let textRotation = 0;
+                        if (name === "Lebanon") textRotation = -1.35; 
+                        else if (name === "Chile") textRotation = -1.45;
+                        else if (name === "Vietnam") textRotation = -1.15;
+                        else if (name === "Norway") textRotation = -1.25;
+
+                        // নাম দেখানোর জন্য টেক্সট স্টাইল
                         const textStyle = new ol.style.Style({
                             text: new ol.style.Text({
                                 text: name.toUpperCase(),
@@ -100,7 +97,7 @@
                             })
                         });
 
-                        // বিশেষ গুরুত্বপূর্ণ দেশের মেইনল্যান্ড ম্যাপপয়েন্ট ম্যানুয়াল লক
+                        // বিশেষ দেশগুলোর নাম মূল মেইনল্যান্ডের মাঝখানে লক করা
                         if (name === "Italy") {
                             textStyle.setGeometry(new ol.geom.Point(ol.proj.fromLonLat([12.6, 42.5])));
                             return [borderStyle, textStyle];
@@ -114,38 +111,30 @@
                             return [borderStyle, textStyle];
                         }
 
-                        // ২. সমুদ্রে নাম ছিটকে যাওয়া ডিফল্টভাবে বন্ধ করার জন্য অ্যাডভান্সড কন্টেইনমেন্ট লজিক
+                        // ২. সুরক্ষিত মেইনল্যান্ড লজিক (ক্র্যাশ প্রোটেকশন সহ)
                         const geom = feature.getGeometry();
                         if (geom) {
-                            let targetPoint = null;
-                            
-                            if (geom.getType() === 'MultiPolygon') {
-                                const polygons = geom.getPolygons();
-                                let maxArea = 0;
-                                let mainPolygon = polygons[0];
-                                
-                                for (let i = 0; i < polygons.length; i++) {
-                                    const area = polygons[i].getArea();
-                                    if (area > maxArea) {
-                                        maxArea = area;
-                                        mainPolygon = polygons[i];
+                            try {
+                                if (geom.getType() === 'MultiPolygon') {
+                                    const polygons = geom.getPolygons();
+                                    let maxArea = 0;
+                                    let mainPolygon = polygons[0];
+                                    
+                                    for (let i = 0; i < polygons.length; i++) {
+                                        const area = polygons[i].getArea();
+                                        if (area > maxArea) {
+                                            maxArea = area;
+                                            mainPolygon = polygons[i];
+                                        }
                                     }
+                                    // ইন্টেরিয়র পয়েন্ট ব্যবহার করে নাম সবসময় স্থলভাগের ভেতরেই থাকবে
+                                    textStyle.setGeometry(mainPolygon.getInteriorPoint());
+                                } else if (geom.getType() === 'Polygon') {
+                                    textStyle.setGeometry(geom.getInteriorPoint());
                                 }
-                                targetPoint = mainPolygon.getInteriorPoint().getCoordinates();
-                                
-                                // যদি ইন্টেরিয়র পয়েন্ট ভুল করে সীমানার বাইরে চলে যায়, তবে মেইনল্যান্ডের পলিগনের প্রথম বিন্দুর স্থানাঙ্ক নেবে
-                                if (!mainPolygon.containsCoordinate(targetPoint)) {
-                                    targetPoint = mainPolygon.getFlatCoordinates().slice(0, 2);
-                                }
-                            } else if (geom.getType() === 'Polygon') {
-                                targetPoint = geom.getInteriorPoint().getCoordinates();
-                                if (!geom.containsCoordinate(targetPoint)) {
-                                    targetPoint = geom.getFlatCoordinates().slice(0, 2);
-                                }
-                            }
-
-                            if (targetPoint) {
-                                textStyle.setGeometry(new ol.geom.Point(targetPoint));
+                            } catch (e) {
+                                // কোনো কারণে কোঅর্ডিনেট রিড করতে সমস্যা হলে ডিফল্ট মেথডে ব্যাকআপ নেবে, ক্র্যাশ করবে না
+                                return borderStyle;
                             }
                         }
 
