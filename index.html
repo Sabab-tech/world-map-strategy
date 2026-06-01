@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Map</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
+    <title>Global Map</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
         body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #000; }
@@ -16,10 +16,11 @@
             layers: [
                 new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) })
             ],
-            view: new ol.View({ center: [0, 0], zoom: 2 })
+            view: new ol.View({ center: ol.proj.fromLonLat([45, 25]), zoom: 4 })
         });
 
-        fetch('countries.json')
+        // এখানে ফাইলটি কল হচ্ছে। ফাইল না পেলে নিচে ভুল দেখাবে।
+        fetch('countries.json') 
             .then(res => res.json())
             .then(data => {
                 const vectorSource = new ol.source.Vector();
@@ -27,14 +28,13 @@
                     data[country].forEach(city => {
                         const feature = new ol.Feature({
                             geometry: new ol.geom.Point(ol.proj.fromLonLat(city.c)),
-                            name: city.n,
-                            country: country
+                            name: city.n
                         });
                         feature.setStyle(new ol.style.Style({
-                            image: new ol.style.Circle({ radius: 5, fill: new ol.style.Fill({color: 'red'}) }),
+                            image: new ol.style.Circle({ radius: 6, fill: new ol.style.Fill({color: 'red'}) }),
                             text: new ol.style.Text({
                                 text: city.n,
-                                offsetY: -15,
+                                offsetY: -20,
                                 font: '14px Arial',
                                 fill: new ol.style.Fill({color: '#fff'})
                             })
@@ -43,7 +43,8 @@
                     });
                 }
                 map.addLayer(new ol.layer.Vector({ source: vectorSource }));
-            });
+            })
+            .catch(err => console.error("ডাটা ফাইল লোড হচ্ছে না!", err));
     </script>
 </body>
 </html>
