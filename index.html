@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Hollywood Style Map</title>
+    <title>Modern Age 3 - Ultimate Fixed Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -14,6 +14,13 @@
 <body>
     <div id="map"></div>
     <script>
+        // মেমরিতে জমে থাকা পুরনো কোনো ক্যাশ বা জটলা জোর করে ডিঅ্যাক্টিভেট করার জন্য
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let r of registrations) { r.unregister(); }
+            });
+        }
+
         const map = new ol.Map({
             target: 'map',
             layers: [
@@ -24,26 +31,28 @@
                     }) 
                 }),
                 new ol.layer.Vector({
-                    declutter: true, // এক নাম বারবার আসবে না, জ্যাম হবে না
+                    declutter: true, // এটি গ্রীস বা দ্বীপাঞ্চলীয় দেশের নাম হাজারবার রিপিট হওয়া বন্ধ করবে
                     source: new ol.source.Vector({
-                        url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
+                        // সম্পূর্ণ নিরাপদ ওপেন সোর্স গ্লোবাল জিও-ডাটা লিঙ্ক
+                        url: 'https://d2ad6b4ur7yvpq.cloudfront.net/database/naturalearth-3.3.0/ne_110m_admin_0_countries.geojson',
                         format: new ol.format.GeoJSON()
                     }),
                     style: function (feature, resolution) {
-                        const name = feature.get('ADMIN') || '';
+                        // ডাটাবেজের যেকোনো ফরম্যাট থেকে দেশের নাম ফিল্টার করার ব্যাকআপ লজিক
+                        const name = feature.get('name') || feature.get('NAME') || feature.get('ADMIN') || '';
                         const zoom = Math.log2(156543.03392 / resolution);
 
-                        // ছোট দেশের নাম শুরুতে দেখাবে না, জুম করলে বড় হবে
-                        if (zoom < 4.2 && ["Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore"].includes(name)) {
+                        // ছোট দেশগুলোর নাম ম্যাপ দূরে থাকা অবস্থায় হাইড থাকবে, জুম করলে ভেসে উঠবে
+                        if (zoom < 4.2 && ["Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore", "Bangladesh", "Greece"].includes(name)) {
                             return null; 
                         }
 
-                        // জুম অনুযায়ী ডায়নামিক সাইজ (হলিউড স্টাইল বড় অক্ষর)
+                        // হলিউড সাইনের মতো বড়, স্পষ্ট এবং খাড়া ফন্ট সাইজ (জুমের সাথে রেশিও অনুযায়ী বাড়বে)
                         let fontSize = 12 + (zoom - 3.8) * 4;
-                        if (fontSize > 28) fontSize = 28;
+                        if (fontSize > 26) fontSize = 26;
                         if (fontSize < 11) fontSize = 11;
 
-                        // লম্বালম্বি দেশের জন্য নিখুঁত বাঁকানো লজিক
+                        // নির্দিষ্ট কিছু লম্বালম্বি দেশের আকৃতি অনুযায়ী নাম বাঁকানোর লজিক
                         let textRotation = 0;
                         if (name === "Lebanon") textRotation = -1.35; 
                         else if (name === "Chile") textRotation = -1.45;
@@ -53,20 +62,19 @@
                         return new ol.style.Style({
                             stroke: new ol.style.Stroke({
                                 color: 'rgba(255, 255, 255, 0.8)',
-                                width: 1.4 // আপনার ফিক্সড ১.৪ পিক্সেল বর্ডার
+                                width: 1.4 // আপনার দেওয়া ফিক্সড ১.৪ পিক্সেল বর্ডার
                             }),
                             text: new ol.style.Text({
                                 text: name.toUpperCase(),
-                                // Impact ফন্ট ব্যবহার করা হয়েছে হলিউড সাইনের মতো খাড়া লুক দেওয়ার জন্য
+                                // Impact এবং Arial Black ফন্ট ব্যবহার করা হয়েছে হলিউডের মতো সলিড খাড়া লুক দেওয়ার জন্য
                                 font: `900 ${fontSize}px "Impact", "Arial Black", sans-serif`,
                                 fill: new ol.style.Fill({ color: '#ffffff' }),
-                                // কালো স্ট্রোক টেক্সটকে থ্রিডি স্টাইলে খাড়া দেখাবে
-                                stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }),
+                                stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }), // থ্রিডি ব্ল্যাক ড্রপ-শ্যাডো এফেক্ট
                                 rotation: textRotation,
                                 placement: 'point',
                                 textAlign: 'center',
                                 textBaseline: 'middle',
-                                overflow: false // বর্ডারের বাইরে নাম যাওয়া কঠোরভাবে বন্ধ
+                                overflow: false // নাম যেন কোনোভাবেই বর্ডার বা সাগর-নদীর ওপর ছিটকে না যায়
                             })
                         });
                     }
