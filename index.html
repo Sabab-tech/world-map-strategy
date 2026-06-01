@@ -1,34 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Global Map - High Res Borders</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
-    <style>body, html, #map { width: 100%; height: 100%; margin: 0; background-color: #0b1521; }</style>
+    <style>#map { width: 100%; height: 100vh; background: #0b1521; }</style>
 </head>
 <body>
     <div id="map"></div>
     <script>
-        // High-Resolution বর্ডার ডাটাবেজ (50m resolution)
-        const countryLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({ 
-                url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', 
-                format: new ol.format.GeoJSON() 
-            }),
-            style: new ol.style.Style({
-                stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.2 })
-            })
-        });
-
         const map = new ol.Map({
             target: 'map',
             layers: [
                 new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) }),
-                countryLayer
+                new ol.layer.Vector({
+                    source: new ol.source.Vector({ url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', format: new ol.format.GeoJSON() })
+                })
             ],
-            view: new ol.View({ center: ol.proj.fromLonLat([50.58, 26.22]), zoom: 4, enableRotation: false })
+            view: new ol.View({ center: ol.proj.fromLonLat([0, 20]), zoom: 3 })
         });
+
+        // অটোমেটিক সব ডাটা লোড করার সিস্টেম
+        fetch('countries.json')
+            .then(res => res.json())
+            .then(data => {
+                console.log("সব দেশের ডাটা সফলভাবে লোড হয়েছে:", data);
+                // এখানে আপনি ম্যাপে এই ডাটা দিয়ে মার্কার বসানোর লজিক যোগ করবেন
+            });
     </script>
 </body>
 </html>
