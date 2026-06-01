@@ -16,48 +16,48 @@
     <div id="map"></div>
 
     <script>
-        // ১. সার্ভিস ওয়ার্কার (অফলাইন ক্যাশিংয়ের জন্য)
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(console.error);
-        }
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 
-        // ২. ম্যাপ ইঞ্জিন কনফিগারেশন
-        const satelliteSource = new ol.source.XYZ({
-            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-            wrapX: true,
-            maxZoom: 19
+        const vectorSource = new ol.source.Vector({
+            url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
+            format: new ol.format.GeoJSON()
         });
 
         const map = new ol.Map({
             target: 'map',
             layers: [
-                new ol.layer.Tile({ source: satelliteSource, preload: Infinity }),
+                new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', preload: Infinity }) }),
                 new ol.layer.Vector({
-                    source: new ol.source.Vector({ url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson', format: new ol.format.GeoJSON() }),
-                    style: (feature) => {
+                    source: vectorSource,
+                    style: (feature, resolution) => {
                         const name = feature.get('ADMIN') || '';
-                        let rotation = (name === "Lebanon" || name === "Chile") ? -1.35 : 0;
+                        const zoom = Math.log2(156543.03392 / resolution);
+                        
+                        // লেবানন ও অন্যান্য দেশের জন্য ফিক্সড রোটেশন ও স্মার্ট সাইজিং
+                        let rotation = 0;
+                        if (name === "Lebanon") rotation = -1.35;
+                        else if (name === "Chile") rotation = -1.45;
+                        else if (name === "Vietnam") rotation = -1.15;
+                        else if (name === "Norway") rotation = -1.25;
+
+                        let fontSize = 10 + (zoom - 3.8) * 3;
+                        if (fontSize > 24) fontSize = 24;
+
                         return new ol.style.Style({
                             stroke: new ol.style.Stroke({ color: '#ffffff', width: 1.4 }),
                             text: new ol.style.Text({
-                                text: name.toUpperCase(),
-                                font: 'bold 12px Arial',
+                                text: zoom > 4 ? name.toUpperCase() : "",
+                                font: `bold ${fontSize}px "Arial Black", sans-serif`,
                                 fill: new ol.style.Fill({ color: '#fff' }),
-                                stroke: new ol.style.Stroke({ color: '#000', width: 3 }),
-                                rotation: rotation
+                                stroke: new ol.style.Stroke({ color: '#000', width: 3.5 }),
+                                rotation: rotation,
+                                overflow: false
                             })
                         });
                     }
                 })
             ],
-            view: new ol.View({
-                center: ol.proj.fromLonLat([25, 42]),
-                zoom: 3.8,
-                minZoom: 3.8,
-                maxZoom: 8.5,
-                enableRotation: false
-            }),
-            controls: []
+            view: new ol.View({ center: ol.proj.fromLonLat([25, 42]), zoom: 3.8, minZoom: 3.8, maxZoom: 8.5, enableRotation: false })
         });
     </script>
 </body>
