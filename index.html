@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Modern Age - True Landscape Tactical Map</title>
+    <title>Modern Age - Tactical Map Optimized</title>
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,78 +11,35 @@
             width: 100%; 
             height: 100%; 
             overflow: hidden; 
-            background-color: #050b14; 
+            background-color: #0a1420; /* লোডিংয়ের সময় কালো দাগের বদলে ডিপ ওশান কালার */
             font-family: sans-serif;
         }
         
-        /* ম্যাপ কন্টেইনার */
-        #map { 
-            width: 100vw; 
-            height: 100vh; 
-        }
+        #map { width: 100vw; height: 100vh; }
         
-        /* ফোন সোজা করে রাখলে চওড়া করার নির্দেশাবলী (Game Overlay) */
         #orientation-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #050b14;
-            z-index: 9999;
-            color: #ffffff;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #050b14; z-index: 9999; color: #ffffff;
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px;
         }
         
-        #orientation-overlay .icon {
-            font-size: 50px;
-            margin-bottom: 20px;
-            animation: rotateDevice 2s infinite ease-in-out;
-        }
-
-        #orientation-overlay h2 {
-            font-size: 18px;
-            letter-spacing: 2px;
-            color: #00ffcc;
-            text-transform: uppercase;
-        }
-
-        @keyframes rotateDevice {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(-90deg); }
-            100% { transform: rotate(-90deg); }
-        }
-
-        /* স্ক্রিন লম্বা বা পোর্ট্রেট মোডে থাকলে ম্যাপ লুকিয়ে মেসেজ দেখাবে */
-        @media screen and (orientation: portrait) {
-            #orientation-overlay { display: flex; }
-            #map { display: none; }
-        }
+        #orientation-overlay .icon { font-size: 50px; margin-bottom: 20px; animation: rotateDevice 2s infinite ease-in-out; }
+        #orientation-overlay h2 { font-size: 18px; letter-spacing: 2px; color: #00ffcc; text-transform: uppercase; }
+        @keyframes rotateDevice { 0% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(-90deg); } }
+        @media screen and (orientation: portrait) { #orientation-overlay { display: flex; } #map { display: none; } }
 
         .hud-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(5, 11, 20, 0.9);
-            border: 1px solid #3a4d5c;
-            color: #8fa0af;
-            padding: 12px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 11px;
-            z-index: 1000;
-            pointer-events: none;
+            position: absolute; top: 20px; right: 20px; background: rgba(5, 11, 20, 0.9);
+            border: 1px solid #3a4d5c; color: #8fa0af; padding: 12px; border-radius: 4px;
+            font-family: monospace; font-size: 11px; z-index: 1000; pointer-events: none;
             box-shadow: 0 0 15px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
-
     <div id="orientation-overlay">
         <div class="icon">🔄</div>
         <h2>দয়া করে আপনার ফোনটি চওড়া (Landscape) করুন</h2>
@@ -92,21 +49,22 @@
     <div id="map"></div>
     
     <div class="hud-panel">
-        <b style="color:#fff;">MODERN AGE: TRUE LANDSCAPE</b><br><br>
-        • BORDERS: PERMANENT WHITE<br>
-        • VIEW: FORCE LANDSCAPE FIXED<br>
-        • INTERACTION: ACTIVE
+        <b style="color:#fff;">MODERN AGE: OPTIMIZED</b><br><br>
+        • ROTATION: LOCKED<br>
+        • BORDERS: SHADOW CONTRAST<br>
+        • RENDERING: FADE SMOOTHING
     </div>
 
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script>
-        // চওড়া স্ক্রিনের ফিল্ড অফ ভিউ অনুযায়ী ম্যাপ
         const map = new maplibregl.Map({
             container: 'map',
             center: [30.0, 15.0], 
-            zoom: 2.2, // চওড়া স্ক্রিনে পুরো বিশ্ব এক নজরে দেখার পারফেক্ট জুম
+            zoom: 2.2, 
             minZoom: 2,
             maxZoom: 7,
+            dragRotate: false,      // ১. রাইট-ক্লিক দিয়ে ঘোরানো বন্ধ
+            pitchWithRotate: false, // পিচ বা থ্রিডি অ্যাঙ্গেল বন্ধ
             style: {
                 version: 8,
                 glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
@@ -117,45 +75,64 @@
                         tileSize: 256
                     }
                 },
-                layers: [{
-                    id: 'satellite-base',
-                    type: 'raster',
-                    source: 'satellite'
-                }]
+                layers: [
+                    {
+                        // ২. ম্যাপের একদম নিচে একটি সমুদ্রের কালার, যাতে ইন্টারনেট স্লো থাকলে কালো দাগ না দেখায়
+                        id: 'background',
+                        type: 'background',
+                        paint: { 'background-color': '#0a1420' }
+                    },
+                    {
+                        id: 'satellite-base',
+                        type: 'raster',
+                        source: 'satellite',
+                        paint: {
+                            'raster-fade-duration': 300 // লোডিং স্মুথ করবে
+                        }
+                    }
+                ]
             }
         });
 
-        // ব্রাউজারকে ফুলস্ক্রিন চওড়া করার জন্য রিকোয়েস্ট (মোবাইলের জন্য বিশেষ মেকানিজম)
+        // মোবাইলের টু-ফিঙ্গার রোটেশন সম্পূর্ণ লক
+        map.touchZoomRotate.disableRotation();
+
         function lockLandscape() {
             if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').catch(err => {
-                    console.log("রোটেশন লক শুধুমাত্র ফুলস্ক্রিন মোডে বা সব ডিভাইসে কাজ নাও করতে পারে।");
-                });
+                screen.orientation.lock('landscape').catch(() => {});
             }
         }
-        
-        // ম্যাপ ক্লিক বা যেকোনো টাচে স্ক্রিন লক ট্রিপল চেক করার জন্য
         window.addEventListener('click', lockLandscape);
 
         map.on('load', () => {
-            // ১. জিওজেসন সোর্স
             map.addSource('countries-data', {
                 type: 'geojson',
                 data: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson'
             });
 
-            // ২. চিরস্থায়ী হালকা সাদা বর্ডার (PERMANENT)
+            // ৩ক. মরুভূমির জন্য বর্ডারের নিচে কালো শ্যাডো (Shadow Line)
+            map.addLayer({
+                id: 'country-borders-shadow',
+                type: 'line',
+                source: 'countries-data',
+                paint: {
+                    'line-color': 'rgba(0, 0, 0, 0.8)', // গাঢ় কালো শ্যাডো
+                    'line-width': 3.0 // সাদার চেয়ে একটু মোটা
+                }
+            });
+
+            // ৩খ. আসল হালকা সাদা বর্ডার (White Outline)
             map.addLayer({
                 id: 'country-borders',
                 type: 'line',
                 source: 'countries-data',
                 paint: {
-                    'line-color': 'rgba(255, 255, 255, 0.35)',
+                    'line-color': 'rgba(255, 255, 255, 0.45)',
                     'line-width': 1.2
                 }
             });
 
-            // ৩. চওড়া স্ক্রিনের জন্য অপ্টিমাইজড নাম
+            // দেশের নামের লেয়ার
             map.addLayer({
                 id: 'country-names',
                 type: 'symbol',
@@ -182,7 +159,7 @@
                 }
             });
 
-            // ৪. ক্লিক হাইলাইট লেয়ার
+            // ক্লিক হাইলাইট লেয়ার
             map.addLayer({
                 id: 'country-click-layer',
                 type: 'fill',
@@ -193,13 +170,12 @@
                 }
             });
 
-            // ৫. শহরের সোর্স
+            // শহরের সোর্স ও লেয়ার
             map.addSource('cities-data', {
                 type: 'geojson',
                 data: { type: 'FeatureCollection', features: [] }
             });
 
-            // ৬. শহরের লেয়ার (সিলেক্ট করলে দেখাবে)
             map.addLayer({
                 id: 'city-labels',
                 type: 'symbol',
@@ -239,7 +215,6 @@
                     map.setFeatureState({ source: 'countries-data', id: clickedStateId }, { clicked: true });
 
                     const coordinates = e.lngLat;
-
                     const dynamicCities = {
                         type: 'FeatureCollection',
                         features: [
@@ -255,7 +230,6 @@
                             }
                         ]
                     };
-
                     map.getSource('cities-data').setData(dynamicCities);
                 }
             });
@@ -271,7 +245,6 @@
                 }
             });
             
-            // সাইজ পরিবর্তনের সাথে সাথে ম্যাপ রি-অ্যাডজাস্ট হবে
             window.addEventListener('resize', () => { map.resize(); });
         });
     </script>
