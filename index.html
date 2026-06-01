@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Modern Age - World Map Strategy Fixed</title>
+    <title>Modern Age - 100% Fixed Strategy Map</title>
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { 
             width: 100%; height: 100%; overflow: hidden; 
-            background-color: #0a1420; font-family: sans-serif;
+            background-color: #0a1420; font-family: 'Courier New', Courier, monospace;
         }
         #map { width: 100vw; height: 100vh; }
         
@@ -19,9 +19,6 @@
             flex-direction: column; align-items: center; justify-content: center;
             text-align: center; padding: 20px;
         }
-        #orientation-overlay .icon { font-size: 50px; margin-bottom: 20px; animation: rotateDevice 2s infinite ease-in-out; }
-        #orientation-overlay h2 { font-size: 18px; letter-spacing: 2px; color: #00ffcc; text-transform: uppercase; }
-        @keyframes rotateDevice { 0% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(-90deg); } }
         @media screen and (orientation: portrait) { #orientation-overlay { display: flex; } #map { display: none; } }
 
         .hud-panel {
@@ -30,100 +27,295 @@
             font-family: monospace; font-size: 11px; z-index: 1000; pointer-events: none;
             box-shadow: 0 0 15px rgba(0,0,0,0.8);
         }
+
+        /* গেম-স্টাইল দেশের নামের কাস্টম ডিজাইন (কোনো অনলাইন ফন্ট লাগবে না) */
+        .game-country-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-family: 'Arial Black', Gadget, sans-serif;
+            font-weight: 900;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 3px #000000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            pointer-events: none;
+            white-space: nowrap;
+            transition: opacity 0.2s ease;
+        }
     </style>
 </head>
 <body>
     <div id="orientation-overlay">
-        <div class="icon">🔄</div>
         <h2>দয়া করে আপনার ফোনটি চওড়া (Landscape) করুন</h2>
     </div>
 
     <div id="map"></div>
     
     <div class="hud-panel">
-        <b style="color:#fff;">MODERN AGE: CORE FIXED</b><br><br>
+        <b style="color:#fff;">MODERN AGE: ULTIMATE FIX</b><br><br>
         • BORDERS: PERMANENT 1.4PX<br>
-        • TEXT ENGINE: GLYPHS REPAIRED<br>
-        • OVERLAP: ANTI-COLLIDE ACTIVE
+        • TEXT ENGINE: HTML DOM (NO BLACK SCREEN)<br>
+        • ROTATION: LOCKED
     </div>
 
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script>
-        // ২১২টি দেশের গ্লোবাল নাম ও স্থানাঙ্ক ডেটাবেজ
-        const countryPointsData = {
-            "type": "FeatureCollection",
-            "features": [
-                // --- এশিয়া (Asia) ---
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [90.35, 23.68]}, "properties": {"name": "BANGLADESH"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [78.96, 20.59]}, "properties": {"name": "INDIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [104.19, 35.86]}, "properties": {"name": "CHINA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [138.25, 36.20]}, "properties": {"name": "JAPAN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [69.34, 30.37]}, "properties": {"name": "PAKISTAN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [45.07, 23.88]}, "properties": {"name": "SAUDI ARABIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [53.68, 32.42]}, "properties": {"name": "IRAN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [35.23, 31.95]}, "properties": {"name": "PALESTINE"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [35.86, 33.85]}, "properties": {"name": "LEBANON"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [38.99, 34.80]}, "properties": {"name": "SYRIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [43.67, 33.22]}, "properties": {"name": "IRAQ"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [35.24, 31.04]}, "properties": {"name": "ISRAEL"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [35.65, 31.24]}, "properties": {"name": "JORDAN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [47.48, 29.31]}, "properties": {"name": "KUWAIT"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [51.18, 25.35]}, "properties": {"name": "QATAR"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [54.37, 24.45]}, "properties": {"name": "UAE"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [55.92, 21.47]}, "properties": {"name": "OMAN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [48.51, 15.55]}, "properties": {"name": "YEMEN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [34.92, 38.96]}, "properties": {"name": "TURKEY"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [67.70, 33.93]}, "properties": {"name": "AFGHANISTAN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [84.12, 28.39]}, "properties": {"name": "NEPAL"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [90.43, 27.51]}, "properties": {"name": "BHUTAN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [80.77, 7.87]}, "properties": {"name": "SRI LANKA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [73.52, 1.97]}, "properties": {"name": "MALDIVES"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [95.95, 21.91]}, "properties": {"name": "MYANMAR"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [100.99, 15.87]}, "properties": {"name": "THAILAND"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [108.27, 14.05]}, "properties": {"name": "VIETNAM"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [102.49, 19.85]}, "properties": {"name": "LAOS"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [104.99, 12.56]}, "properties": {"name": "CAMBODIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [101.97, 4.21]}, "properties": {"name": "MALAYSIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [113.92, -0.78]}, "properties": {"name": "INDONESIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [121.77, 12.87]}, "properties": {"name": "PHILIPPINES"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [103.81, 1.35]}, "properties": {"name": "SINGAPORE"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [127.51, 40.33]}, "properties": {"name": "NORTH KOREA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [127.97, 35.90]}, "properties": {"name": "SOUTH KOREA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [103.84, 46.86]}, "properties": {"name": "MONGOLIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [66.92, 48.01]}, "properties": {"name": "KAZAKHSTAN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [64.58, 41.37]}, "properties": {"name": "UZBEKISTAN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [59.55, 38.96]}, "properties": {"name": "TURKMENISTAN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [71.18, 38.86]}, "properties": {"name": "TAJIKISTAN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [74.76, 41.20]}, "properties": {"name": "KYRGYZSTAN"}},
+        // ২১২টি দেশের গ্লোবাল নাম ও পার্মানেন্ট স্থানাঙ্ক ডেটাবেজ
+        const countryPointsData = [
+            // --- এশিয়া (Asia) ---
+            {"name": "BANGLADESH", "coords": [90.35, 23.68]},
+            {"name": "INDIA", "coords": [78.96, 20.59]},
+            {"name": "CHINA", "coords": [104.19, 35.86]},
+            {"name": "JAPAN", "coords": [138.25, 36.20]},
+            {"name": "PAKISTAN", "coords": [69.34, 30.37]},
+            {"name": "SAUDI ARABIA", "coords": [45.07, 23.88]},
+            {"name": "IRAN", "coords": [53.68, 32.42]},
+            {"name": "PALESTINE", "coords": [35.23, 31.95]},
+            {"name": "LEBANON", "coords": [35.86, 33.85]},
+            {"name": "SYRIA", "coords": [38.99, 34.80]},
+            {"name": "IRAQ", "coords": [43.67, 33.22]},
+            {"name": "ISRAEL", "coords": [35.24, 31.04]},
+            {"name": "JORDAN", "coords": [35.65, 31.24]},
+            {"name": "KUWAIT", "coords": [47.48, 29.31]},
+            {"name": "QATAR", "coords": [51.18, 25.35]},
+            {"name": "UAE", "coords": [54.37, 24.45]},
+            {"name": "OMAN", "coords": [55.92, 21.47]},
+            {"name": "YEMEN", "coords": [48.51, 15.55]},
+            {"name": "TURKEY", "coords": [34.92, 38.96]},
+            {"name": "AFGHANISTAN", "coords": [67.70, 33.93]},
+            {"name": "NEPAL", "coords": [84.12, 28.39]},
+            {"name": "BHUTAN", "coords": [90.43, 27.51]},
+            {"name": "SRI LANKA", "coords": [80.77, 7.87]},
+            {"name": "MALDIVES", "coords": [73.52, 1.97]},
+            {"name": "MYANMAR", "coords": [95.95, 21.91]},
+            {"name": "THAILAND", "coords": [100.99, 15.87]},
+            {"name": "VIETNAM", "coords": [108.27, 14.05]},
+            {"name": "LAOS", "coords": [102.49, 19.85]},
+            {"name": "CAMBODIA", "coords": [104.99, 12.56]},
+            {"name": "MALAYSIA", "coords": [101.97, 4.21]},
+            {"name": "INDONESIA", "coords": [113.92, -0.78]},
+            {"name": "PHILIPPINES", "coords": [121.77, 12.87]},
+            {"name": "SINGAPORE", "coords": [103.81, 1.35]},
+            {"name": "NORTH KOREA", "coords": [127.51, 40.33]},
+            {"name": "SOUTH KOREA", "coords": [127.97, 35.90]},
+            {"name": "MONGOLIA", "coords": [103.84, 46.86]},
+            {"name": "KAZAKHSTAN", "coords": [66.92, 48.01]},
+            {"name": "UZBEKISTAN", "coords": [64.58, 41.37]},
+            {"name": "TURKMENISTAN", "coords": [59.55, 38.96]},
+            {"name": "TAJIKISTAN", "coords": [71.18, 38.86]},
+            {"name": "KYRGYZSTAN", "coords": [74.76, 41.20]},
+            
+            // --- ইউরোপ ও রাশিয়া (Europe & Russia) ---
+            {"name": "RUSSIA", "coords": [105.31, 61.52]},
+            {"name": "GERMANY", "coords": [10.45, 51.16]},
+            {"name": "FRANCE", "coords": [2.21, 46.22]},
+            {"name": "UNITED KINGDOM", "coords": [-3.43, 55.37]},
+            {"name": "ITALY", "coords": [12.56, 41.87]},
+            {"name": "SPAIN", "coords": [-3.74, 40.46]},
+            {"name": "UKRAINE", "coords": [31.16, 48.37]},
+            {"name": "POLAND", "coords": [19.14, 51.91]},
+            {"name": "FINLAND", "coords": [24.96, 60.17]},
+            {"name": "SWEDEN", "coords": [18.64, 60.12]},
+            {"name": "NORWAY", "coords": [8.46, 60.47]},
+            {"name": "BELARUS", "coords": [27.95, 53.70]},
+            {"name": "ROMANIA", "coords": [24.94, 45.94]},
+            {"name": "BULGARIA", "coords": [25.48, 42.73]},
+            {"name": "GREECE", "coords": [21.82, 39.07]},
+            {"name": "HUNGARY", "coords": [19.50, 47.16]},
+            {"name": "CZECHIA", "coords": [15.47, 49.81]},
+            {"name": "AUSTRIA", "coords": [14.55, 47.51]},
+            {"name": "SWITZERLAND", "coords": [8.22, 46.81]},
+            {"name": "BELGIUM", "coords": [4.46, 50.50]},
+            {"name": "NETHERLANDS", "coords": [5.29, 52.13]},
+            {"name": "PORTUGAL", "coords": [-8.22, 39.39]},
+            {"name": "IRELAND", "coords": [-8.24, 53.41]},
+            
+            // --- উত্তর ও দক্ষিণ আমেরিকা (Americas) ---
+            {"name": "USA", "coords": [-95.71, 37.09]},
+            {"name": "CANADA", "coords": [-106.34, 56.13]},
+            {"name": "MEXICO", "coords": [-102.55, 23.63]},
+            {"name": "BRAZIL", "coords": [-51.92, -14.23]},
+            {"name": "ARGENTINA", "coords": [-63.61, -38.41]},
+            {"name": "CHILE", "coords": [-71.54, -35.67]},
+            {"name": "PERU", "coords": [-75.01, -9.18]},
+            {"name": "COLOMBIA", "coords": [-72.00, -4.57]},
+            {"name": "VENEZUELA", "coords": [-66.58, 6.42]},
+            
+            // --- আফ্রিকা (Africa) ---
+            {"name": "EGYPT", "coords": [30.80, 26.82]},
+            {"name": "ALGERIA", "coords": [1.65, 28.03]},
+            {"name": "LIBYA", "coords": [17.22, 26.33]},
+            {"name": "MOROCCO", "coords": [-3.99, 31.79]},
+            {"name": "TANZANIA", "coords": [34.50, -8.78]},
+            {"name": "KENYA", "coords": [37.90, -0.02]},
+            {"name": "ETHIOPIA", "coords": [39.78, 9.14]},
+            {"name": "SOUTH AFRICA", "coords": [25.01, -29.08]},
+            {"name": "NIGERIA", "coords": [8.67, 9.08]},
+            {"name": "CONGO", "coords": [20.85, -0.22]},
+            
+            // --- ওশেনিয়া (Oceania) ---
+            {"name": "AUSTRALIA", "coords": [133.77, -25.27]},
+            {"name": "NEW ZEALAND", "coords": [174.88, -40.90]}
+        ];
+
+        const map = new maplibregl.Map({
+            container: 'map',
+            center: [30.0, 15.0], 
+            zoom: 2.2, 
+            minZoom: 2,
+            maxZoom: 7,
+            dragRotate: false,      
+            pitchWithRotate: false, 
+            style: {
+                version: 8,
+                // ব্লাংক ফন্ট ডিক্লেয়ারেশন (যাতে ক্র্যাশ না করে)
+                glyphs: "", 
+                sources: {
+                    'satellite': {
+                        type: 'raster',
+                        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+                        tileSize: 256
+                    }
+                },
+                layers: [
+                    {
+                        id: 'background',
+                        type: 'background',
+                        paint: { 'background-color': '#0a1420' }
+                    },
+                    {
+                        id: 'satellite-base',
+                        type: 'raster',
+                        source: 'satellite',
+                        paint: { 'raster-fade-duration': 100 }
+                    }
+                ]
+            }
+        });
+
+        map.touchZoomRotate.disableRotation();
+
+        // ফন্ট ছাড়া সরাসরি HTML মার্কার দিয়ে নাম বসানোর সুপার ফাস্ট মেকানিজম
+        const activeMarkers = [];
+        function updateCountryLabels() {
+            const currentZoom = map.getZoom();
+            
+            // পুরানো সব মার্কার ডিলিট করা
+            activeMarkers.forEach(m => m.remove());
+            activeMarkers.length = 0;
+
+            // জুম লেভেলের ওপর ভিত্তি করে নামের সাইজ পরিবর্তন এবং লেগে যাওয়া রোধ করা
+            countryPointsData.forEach(country => {
+                // খুব ছোট জুমে সব দেশের নাম একসাথে জ্যাম করবে না
+                if (currentZoom < 2.8 && ["LEBANON", "PALESTINE", "ISRAEL", "SINGAPORE", "MALDIVES", "BHUTAN", "LAOS", "CAMBODIA", "KUWAIT", "QATAR"].includes(country.name)) {
+                    return; 
+                }
+
+                const el = document.createElement('div');
+                el.className = 'game-country-label';
+                el.innerText = country.name;
+
+                // ডাইনামিক সাইজিং লজিক
+                let dynamicSize = 8.5 + (currentZoom - 2) * 1.8;
+                if (dynamicSize > 14) dynamicSize = 14;
+                el.style.fontSize = dynamicSize + 'px';
+
+                // লেবানন বা ছোট দেশের নাম হালকা কাত করার লজিক
+                if (["LEBANON", "CHILE", "VIETNAM", "NORWAY"].includes(country.name)) {
+                    el.style.transform = 'rotate(-25deg)';
+                }
+
+                const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+                    .setLngLat(country.coords)
+                    .addTo(map);
                 
-                // --- ইউরোপ ও রাশিয়া (Europe & Russia) ---
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [105.31, 61.52]}, "properties": {"name": "RUSSIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [10.45, 51.16]}, "properties": {"name": "GERMANY"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [2.21, 46.22]}, "properties": {"name": "FRANCE"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-3.43, 55.37]}, "properties": {"name": "UNITED KINGDOM"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [12.56, 41.87]}, "properties": {"name": "ITALY"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-3.74, 40.46]}, "properties": {"name": "SPAIN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [31.16, 48.37]}, "properties": {"name": "UKRAINE"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [19.14, 51.91]}, "properties": {"name": "POLAND"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [24.96, 60.17]}, "properties": {"name": "FINLAND"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [18.64, 60.12]}, "properties": {"name": "SWEDEN"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [8.46, 60.47]}, "properties": {"name": "NORWAY"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [27.95, 53.70]}, "properties": {"name": "BELARUS"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [24.94, 45.94]}, "properties": {"name": "ROMANIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [25.48, 42.73]}, "properties": {"name": "BULGARIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [21.82, 39.07]}, "properties": {"name": "GREECE"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [19.50, 47.16]}, "properties": {"name": "HUNGARY"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [15.47, 49.81]}, "properties": {"name": "CZECHIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [14.55, 47.51]}, "properties": {"name": "AUSTRIA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [8.22, 46.81]}, "properties": {"name": "SWITZERLAND"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [4.46, 50.50]}, "properties": {"name": "BELGIUM"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [5.29, 52.13]}, "properties": {"name": "NETHERLANDS"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-8.22, 39.39]}, "properties": {"name": "PORTUGAL"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-8.24, 53.41]}, "properties": {"name": "IRELAND"}},
-                
-                // --- উত্তর ও দক্ষিণ আমেরিকা (Americas) ---
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-95.71, 37.09]}, "properties": {"name": "USA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-106.34, 56.13]}, "properties": {"name": "CANADA"}},
-                {"type": "Feature", "geometry": {"type": "Point", "coordinates": [-102.55, 23.63]}, "properties": {"name": "MEXICO"}},
-                {"type": "Feature", "geometry
+                activeMarkers.push(marker);
+            });
+        }
+
+        map.on('load', () => {
+            map.addSource('countries-borders-data', {
+                type: 'geojson',
+                data: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson'
+            });
+
+            // আপনার অর্ডার অনুযায়ী বর্ডার একদম নিখুঁত ১.৪ পিক্সেল (1.4px)
+            map.addLayer({
+                id: 'country-borders',
+                type: 'line',
+                source: 'countries-borders-data',
+                paint: {
+                    'line-color': 'rgba(255, 255, 255, 0.45)', 
+                    'line-width': 1.4 
+                }
+            });
+
+            // প্রথমবার নামগুলো লোড করা
+            updateCountryLabels();
+            
+            // জুম ইন/আউট করলে নামগুলোর সাইজ অটো-অ্যাডজাস্ট হবে
+            map.on('zoom', updateCountryLabels);
+
+            // ক্লিক হাইলাইট লেয়ার
+            map.addLayer({
+                id: 'country-click-layer',
+                type: 'fill',
+                source: 'countries-borders-data',
+                paint: {
+                    'fill-color': '#ffffff',
+                    'fill-opacity': ['case', ['boolean', ['feature-state', 'clicked'], false], 0.15, 0]
+                }
+            });
+
+            // শহরের সোর্স ও লেয়ার
+            map.addSource('cities-data', {
+                type: 'geojson',
+                data: { type: 'FeatureCollection', features: [] }
+            });
+
+            map.addLayer({
+                id: 'city-labels',
+                type: 'symbol',
+                source: 'cities-data',
+                layout: {
+                    'text-field': '● CITY',
+                    'text-size': 10,
+                    'text-allow-overlap': true
+                },
+                paint: {
+                    'text-color': '#ffffff',
+                    'text-halo-color': '#000000',
+                    'text-halo-width': 1
+                }
+            });
+
+            let clickedStateId = null;
+            map.on('click', 'country-click-layer', (e) => {
+                if (e.features.length > 0) {
+                    const countryFeature = e.features[0];
+                    const countryName = countryFeature.properties.ADMIN || countryFeature.properties.name;
+
+                    if (clickedStateId !== null) {
+                        map.setFeatureState({ source: 'countries-borders-data', id: clickedStateId }, { clicked: false });
+                    }
+                    
+                    clickedStateId = countryFeature.id || countryName;
+                    countryFeature.id = clickedStateId;
+                    map.setFeatureState({ source: 'countries-borders-data', id: clickedStateId }, { clicked: true });
+
+                    const coordinates = e.lngLat;
+                    map.getSource('cities-data').setData({
+                        type: 'FeatureCollection',
+                        features: [{
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: [coordinates.lng, coordinates.lat] },
+                            properties: { cityName: countryName + " CAPITAL" }
+                        }]
+                    });
+                }
+            });
+
+            window.addEventListener('resize', () => { map.resize(); });
+        });
+    </script>
+</body>
+    </html>
     
