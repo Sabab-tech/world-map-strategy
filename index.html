@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Global Map</title>
+    <title>Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -11,45 +11,45 @@
 <body>
     <div id="map"></div>
     <script>
+        // ম্যাপ তৈরি
         const map = new ol.Map({
             target: 'map',
             layers: [
                 new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) }),
                 new ol.layer.Vector({
                     source: new ol.source.Vector({ url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', format: new ol.format.GeoJSON() }),
-                    style: new ol.style.Style({
-                        stroke: new ol.style.Stroke({ color: '#ffffff', width: 1 }),
-                        fill: new ol.style.Fill({ color: 'rgba(0, 0, 0, 0)' })
-                    })
+                    style: new ol.style.Style({ stroke: new ol.style.Stroke({ color: 'yellow', width: 1 }) })
                 })
             ],
-            view: new ol.View({ center: ol.proj.fromLonLat([50, 26]), zoom: 4 })
+            view: new ol.View({ center: ol.proj.fromLonLat([0, 20]), zoom: 2 })
         });
 
-        fetch('countries.json')
-            .then(res => res.json())
-            .then(data => {
-                const vectorSource = new ol.source.Vector();
+        // শহর লোড করার ফাংশন
+        async function loadCities() {
+            try {
+                const response = await fetch('countries.json');
+                const data = await response.json();
+                const source = new ol.source.Vector();
+                
                 for (let country in data) {
                     data[country].forEach(city => {
-                        const feature = new ol.Feature({
-                            geometry: new ol.geom.Point(ol.proj.fromLonLat(city.c))
-                        });
+                        const feature = new ol.Feature({ geometry: new ol.geom.Point(ol.proj.fromLonLat(city.c)) });
                         feature.setStyle(new ol.style.Style({
-                            image: new ol.style.Circle({ radius: 3, fill: new ol.style.Fill({color: 'red'}) }),
+                            image: new ol.style.Circle({ radius: 4, fill: new ol.style.Fill({color: 'red'}) }),
                             text: new ol.style.Text({
-                                text: city.n,
-                                offsetY: -10,
-                                font: 'bold 12px Arial',
-                                fill: new ol.style.Fill({color: '#ffffff'}),
-                                stroke: new ol.style.Stroke({color: '#000000', width: 3})
+                                text: city.n + " (" + country + ")",
+                                offsetY: -15,
+                                font: '12px Arial',
+                                fill: new ol.style.Fill({color: '#fff'})
                             })
                         }));
-                        vectorSource.addFeature(feature);
+                        source.addFeature(feature);
                     });
                 }
-                map.addLayer(new ol.layer.Vector({ source: vectorSource }));
-            });
+                map.addLayer(new ol.layer.Vector({ source: source }));
+            } catch (e) { console.error("JSON লোড হয়নি", e); }
+        }
+        loadCities();
     </script>
 </body>
 </html>
