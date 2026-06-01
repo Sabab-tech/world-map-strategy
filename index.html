@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bollywood World Map</title>
+    <title>Global Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
-        body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #000; }
-        .ol-popup { position: absolute; background: rgba(255,215,0,0.9); padding: 10px; border-radius: 5px; color: black; font-weight: bold; }
+        body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #f0f0f0; } /* কালো ব্যাকগ্রাউন্ড সরিয়ে হালকা গ্রে দেওয়া হয়েছে */
     </style>
 </head>
 <body>
@@ -15,42 +14,9 @@
         const map = new ol.Map({
             target: 'map',
             layers: [
-                new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) })
+                new ol.layer.Tile({ source: new ol.source.OSM() }) // সরাসরি OSM টাইলস ব্যবহার করা হয়েছে যেন সহজে লোড হয়
             ],
-            view: new ol.View({ center: [0, 0], zoom: 2.5 }) // পারফেক্ট জুম লেভেল
-        });
-
-        fetch('countries.json')
-            .then(res => res.json())
-            .then(data => {
-                const vectorSource = new ol.source.Vector();
-                for (let country in data) {
-                    data[country].forEach(city => {
-                        const feature = new ol.Feature({
-                            geometry: new ol.geom.Point(ol.proj.fromLonLat(city.c)),
-                            name: city.n,
-                            country: country
-                        });
-                        feature.setStyle(new ol.style.Style({
-                            image: new ol.style.Circle({ radius: 7, fill: new ol.style.Fill({color: '#FFD700'}) }),
-                            text: new ol.style.Text({
-                                text: city.n,
-                                offsetY: -20,
-                                font: 'bold 14px Verdana',
-                                fill: new ol.style.Fill({color: '#FFF'})
-                            })
-                        }));
-                        vectorSource.addFeature(feature);
-                    });
-                }
-                map.addLayer(new ol.layer.Vector({ source: vectorSource }));
-            });
-
-        // সিলেকশন ইন্টারঅ্যাকশন
-        map.on('singleclick', function(evt) {
-            map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-                alert("নির্বাচিত দেশ: " + feature.get('country') + " | শহর: " + feature.get('name'));
-            });
+            view: new ol.View({ center: [0, 0], zoom: 2 })
         });
     </script>
 </body>
