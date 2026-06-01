@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Final Fixed Map</title>
+    <title>Modern Age 3 - Interactive Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -14,55 +14,43 @@
 <body>
     <div id="map"></div>
     <script>
-        // বর্ডার এবং নাম দেখানোর জন্য আলাদা লেয়ার সেটআপ
+        const vectorSource = new ol.source.Vector({
+            url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
+            format: new ol.format.GeoJSON()
+        });
+
+        // সিলেকশন স্টাইল (ক্লিক করলে যা হবে)
+        const selectStyle = new ol.style.Style({
+            fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.3)' }),
+            stroke: new ol.style.Stroke({ color: '#ffffff', width: 3 })
+        });
+
         const map = new ol.Map({
             target: 'map',
             layers: [
                 new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) }),
                 new ol.layer.Vector({
-                    declutter: true,
-                    source: new ol.source.Vector({
-                        url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
-                        format: new ol.format.GeoJSON()
-                    }),
-                    style: function (feature, resolution) {
-                        const name = feature.get('ADMIN') || feature.get('name') || '';
-                        const zoom = Math.log2(156543.03392 / resolution);
-
-                        // ১. ফালতু অঞ্চল ও দ্বীপ ব্লক লিস্ট
-                        const blacklist = ["British Indian Ocean Territory", "Christmas Island", "Cocos Islands", "Niue", "Tokelau", "Palestine", "Western Sahara"];
-                        if (blacklist.includes(name)) return null;
-
-                        // ২. বর্ডার স্টাইল (সবসময় থাকবে)
-                        const borderStyle = new ol.style.Style({
-                            stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.2 })
-                        });
-
-                        // ৩. নামের ফিল্টার ও সংক্ষেপন
-                        let displayName = name;
-                        if (name === "Democratic Republic of the Congo") displayName = "DR CONGO";
-                        if (name === "United Kingdom") displayName = "UK";
-                        if (name === "United States of America") displayName = "USA";
-
-                        // জুম লজিক: জুম ৬.০ এর নিচে ছোট দেশ নাম দেখাবে না
-                        const smallOnes = ["Luxembourg", "Liechtenstein", "Singapore", "Fiji", "Vanuatu"];
-                        if (zoom < 6.0 && smallOnes.includes(name)) return borderStyle;
-
-                        const textStyle = new ol.style.Style({
-                            text: new ol.style.Text({
-                                text: displayName.toUpperCase(),
-                                font: `900 13px "Impact", sans-serif`,
-                                fill: new ol.style.Fill({ color: '#ffffff' }),
-                                stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
-                                placement: 'point'
-                            })
-                        });
-
-                        return [borderStyle, textStyle];
-                    }
+                    source: vectorSource,
+                    style: new ol.style.Style({
+                        stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.3)', width: 1.2 })
+                    })
                 })
             ],
             view: new ol.View({ center: ol.proj.fromLonLat([25.0, 42.0]), zoom: 3.8, minZoom: 3.8, maxZoom: 8.5 })
+        });
+
+        // ক্লিক লিসেনার
+        const select = new ol.interaction.Select({
+            style: selectStyle
+        });
+        map.addInteraction(select);
+
+        // ক্লিক করলে কনসোলে নাম দেখাবে (আপনি চাইলে এখানে দেশের তথ্য বা অন্য কিছু দেখানোর সিস্টেম করতে পারেন)
+        select.on('select', function(e) {
+            if (e.selected.length > 0) {
+                const feature = e.selected[0];
+                console.log("Selected Country: " + (feature.get('ADMIN') || feature.get('name')));
+            }
         });
     </script>
 </body>
