@@ -1,94 +1,60 @@
 <!DOCTYPE html>
-<html lang="en" translate="no">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Age 3 - Tactical Engine</title>
+    <title>Modern Age 3 - Tactical Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #050b14; }
-        #map { width: 100%; height: 100vh; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #0b1015; }
+        #map { height: 100vh; background: #0b1015; }
         
-        /* MODERN AGE PREMIUM FONT STYLE */
-        .country-text-icon {
-            background: transparent !important;
-            border: none !important;
+        /* গেমের মতো টেক্সট স্টাইল */
+        .country-label {
             color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-weight: 800;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            /* 3D EMBOSSED EFFECT: শ্যাডো দিয়ে থ্রিডি ভাইব আনা হয়েছে */
-            text-shadow: 
-                0px 1px 0px #333,
-                0px 2px 0px #222,
-                0px 3px 2px rgba(0,0,0,0.8); 
-            text-align: center;
-            white-space: nowrap;
+            text-shadow: 1px 1px 2px #000, 0 0 5px rgba(0,0,0,0.5);
             pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
+            opacity: 0.85;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
-
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const map = L.map('map', {
-            center: [25.0, 40.0],
-            zoom: 4,
-            minZoom: 3,
-            maxZoom: 5
+        // ক্যানভাস রেন্ডারার ব্যবহার করে স্মুথ বর্ডার
+        const map = L.map('map', { 
+            center: [20, 0], zoom: 3, 
+            renderer: L.canvas() 
         });
 
-        // স্যাটেলাইট ম্যাপ (প্রিমিয়াম লুকের জন্য)
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Esri'
+        // স্যাটেলাইট লুক
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
+            attribution: 'Map'
         }).addTo(map);
 
-        let geojsonLayer;
-
-        function initializeMap(geoData) {
-            geojsonLayer = L.geoJSON(geoData, {
-                style: { color: "transparent", weight: 0, fillOpacity: 0 },
-                onEachFeature: function (feature, layer) {
-                    let name = (feature.properties.ADMIN || feature.properties.name || "").toUpperCase();
-                    if (name === "UNITED STATES OF AMERICA") name = "USA";
-                    if (name === "RUSSIAN FEDERATION") name = "RUSSIA";
-
-                    // লজিক: দেশের এলাকা অনুযায়ী ফন্ট সাইজ নির্ধারণ (Dynamic Scaling)
-                    let bounds = layer.getBounds();
-                    let area = (bounds.getNorth() - bounds.getSouth()) * (bounds.getEast() - bounds.getWest());
-                    let fontSize = Math.min(Math.max(area * 0.8, 9), 20); // এলাকা অনুযায়ী ৯px থেকে ২০px পর্যন্ত
-
-                    let icon = L.divIcon({
-                        className: 'country-text-icon',
-                        html: `<span style="font-size: ${fontSize}px;">${name}</span>`,
-                        iconSize: [200, 40]
-                    });
-
-                    L.marker(bounds.getCenter(), { icon: icon, interactive: false }).addTo(map);
-
-                    // বর্ডার হাইলাইট ক্লিক লজিক
-                    layer.on('click', function(e) {
-                        L.DomEvent.stopPropagation(e);
-                        geojsonLayer.resetStyle();
-                        layer.setStyle({ color: "#ffffff", weight: 2, fillOpacity: 0.1 });
-                    });
-                }
-            }).addTo(map);
-        }
-
-        // ডেটা লোড
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
-            .then(data => initializeMap(data));
-
-        map.on('click', () => geojsonLayer.resetStyle());
+            .then(data => {
+                L.geoJSON(data, {
+                    style: { color: "#ffffff", weight: 0.8, fillOpacity: 0.1 },
+                    onEachFeature: function (feature, layer) {
+                        let name = feature.properties.ADMIN.toUpperCase();
+                        let center = layer.getBounds().getCenter();
+                        
+                        L.marker(center, {
+                            icon: L.divIcon({
+                                className: 'country-label',
+                                html: `<div style="font-size: 10px;">${name}</div>`,
+                                iconSize: [100, 20]
+                            })
+                        }).addTo(map);
+                    }
+                }).addTo(map);
+            });
     </script>
 </body>
 </html>
