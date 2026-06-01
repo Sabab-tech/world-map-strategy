@@ -3,125 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Age 3 - Baked Text Engine</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>Modern Age - Tactical Vector Map</title>
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { width: 100%; height: 100%; overflow: hidden; background-color: #050b14; }
-        #map { width: 100%; height: 100vh; background-color: #050b14; }
+        #map { width: 100vw; height: 100vh; }
         
-        /* গেমের মতো ব্লেন্ডেড টেক্সট স্টাইল */
-        .country-text-container {
-            background: transparent !important;
-            border: none !important;
+        /* HUD Control Panel */
+        .hud-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(5, 11, 20, 0.9);
+            border: 1px solid #3a4d5c;
+            color: #8fa0af;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            z-index: 1000;
             pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: visible;
-        }
-
-        .country-name {
-            color: rgba(255, 255, 255, 0.75); /* গেমের মতো মিউটেড সাদা, যা মাটির সাথে মিশে থাকে */
-            font-family: 'Arial', sans-serif;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            /* হালকা শ্যাডো দিয়ে মাটির সাথে ব্লেন্ড করা */
-            text-shadow: 1px 1px 1px rgba(0,0,0,0.8), -1px -1px 1px rgba(0,0,0,0.4);
-            white-space: nowrap;
-            transform-origin: center center;
-            transition: transform 0.1s linear; /* জুম করার সময় স্মুথ ট্রানজিশন */
-            pointer-events: none;
+            box-shadow: 0 0 15px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    
+    <div class="hud-panel">
+        <b style="color:#fff;">MODERN AGE: WEBGL ENGINE</b><br><br>
+        • TEXT: VECTOR-LOCKED (NATIVE)<br>
+        • COLLISIONS: AUTO-HIDDEN<br>
+        • SCALING: DYNAMIC INTERPOLATION
+    </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script>
-        const map = L.map('map', {
-            center: [25.0, 40.0],
-            zoom: 3, // বেস জুম লেভেল ৩
-            minZoom: 3,
-            maxZoom: 5,
-            zoomSnap: 0.1 // স্মুথ জুমের জন্য
-        });
-
-        // আপনার পছন্দের ডার্ক স্যাটেলাইট ম্যাপ (সাদা ম্যাপ ফিক্স করা হয়েছে)
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Esri',
-            maxZoom: 8
-        }).addTo(map);
-
-        let geojsonLayer;
-
-        function initializeMap(geoData) {
-            geojsonLayer = L.geoJSON(geoData, {
-                style: { 
-                    color: "rgba(255, 255, 255, 0.4)", // গেমের মতো হালকা সাদা বর্ডার
-                    weight: 1.2, 
-                    fillOpacity: 0 
+        // 1. Initialize WebGL Map Engine
+        const map = new maplibregl.Map({
+            container: 'map',
+            center: [40.0, 25.0],
+            zoom: 3,
+            minZoom: 2,
+            maxZoom: 7,
+            style: {
+                version: 8,
+                // Required to render text in WebGL without an API key
+                glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+                sources: {
+                    'satellite': {
+                        type: 'raster',
+                        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+                        tileSize: 256
+                    }
                 },
-                onEachFeature: function (feature, layer) {
-                    let name = (feature.properties.ADMIN || feature.properties.name || "").toUpperCase();
-                    if (name === "UNITED STATES OF AMERICA") name = "USA";
-                    if (name === "RUSSIAN FEDERATION") name = "RUSSIA";
-                    if (name === "DEMOCRATIC REPUBLIC OF THE CONGO") name = "DR CONGO";
-
-                    // এরিয়া অনুযায়ী বেস সাইজ ক্যালকুলেশন
-                    let bounds = layer.getBounds();
-                    let area = (bounds.getNorth() - bounds.getSouth()) * (bounds.getEast() - bounds.getWest());
-                    
-                    // বেস জুম (৩) এর জন্য ফন্ট সাইজ নির্ধারণ (ছোট দেশের জন্য ৬, বড় দেশের জন্য ১৪)
-                    let baseFontSize = Math.min(Math.max(area * 0.5, 6), 14);
-
-                    let icon = L.divIcon({
-                        className: 'country-text-container',
-                        html: `<span class="country-name" data-base-size="${baseFontSize}" style="font-size: ${baseFontSize}px;">${name}</span>`,
-                        iconSize: [0, 0] // জিরো সাইজ দিয়ে একদম সেন্টারে লক করা
-                    });
-
-                    L.marker(bounds.getCenter(), { icon: icon, interactive: false }).addTo(map);
-
-                    // বর্ডার হাইলাইট ক্লিক লজিক
-                    layer.on('click', function(e) {
-                        L.DomEvent.stopPropagation(e);
-                        geojsonLayer.resetStyle();
-                        layer.setStyle({ color: "#ffffff", weight: 2, fillOpacity: 0.1 });
-                    });
-                }
-            }).addTo(map);
-            
-            // প্রথমবার লোডের সময় টেক্সট স্কেল আপডেট করা
-            updateTextScale();
-        }
-
-        // --- কোর ইঞ্জিন: ম্যাট্রিক্স স্কেলিং (মাটির সাথে লেখা আটকে রাখার লজিক) ---
-        function updateTextScale() {
-            let currentZoom = map.getZoom();
-            // বেস জুম ৩। জুম বাড়লে লেখা ম্যাপের সাথেই জ্যামিতিক হারে বড় হবে
-            let scaleMultiplier = Math.pow(2, currentZoom - 3); 
-
-            document.querySelectorAll('.country-name').forEach(span => {
-                span.style.transform = `scale(${scaleMultiplier})`;
-            });
-        }
-
-        // জুম করার সময় এবং জুম শেষ হলে স্কেল আপডেট করা
-        map.on('zoom', updateTextScale);
-        map.on('zoomend', updateTextScale);
-
-        map.on('click', function() {
-            if (geojsonLayer) geojsonLayer.resetStyle();
+                layers: [{
+                    id: 'satellite-base',
+                    type: 'raster',
+                    source: 'satellite',
+                    minzoom: 0,
+                    maxzoom: 22
+                }]
+            }
         });
 
-        // ডেটা লোড
-        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
-            .then(res => res.json())
-            .then(data => initializeMap(data));
+        map.on('load', () => {
+            // 2. Load GeoJSON Database
+            map.addSource('countries-data', {
+                type: 'geojson',
+                data: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson'
+            });
 
+            // 3. Render Borders (Attached directly to vectors)
+            map.addLayer({
+                id: 'country-borders',
+                type: 'line',
+                source: 'countries-data',
+                paint: {
+                    'line-color': 'rgba(255, 255, 255, 0.3)',
+                    'line-width': 1.2
+                }
+            });
+
+            // 4. Render Smart Typography
+            map.addLayer({
+                id: 'country-names',
+                type: 'symbol',
+                source: 'countries-data',
+                layout: {
+                    // Format text
+                    'text-field': ['to-upper', ['get', 'ADMIN']],
+                    'text-font': ['Open Sans Bold'],
+                    'text-letter-spacing': 0.15,
+                    
+                    // Lock to Centroid
+                    'symbol-placement': 'point',
+                    'text-anchor': 'center',
+
+                    // Collision Detection (Hides overlapping names)
+                    'text-allow-overlap': false,
+                    'text-ignore-placement': false,
+                    'text-padding': 2, // Space required between names
+
+                    // Dynamic Zoom Scaling
+                    'text-size': [
+                        'interpolate', 
+                        ['linear'], ['zoom'],
+                        2, 8,   // At zoom 2, font size is 8px
+                        5, 18   // At zoom 5, font size is 18px
+                    ]
+                },
+                paint: {
+                    // 3D Baked-in Look (Shadow/Glow)
+                    'text-color': 'rgba(255, 255, 255, 0.85)',
+                    'text-halo-color': 'rgba(0, 0, 0, 0.9)',
+                    'text-halo-width': 1.5,
+                    'text-halo-blur': 1
+                }
+            });
+
+            // Tactical Touch: Highlight Country on Click
+            map.addLayer({
+                id: 'country-highlight',
+                type: 'fill',
+                source: 'countries-data',
+                paint: {
+                    'fill-color': '#ffffff',
+                    'fill-opacity': ['case', ['boolean', ['feature-state', 'clicked'], false], 0.2, 0]
+                }
+            });
+
+            let clickedStateId = null;
+
+            map.on('click', 'country-highlight', (e) => {
+                if (e.features.length > 0) {
+                    if (clickedStateId !== null) {
+                        map.setFeatureState({ source: 'countries-data', id: clickedStateId }, { clicked: false });
+                    }
+                    clickedStateId = e.features[0].id || e.features[0].properties.ADMIN;
+                    
+                    // Ensure features have an ID for state management
+                    e.features[0].id = clickedStateId; 
+                    map.setFeatureState({ source: 'countries-data', id: clickedStateId }, { clicked: true });
+                }
+            });
+        });
     </script>
 </body>
-</html>
+        </html>
+        
