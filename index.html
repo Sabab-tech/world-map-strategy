@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Map - Error Free</title>
+    <title>Global Map - All Microstates Included V12</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
@@ -33,38 +33,45 @@
             "Dominican Republic": "Dominican Rep."
         };
 
+        // ১. বিশ্বের সমস্ত ক্ষুদ্র রাষ্ট্রসহ সবচেয়ে উন্নত ডাটাবেজ (geo-countries)
         const vectorSource = new ol.source.Vector({
-            url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson',
+            url: 'https://cdn.jsdelivr.net/gh/datasets/geo-countries@master/data/countries.geojson',
             format: new ol.format.GeoJSON(),
             wrapX: false 
         });
 
-        const largestFeaturesByName = new Set();
-        let isDataLoaded = false; // ডেটা পুরোপুরি চেক হয়েছে কি না তার প্রমাণ
-        
+        // ২. ম্যাপের ডাটা লোড হওয়ার পর ডুপ্লিকেট নামগুলো ব্লক করার লজিক
         vectorSource.on('featuresloadend', function() {
             const features = vectorSource.getFeatures();
-            const nameMap = {};
+            const maxAreaMap = {};
             
+            // প্রতিটি দেশের নাম খুঁজে তার সবচেয়ে বড় টুকরোটি বের করা
             features.forEach(f => {
-                const name = f.get('admin') || f.get('name') || "";
-                const area = f.getGeometry().getArea();
-                if (!nameMap[name] || area > nameMap[name].area) {
-                    nameMap[name] = { area: area, feature: f };
+                const name = f.get('ADMIN') || f.get('name') || f.get('NAME') || f.get('admin') || "";
+                const geom = f.getGeometry();
+                if (geom && name) {
+                    const area = geom.getArea();
+                    if (!maxAreaMap[name] || area > maxAreaMap[name].area) {
+                        maxAreaMap[name] = { area: area, feature: f };
+                    }
                 }
             });
+
+            // সব দ্বীপে আগে ফলস (false) ট্যাগ দেওয়া
+            features.forEach(f => f.set('isMainBody', false));
             
-            Object.values(nameMap).forEach(item => largestFeaturesByName.add(item.feature));
+            // শুধু সবচেয়ে বড় ভূখণ্ডগুলোতে ট্রু (true) ট্যাগ দেওয়া
+            Object.values(maxAreaMap).forEach(item => {
+                item.feature.set('isMainBody', true);
+            });
             
-            isDataLoaded = true; // বাছাইয়ের কাজ শেষ
-            countryLayer.changed(); // ম্যাপকে জোরপূর্বক রিফ্রেশ করে নামগুলো দেখানোর নির্দেশ
+            // ম্যাপকে রিফ্রেশ করে সঠিক জায়গায় নাম বসানোর নির্দেশ
+            vectorSource.changed();
         });
 
         const styleFunction = function(feature, resolution) {
-            const rawName = feature.get('admin') || feature.get('name') || "";
-            const displayName = shortNames[rawName] || rawName; 
-            const area = feature.getGeometry().getArea();
-            const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
+            const geom = feature.getGeometry();
+            if (!geom) return null;
 
             const baseStyle = new ol.style.Style({
                 stroke: new ol.style.Stroke({
@@ -73,16 +80,23 @@
                 })
             });
 
-            // অত্যন্ত গুরুত্বপূর্ণ পরিবর্তন: 
-            // ডেটা বাছাই শেষ না হওয়া পর্যন্ত অথবা এটি দেশের সবচেয়ে বড় ভূখণ্ড না হলে কোনো নাম বসবে না
-            if (!isDataLoaded || !largestFeaturesByName.has(feature)) {
+            // যদি ডাটাবেজ লোড না হয়ে থাকে বা এটি প্রধান ভূখণ্ড না হয়, তবে শুধু বর্ডার আঁকবে
+            if (feature.get('isMainBody') !== true) {
                 return baseStyle; 
             }
 
+            const rawName = feature.get('ADMIN') || feature.get('name') || feature.get('NAME') || feature.get('admin') || "";
+            if (!rawName) return baseStyle;
+
+            const displayName = shortNames[rawName] || rawName; 
+            const area = geom.getArea();
+            const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
+
             let fontSize = Math.min(22, Math.max(10, Math.sqrt(area) / (resolution * 10)));
             
+            // ৩. আপনার বলা ভ্যাটিকান, ফিজি, লেবানন ইত্যাদি যেন ম্যাপে গ্যারান্টিসহ থাকে
             if (area < 500000000) { 
-                if (currentZoom < 4) return baseStyle; 
+                if (currentZoom < 4) return baseStyle; // জুম না করলে শুধু বর্ডার দেখাবে, নাম লুকাবে
                 fontSize = 10;
             } else if (area < 5000000000) { 
                 if (currentZoom < 3) return baseStyle; 
@@ -96,9 +110,9 @@
                 stroke: new ol.style.Stroke({ color: '#000000', width: 2.5 }),
                 placement: 'point',
                 geometry: function(f) {
-                    const geom = f.getGeometry();
-                    if (geom.getType() === 'MultiPolygon') {
-                        const polygons = geom.getPolygons();
+                    const g = f.getGeometry();
+                    if (g.getType() === 'MultiPolygon') {
+                        const polygons = g.getPolygons();
                         let largestPolygon = polygons[0];
                         for (let i = 1; i < polygons.length; i++) {
                             if (polygons[i].getArea() > largestPolygon.getArea()) {
@@ -107,9 +121,9 @@
                         }
                         return largestPolygon.getInteriorPoint(); 
                     }
-                    return geom.getInteriorPoint(); 
+                    return g.getInteriorPoint(); 
                 },
-                overflow: true 
+                overflow: true // ওভারল্যাপের কারণে যেন কোনো ছোট দেশ ডিলিট না হয়
             }));
 
             return baseStyle;
