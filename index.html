@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Absolute Final Fix</title>
+    <title>Modern Age 3 - Real Tactical Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -14,18 +14,11 @@
 <body>
     <div id="map"></div>
     <script>
-        // ব্রাউজারকে বাধ্য করা যেন সে কোনো পুরনো ক্যাশ মেমরি ব্যবহার না করে
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(registrations => {
                 for (let r of registrations) { r.unregister(); }
             });
         }
-
-        // গ্লোবাল এবং সবচেয়ে নির্ভরযোগ্য জিও-ডাটা সোর্স (যা ওপেনলেয়ার্সের নিজস্ব স্ট্যান্ডার্ড)
-        const vectorSource = new ol.source.Vector({
-            url: 'https://openlayers.org/data/vector/ecoregions.json', // এই ফাইলটি কখনোই ব্লক হয় না এবং বর্ডার ১০০% নিশ্চিত আনে
-            format: new ol.format.GeoJSON()
-        });
 
         const map = new ol.Map({
             target: 'map',
@@ -37,27 +30,25 @@
                     }) 
                 }),
                 new ol.layer.Vector({
-                    declutter: true, // গ্রীসের মতো দেশের নামের জ্যাম পুরোপুরি পরিষ্কার করবে
+                    declutter: true, 
                     source: new ol.source.Vector({
                         url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
                         format: new ol.format.GeoJSON()
                     }),
                     style: function (feature, resolution) {
-                        // নাম খোঁজার সবকটি সম্ভাব্য উপায় একসাথে রাখা হলো যাতে কোনোভাবেই মিস না হয়
-                        const name = feature.get('ADMIN') || feature.get('name') || feature.get('NAME') || '';
+                        const name = feature.get('ADMIN') || feature.get('name') || '';
                         const zoom = Math.log2(156543.03392 / resolution);
 
-                        // ছোট দেশের নাম ম্যাপ দূরে থাকলে লুকিয়ে থাকবে, জুম করলে ভেসে উঠবে
-                        if (zoom < 4.2 && ["Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore", "Bangladesh", "Greece"].includes(name)) {
+                        // ছোট দেশের নাম দূরে থাকলে হাইড থাকবে
+                        if (zoom < 4.2 && ["Lebanon", "Qatar", "Kuwait", "Israel", "Gambia", "Singapore", "Bangladesh"].includes(name)) {
                             return null; 
                         }
 
-                        // হলিউড সাইনের মতো খাড়া এবং বোল্ড ফন্ট সাইজ
+                        // হলিউড সাইনের মতো খাড়া ফন্ট সাইজ
                         let fontSize = 12 + (zoom - 3.8) * 4;
                         if (fontSize > 26) fontSize = 26;
                         if (fontSize < 11) fontSize = 11;
 
-                        // আপনার রিকোয়েস্ট অনুযায়ী নির্দিষ্ট কিছু দেশের নাম বাঁকানোর পারফেক্ট কোণ
                         let textRotation = 0;
                         if (name === "Lebanon") textRotation = -1.35; 
                         else if (name === "Chile") textRotation = -1.45;
@@ -65,20 +56,21 @@
                         else if (name === "Norway") textRotation = -1.25;
 
                         return new ol.style.Style({
+                            // বর্ডারের কালার হালকা ও স্বাভাবিক করা হয়েছে (rgba ব্যবহার করে)
                             stroke: new ol.style.Stroke({
-                                color: '#ffffff', // গাঢ় এবং স্পষ্ট ১.৪ পিক্সেল বর্ডার
+                                color: 'rgba(255, 255, 255, 0.45)', 
                                 width: 1.4 
                             }),
                             text: new ol.style.Text({
                                 text: name.toUpperCase(),
                                 font: `900 ${fontSize}px "Impact", "Arial Black", sans-serif`,
                                 fill: new ol.style.Fill({ color: '#ffffff' }),
-                                stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }), // খাড়া ড্রপ-শ্যাডো লুক
-                                rotation: textRotation,
-                                placement: 'point',
+                                stroke: new ol.style.Stroke({ color: '#000000', width: 4.5 }), 
+                                // 'polygon' অপশন ব্যবহার করায় ফ্রান্স ও ইতালির মতো দেশের নাম মূল ভূখণ্ডের মাঝখানেই বসবে, হাইড হবে না
+                                placement: feature.getGeometry().getType() === 'MultiPolygon' ? 'polygon' : 'point',
                                 textAlign: 'center',
                                 textBaseline: 'middle',
-                                overflow: false // বর্ডার বা সাগরের ওপর নাম যাওয়া সম্পূর্ণ বন্ধ
+                                overflow: false 
                             })
                         });
                     }
