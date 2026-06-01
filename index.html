@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Modern Age - Tactical Map Optimized</title>
+    <title>Modern Age - Perfect Tactical Map</title>
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,7 +11,7 @@
             width: 100%; 
             height: 100%; 
             overflow: hidden; 
-            background-color: #0a1420; /* লোডিংয়ের সময় কালো দাগের বদলে ডিপ ওশান কালার */
+            background-color: #0a1420; 
             font-family: sans-serif;
         }
         
@@ -49,10 +49,10 @@
     <div id="map"></div>
     
     <div class="hud-panel">
-        <b style="color:#fff;">MODERN AGE: OPTIMIZED</b><br><br>
-        • ROTATION: LOCKED<br>
-        • BORDERS: SHADOW CONTRAST<br>
-        • RENDERING: FADE SMOOTHING
+        <b style="color:#fff;">MODERN AGE: TACTICAL</b><br><br>
+        • ROTATION: FIXED LOCKED<br>
+        • BORDERS: OPTIMIZED WHITE (1.6PX)<br>
+        • TEXT: AUTO-TILT & ANTI-COLLIDE
     </div>
 
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
@@ -63,8 +63,8 @@
             zoom: 2.2, 
             minZoom: 2,
             maxZoom: 7,
-            dragRotate: false,      // ১. রাইট-ক্লিক দিয়ে ঘোরানো বন্ধ
-            pitchWithRotate: false, // পিচ বা থ্রিডি অ্যাঙ্গেল বন্ধ
+            dragRotate: false,      
+            pitchWithRotate: false, 
             style: {
                 version: 8,
                 glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
@@ -77,7 +77,6 @@
                 },
                 layers: [
                     {
-                        // ২. ম্যাপের একদম নিচে একটি সমুদ্রের কালার, যাতে ইন্টারনেট স্লো থাকলে কালো দাগ না দেখায়
                         id: 'background',
                         type: 'background',
                         paint: { 'background-color': '#0a1420' }
@@ -86,15 +85,12 @@
                         id: 'satellite-base',
                         type: 'raster',
                         source: 'satellite',
-                        paint: {
-                            'raster-fade-duration': 300 // লোডিং স্মুথ করবে
-                        }
+                        paint: { 'raster-fade-duration': 300 }
                     }
                 ]
             }
         });
 
-        // মোবাইলের টু-ফিঙ্গার রোটেশন সম্পূর্ণ লক
         map.touchZoomRotate.disableRotation();
 
         function lockLandscape() {
@@ -110,29 +106,18 @@
                 data: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson'
             });
 
-            // ৩ক. মরুভূমির জন্য বর্ডারের নিচে কালো শ্যাডো (Shadow Line)
-            map.addLayer({
-                id: 'country-borders-shadow',
-                type: 'line',
-                source: 'countries-data',
-                paint: {
-                    'line-color': 'rgba(0, 0, 0, 0.8)', // গাঢ় কালো শ্যাডো
-                    'line-width': 3.0 // সাদার চেয়ে একটু মোটা
-                }
-            });
-
-            // ৩খ. আসল হালকা সাদা বর্ডার (White Outline)
+            // আপনার অনুরোধ অনুযায়ী বর্ডার আগের চেয়ে একদম সামান্য একটু মোটা (1.6px) করা হয়েছে
             map.addLayer({
                 id: 'country-borders',
                 type: 'line',
                 source: 'countries-data',
                 paint: {
-                    'line-color': 'rgba(255, 255, 255, 0.45)',
-                    'line-width': 1.2
+                    'line-color': 'rgba(255, 255, 255, 0.5)', 
+                    'line-width': 1.6 
                 }
             });
 
-            // দেশের নামের লেয়ার
+            // গেমের মতো নিখুঁত এবং স্মার্ট নাম ম্যানেজমেন্ট লেয়ার
             map.addLayer({
                 id: 'country-names',
                 type: 'symbol',
@@ -140,22 +125,29 @@
                 layout: {
                     'text-field': ['to-upper', ['get', 'ADMIN']],
                     'text-font': ['Open Sans Bold'],
-                    'text-letter-spacing': 0.18, 
+                    'text-letter-spacing': 0.20, // সুন্দর ছড়ানো টেক্সট ভাইব
                     'symbol-placement': 'point',
                     'text-anchor': 'center',
-                    'text-allow-overlap': false,
+                    
+                    // নাম গায়ে গায়ে লেগে ঝামেলা করা বন্ধের মেকানিজম
+                    'text-allow-overlap': false, 
                     'text-ignore-placement': false,
-                    'text-padding': 5,
+                    'text-padding': 12, // দুটি নামের মাঝে পর্যাপ্ত দূরত্ব রাখবে, না হলে একটি হাইড থাকবে
+                    
+                    // লেবানন বা চিকন দেশের জন্য নাম অটো কাত (Tilt) করার গেম লজিক
+                    'text-max-angle': 30,
+                    'text-variable-anchor': ['center', 'left', 'right', 'top', 'bottom'], // লেগে যাওয়ার সম্ভাবনা থাকলে দূরে সরে যাবে
+                    
                     'text-size': [
                         'interpolate', ['linear'], ['zoom'],
-                        2, 8,
-                        5, 15
+                        2, 8.5,   // জুম ছোট থাকলে নামও পরিচ্ছন্ন ও ছোট থাকবে
+                        5, 14.5   // জুম বাড়লে মিডিয়াম ও স্পষ্ট দেখাবে
                     ]
                 },
                 paint: {
-                    'text-color': 'rgba(255, 255, 255, 0.85)',
-                    'text-halo-color': 'rgba(0, 0, 0, 0.9)',
-                    'text-halo-width': 1.5
+                    'text-color': 'rgba(255, 255, 255, 0.9)', // স্পষ্ট সাদা
+                    'text-halo-color': 'rgba(0, 0, 0, 0.95)', // অক্ষরের পেছনে হালকা গ্লো যাতে রিডেবিলিটি বাড়ে
+                    'text-halo-width': 1.2
                 }
             });
 
@@ -225,7 +217,7 @@
                             },
                             {
                                 type: 'Feature',
-                                geometry: { type: 'Point', coordinates: [coordinates.lng + 1.5, coordinates.lat - 1.0] },
+                                geometry: { type: 'Point', coordinates: [coordinates.lng + 1.2, coordinates.lat - 0.8] },
                                 properties: { cityName: "Strategic Zone A", isCapital: false }
                             }
                         ]
