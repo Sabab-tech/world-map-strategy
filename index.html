@@ -2,31 +2,66 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Bollywood Style Map</title>
+    <title>Global Map - All Countries & Borders</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
-    <style>body, html, #map { width: 100%; height: 100%; margin: 0; background-color: #0b1521; }</style>
+    <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
 </head>
 <body>
     <div id="map"></div>
     <script>
+        // স্টাইল ফাংশন - হালকা সাদা বর্ডার এবং প্রতিটি দেশের নাম
+        const styleFunction = function(feature) {
+            return new ol.style.Style({
+                // ১. বর্ডার: গারো সাদা নয়, হালকা স্বচ্ছ সাদা (0.5 opacity)
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(255, 255, 255, 0.5)', 
+                    width: 1.2
+                }),
+                // ২. দেশের নাম: ডাটাবেজ থেকে প্রতিটি দেশের নাম স্বয়ংক্রিয়ভাবে নেবে
+                text: new ol.style.Text({
+                    text: feature.get('admin') || feature.get('name'), // সব দেশের নাম
+                    font: 'bold 13px "Arial", sans-serif', // বলিউড স্টাইল স্পষ্ট ফন্ট
+                    fill: new ol.style.Fill({
+                        color: '#FFFFFF' // সাদা রঙের নাম
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: '#000000', // নামের চারপাশে কালো বর্ডার, যাতে স্যাটেলাইট ভিউতে নামগুলো স্পষ্ট দেখা যায়
+                        width: 3
+                    }),
+                    overflow: true // ম্যাপ জুম আউট করলেও নামগুলো সুন্দরভাবে মানিয়ে যাবে
+                })
+            });
+        };
+
+        // বর্ডার এবং নামের লেয়ার
         const countryLayer = new ol.layer.Vector({
             source: new ol.source.Vector({ 
                 url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', 
                 format: new ol.format.GeoJSON() 
             }),
-            style: new ol.style.Style({
-                stroke: new ol.style.Stroke({ color: '#FFD700', width: 2 }) // গোল্ডেন বর্ডার (বলিউড স্টাইল)
-            })
+            style: styleFunction
         });
 
+        // মূল ম্যাপ
         const map = new ol.Map({
             target: 'map',
             layers: [
-                new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) }),
+                // স্যাটেলাইট ভিউ
+                new ol.layer.Tile({ 
+                    source: new ol.source.XYZ({ 
+                        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' 
+                    }) 
+                }),
                 countryLayer
             ],
-            view: new ol.View({ center: ol.proj.fromLonLat([50.58, 26.22]), zoom: 3 })
+            // ৩. জুম লেভেল: একদম পারফেক্ট গ্লোবাল ভিউ
+            view: new ol.View({ 
+                center: ol.proj.fromLonLat([20, 20]), // ম্যাপের কেন্দ্রবিন্দু
+                zoom: 3, // এমন জুম লেভেল যেখানে পুরো পৃথিবী সুন্দরভাবে দেখা যায়
+                minZoom: 2,
+                maxZoom: 10
+            })
         });
     </script>
 </body>
