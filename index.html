@@ -2,8 +2,8 @@
 <html lang="en" translate="no">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age - Landscape Tactical Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Modern Age - True Landscape Tactical Map</title>
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,13 +12,58 @@
             height: 100%; 
             overflow: hidden; 
             background-color: #050b14; 
+            font-family: sans-serif;
         }
-        /* চওড়া স্ক্রিনের জন্য অপ্টিমাইজড ম্যাপ কন্টেইনার */
+        
+        /* ম্যাপ কন্টেইনার */
         #map { 
             width: 100vw; 
             height: 100vh; 
         }
         
+        /* ফোন সোজা করে রাখলে চওড়া করার নির্দেশাবলী (Game Overlay) */
+        #orientation-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #050b14;
+            z-index: 9999;
+            color: #ffffff;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        #orientation-overlay .icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            animation: rotateDevice 2s infinite ease-in-out;
+        }
+
+        #orientation-overlay h2 {
+            font-size: 18px;
+            letter-spacing: 2px;
+            color: #00ffcc;
+            text-transform: uppercase;
+        }
+
+        @keyframes rotateDevice {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+            100% { transform: rotate(-90deg); }
+        }
+
+        /* স্ক্রিন লম্বা বা পোর্ট্রেট মোডে থাকলে ম্যাপ লুকিয়ে মেসেজ দেখাবে */
+        @media screen and (orientation: portrait) {
+            #orientation-overlay { display: flex; }
+            #map { display: none; }
+        }
+
         .hud-panel {
             position: absolute;
             top: 20px;
@@ -37,22 +82,29 @@
     </style>
 </head>
 <body>
+
+    <div id="orientation-overlay">
+        <div class="icon">🔄</div>
+        <h2>দয়া করে আপনার ফোনটি চওড়া (Landscape) করুন</h2>
+        <p style="color: #627d93; font-size: 12px; margin-top: 10px;">সেরা গেম এক্সপেরিয়েন্সের জন্য স্ক্রিন রোটেশন অন রাখুন।</p>
+    </div>
+
     <div id="map"></div>
     
     <div class="hud-panel">
-        <b style="color:#fff;">MODERN AGE: LANDSCAPE MODE</b><br><br>
+        <b style="color:#fff;">MODERN AGE: TRUE LANDSCAPE</b><br><br>
         • BORDERS: PERMANENT WHITE<br>
-        • CITIES: HIDDEN BY DEFAULT<br>
-        • INTERACTION: SHOW CITIES ON CLICK
+        • VIEW: FORCE LANDSCAPE FIXED<br>
+        • INTERACTION: ACTIVE
     </div>
 
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script>
-        // চওড়া স্ক্রিনের অ্যাসপেক্ট রেশিও অনুযায়ী ম্যাপ ইনিশিয়ালাইজেশন
+        // চওড়া স্ক্রিনের ফিল্ড অফ ভিউ অনুযায়ী ম্যাপ
         const map = new maplibregl.Map({
             container: 'map',
-            center: [30.0, 15.0], // চওড়া স্ক্রিনে গ্লোবাল ভিউ সুন্দর দেখানোর জন্য সেন্টার অ্যাডজাস্টেড
-            zoom: 2.5,
+            center: [30.0, 15.0], 
+            zoom: 2.2, // চওড়া স্ক্রিনে পুরো বিশ্ব এক নজরে দেখার পারফেক্ট জুম
             minZoom: 2,
             maxZoom: 7,
             style: {
@@ -73,14 +125,26 @@
             }
         });
 
+        // ব্রাউজারকে ফুলস্ক্রিন চওড়া করার জন্য রিকোয়েস্ট (মোবাইলের জন্য বিশেষ মেকানিজম)
+        function lockLandscape() {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(err => {
+                    console.log("রোটেশন লক শুধুমাত্র ফুলস্ক্রিন মোডে বা সব ডিভাইসে কাজ নাও করতে পারে।");
+                });
+            }
+        }
+        
+        // ম্যাপ ক্লিক বা যেকোনো টাচে স্ক্রিন লক ট্রিপল চেক করার জন্য
+        window.addEventListener('click', lockLandscape);
+
         map.on('load', () => {
-            // ১. দেশের সীমানার জিওজেসন সোর্স
+            // ১. জিওজেসন সোর্স
             map.addSource('countries-data', {
                 type: 'geojson',
                 data: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson'
             });
 
-            // ২. আপনার চিরস্থায়ী হালকা সাদা বর্ডার (PERMANENT)
+            // ২. চিরস্থায়ী হালকা সাদা বর্ডার (PERMANENT)
             map.addLayer({
                 id: 'country-borders',
                 type: 'line',
@@ -91,7 +155,7 @@
                 }
             });
 
-            // ৩. চওড়া স্ক্রিনের জন্য পারফেক্টলি পজিশনড দেশের নাম লেয়ার
+            // ৩. চওড়া স্ক্রিনের জন্য অপ্টিমাইজড নাম
             map.addLayer({
                 id: 'country-names',
                 type: 'symbol',
@@ -99,7 +163,7 @@
                 layout: {
                     'text-field': ['to-upper', ['get', 'ADMIN']],
                     'text-font': ['Open Sans Bold'],
-                    'text-letter-spacing': 0.18, // চওড়া স্ক্রিনে টেক্সটের ভারসাম্য রক্ষার জন্য স্পেসিং বাড়ানো হয়েছে
+                    'text-letter-spacing': 0.18, 
                     'symbol-placement': 'point',
                     'text-anchor': 'center',
                     'text-allow-overlap': false,
@@ -118,34 +182,29 @@
                 }
             });
 
-            // ৪. ক্লিক হাইলাইট এবং শহর দেখানোর জন্য ইন্টারঅ্যাকশন লেয়ার
+            // ৪. ক্লিক হাইলাইট লেয়ার
             map.addLayer({
                 id: 'country-click-layer',
                 type: 'fill',
                 source: 'countries-data',
                 paint: {
                     'fill-color': '#ffffff',
-                    // দেশ সিলেক্ট হলে হালকা সাদা গ্লো (০.১৫ অপাসিটি) হবে
                     'fill-opacity': ['case', ['boolean', ['feature-state', 'clicked'], false], 0.15, 0]
                 }
             });
 
-            // ৫. শহর ও রাজধানীর ডাইনামিক সোর্স (শুরুতে সম্পূর্ণ খালি থাকবে)
+            // ৫. শহরের সোর্স
             map.addSource('cities-data', {
                 type: 'geojson',
-                data: {
-                    type: 'FeatureCollection',
-                    features: []
-                }
+                data: { type: 'FeatureCollection', features: [] }
             });
 
-            // ৬. দেশের শহরের নাম এবং মার্কার লেয়ার (যা শুধু সিলেক্ট করলে দেখাবে)
+            // ৬. শহরের লেয়ার (সিলেক্ট করলে দেখাবে)
             map.addLayer({
                 id: 'city-labels',
                 type: 'symbol',
                 source: 'cities-data',
                 layout: {
-                    // রাজধানী হলে স্টার (★) আর সাধারণ শহর হলে ডট (●) দেখানোর লজیک
                     'text-field': [
                         'concat',
                         ['case', ['boolean', ['get', 'isCapital'], false], '★ ', '● '],
@@ -158,7 +217,6 @@
                     'text-allow-overlap': true
                 },
                 paint: {
-                    // রাজধানী হলে গেমের মতো সোনালী/হলুদ রঙ, শহর হলে পিওর সাদা
                     'text-color': ['case', ['boolean', ['get', 'isCapital'], false], '#ffcc00', '#ffffff'],
                     'text-halo-color': '#000000',
                     'text-halo-width': 1.5
@@ -167,28 +225,21 @@
 
             let clickedStateId = null;
 
-            // দেশের ওপর ক্লিক করলে শহর লোড করার লজিক
             map.on('click', 'country-click-layer', (e) => {
                 if (e.features.length > 0) {
                     const countryFeature = e.features[0];
                     const countryName = countryFeature.properties.ADMIN || countryFeature.properties.name;
 
-                    // আগের সিলেক্ট করা দেশের লাইট বন্ধ করা
                     if (clickedStateId !== null) {
                         map.setFeatureState({ source: 'countries-data', id: clickedStateId }, { clicked: false });
                     }
                     
                     clickedStateId = countryFeature.id || countryName;
                     countryFeature.id = clickedStateId;
-                    
-                    // নতুন দেশ হাইলাইট করা
                     map.setFeatureState({ source: 'countries-data', id: clickedStateId }, { clicked: true });
 
-                    // ক্লিক করা দেশের কেন্দ্রবিন্দু (Centroid) নেওয়া
                     const coordinates = e.lngLat;
 
-                    // গেমের ডাইনামিক সিটি জেনারেটর (সিলেক্ট করা দেশের রাজধানী ও শহর তৈরি করে)
-                    // রিয়েল প্রজেক্টে এটি আপনার ব্যাকএন্ড বা বড় সিটি ডেটাবেজ থেকে ফিল্টার হবে
                     const dynamicCities = {
                         type: 'FeatureCollection',
                         features: [
@@ -201,21 +252,14 @@
                                 type: 'Feature',
                                 geometry: { type: 'Point', coordinates: [coordinates.lng + 1.5, coordinates.lat - 1.0] },
                                 properties: { cityName: "Strategic Zone A", isCapital: false }
-                            },
-                            {
-                                type: 'Feature',
-                                geometry: { type: 'Point', coordinates: [coordinates.lng - 1.2, coordinates.lat + 1.2] },
-                                properties: { cityName: "Industrial City", isCapital: false }
                             }
                         ]
                     };
 
-                    // ম্যাপের ক্যানভাসে শহরগুলো ফুটিয়ে তোলা
                     map.getSource('cities-data').setData(dynamicCities);
                 }
             });
 
-            // ম্যাপের বাইরে ফাঁকা জায়গায় ক্লিক করলে শহরগুলো আবার হাওয়া হয়ে যাবে
             map.on('click', (e) => {
                 const features = map.queryRenderedFeatures(e.point, { layers: ['country-click-layer'] });
                 if (!features.length) {
@@ -223,10 +267,12 @@
                         map.setFeatureState({ source: 'countries-data', id: clickedStateId }, { clicked: false });
                         clickedStateId = null;
                     }
-                    // শহরের ডেটা ক্লিয়ার করে দেওয়া
                     map.getSource('cities-data').setData({ type: 'FeatureCollection', features: [] });
                 }
             });
+            
+            // সাইজ পরিবর্তনের সাথে সাথে ম্যাপ রি-অ্যাডজাস্ট হবে
+            window.addEventListener('resize', () => { map.resize(); });
         });
     </script>
 </body>
