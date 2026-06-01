@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Bollywood Map - Perfect Resolution</title>
+    <title>Global Bollywood Map - Fixed Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
@@ -10,7 +10,7 @@
 <body>
     <div id="map"></div>
     <script>
-        // তালিকায় থাকা এবং বিশ্বের সমস্ত বড় নামগুলোর নিখুঁত সংক্ষেপ রূপ
+        // সংক্ষেপিত বড় নামের তালিকা
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -32,40 +32,50 @@
             "Saint Lucia": "St. Lucia"
         };
 
+        // একই স্ক্রিনে নাম যেন একবারই আসে তার জন্য একটি ট্র্যাকার সেট
+        let renderedNames = new Set();
+
         const styleFunction = function(feature, resolution) {
             const rawName = feature.get('admin') || feature.get('name') || "";
             const displayName = shortNames[rawName] || rawName; 
 
-            // জুম লেভেল এবং দেশের আয়তন (Area) বের করা
+            // জুম লেভেল এবং এরিয়া বের করা
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
             const area = feature.getGeometry().getArea();
 
-            // দেশ ও জুম লেভেলের আনুপাতিক হারে ফন্ট সাইজ নিয়ন্ত্রণ করার নিখুঁত লজিক
-            let fontSize = Math.min(20, Math.max(9, Math.sqrt(area) / (resolution * 14)));
+            // ১. ডুপ্লিকেট নাম প্রতিরোধ লজিক:
+            // যদি এই নাম অলরেডি ম্যাপের কোথাও প্রিন্ট হয়ে থাকে, তবে দ্বীপ বা ছিটমহলে এটি আর বসবে না।
+            if (renderedNames.has(displayName) && currentZoom < 5) {
+                return new ol.style.Style({
+                    stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.2 })
+                });
+            }
+            renderedNames.add(displayName);
 
-            // অতি ক্ষুদ্র দ্বীপ ও দেশের (যেমন ভ্যাটিকান, মালদ্বীপ, সিঙ্গাপুর) নাম জুম আউট অবস্থায় জটলা পাকাবে না,
-            // কিন্তু জুম লেভেল ৪ বা তার উপরে গেলেই একদম নিখুঁতভাবে তাদের সীমানার ভেতর ভেসে উঠবে।
+            // আনুপাতিক হারে ফন্ট সাইজ নির্ধারণ
+            let fontSize = Math.min(22, Math.max(10, Math.sqrt(area) / (resolution * 13)));
+
+            // ছোট দেশগুলোর জন্য জুম লেভেল কানেকশন
             if (area < 2000000000 && currentZoom < 4) {
-                // খুব ছোট দেশ কিন্তু গুরুত্বপূর্ণ হলে জুম ৩-এ ছোট আকারে দেখাবে
-                if (currentZoom === 3) fontSize = 8;
-                else if (currentZoom < 3) return null;
+                if (currentZoom < 3) return null;
+                fontSize = 9;
             }
 
             return new ol.style.Style({
                 stroke: new ol.style.Stroke({
-                    color: 'rgba(255, 255, 255, 0.4)', // আপনার পছন্দ অনুযায়ী হালকা স্বচ্ছ সাদা বর্ডার
+                    color: 'rgba(255, 255, 255, 0.4)', // হালকা স্বচ্ছ সাদা বর্ডার
                     width: 1.2
                 }),
                 text: new ol.style.Text({
                     text: displayName,
-                    font: `bold ${fontSize}px "Arial Black", sans-serif`, // বলিউড সিনেমাটিক স্পষ্ট ফন্ট
+                    font: `bold ${fontSize}px "Arial Black", sans-serif`,
                     fill: new ol.style.Fill({ color: '#FFFFFF' }),
-                    stroke: new ol.style.Stroke({ color: '#000000', width: 3 }), // স্যাটেলাইটে স্পষ্ট দেখার জন্য কালো আউটলাইন
-                    
+                    stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
                     placement: 'point',
                     geometry: function(f) {
                         const geom = f.getGeometry();
-                        // মাল্টি-পলিগন বা দ্বীপরাষ্ট্র (যেমন ইতালি, বাহামাস) হলে মূল ভূখণ্ডের মাঝখানে নাম বসবে, সমুদ্রে যাবে না
+                        // ২. নাম সঠিক জায়গায় বসানোর লজিক:
+                        // মাল্টি-পলিগন বা ছিটমহল থাকলে শুধুমাত্র সবচেয়ে বড় মূল ভূখণ্ডের কেন্দ্রে নাম বসবে
                         if (geom.getType() === 'MultiPolygon') {
                             const polygons = geom.getPolygons();
                             let largestPolygon = polygons[0];
@@ -76,20 +86,24 @@
                             }
                             return largestPolygon.getInteriorPoint();
                         }
-                        return geom.getInteriorPoint(); // দেশের ঠিক মাঝখানে নাম রাখার গ্যারান্টি
+                        return geom.getInteriorPoint(); 
                     },
-                    overflow: true // কোনো নাম যেন টেকনিক্যাল কারণে গায়েব না হয়ে যায়
+                    overflow: true
                 })
             });
         };
 
-        // আন্তর্জাতিক হাই-রেজোলিউশন ৫ মি. বর্ডার ডাটা সোর্স
         const countryLayer = new ol.layer.Vector({
             source: new ol.source.Vector({ 
                 url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', 
                 format: new ol.format.GeoJSON() 
             }),
             style: styleFunction
+        });
+
+        // প্রতিবার ম্যাপ মুভ বা জুম করলে নামের ট্র্যাকার ক্লিয়ার হবে যাতে নতুন ভিউতে নাম রেন্ডার হতে পারে
+        countryLayer.on('prerender', function() {
+            renderedNames.clear();
         });
 
         const map = new ol.Map({
@@ -100,9 +114,10 @@
                 }),
                 countryLayer
             ],
+            // ৩. পারফেক্ট জুম ও বাউন্ডারি সেটিংস:
             view: new ol.View({ 
-                center: ol.proj.fromLonLat([20, 20]), // প্রথম ভিউতেই যাতে অধিকাংশ মহাদেশ সুন্দর দেখায়
-                zoom: 3, 
+                center: ol.proj.fromLonLat([15, 12]), 
+                zoom: 2.2, // স্ক্রিন লুপ বা ডাবল পৃথিবী হওয়া বন্ধ করতে পারফেক্ট জুম লেভেল
                 minZoom: 2, 
                 maxZoom: 12,
                 enableRotation: false 
