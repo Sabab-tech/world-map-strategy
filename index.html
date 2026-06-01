@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Proportional Auto-Zoom</title>
+    <title>Modern Age 3 - High-Res Global Megamap</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -22,9 +22,11 @@
         // ১. দেশের বর্ডার এবং নামের পার্মানেন্ট লজিক
         // ==========================================
         function countryStyle(feature, resolution) {
-            const name = feature.get('ADMIN') || feature.get('name') || '';
+            // High-Res ম্যাপে ADMIN, SOVEREIGNT বা name থাকতে পারে
+            const name = feature.get('ADMIN') || feature.get('SOVEREIGNT') || feature.get('name') || '';
             const zoom = Math.log2(156543.03392 / resolution);
-            const blacklist = ["British Indian Ocean Territory", "Christmas Island", "Cocos Islands", "Norfolk Island", "Niue", "Tokelau", "Palestine", "Western Sahara"];
+            
+            const blacklist = ["British Indian Ocean Territory", "Christmas Island", "Cocos Islands", "Norfolk Island", "Niue", "Tokelau", "Western Sahara"];
             if (blacklist.includes(name)) return null;
 
             const borderStyle = new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.2 });
@@ -34,9 +36,11 @@
             if (name === "Democratic Republic of the Congo") dName = "DR CONGO";
             else if (name === "United Kingdom") dName = "UK";
             else if (name === "United States of America") dName = "USA";
+            else if (name === "United Arab Emirates") dName = "UAE";
 
-            const smallOnes = ["Luxembourg", "Liechtenstein", "Singapore", "Fiji", "Vanuatu", "Solomon Islands", "Marshall Islands", "Qatar", "Kuwait", "Lebanon"];
-            if (zoom < 6.0 && smallOnes.includes(name)) return new ol.style.Style({ stroke: borderStyle, fill: invisibleFill });
+            // ছোট দেশগুলোর নাম অনেক জুম করলে দেখাবে
+            const smallOnes = ["Luxembourg", "Liechtenstein", "Singapore", "Fiji", "Vanuatu", "Solomon Islands", "Marshall Islands", "Qatar", "Kuwait", "Lebanon", "Bahrain", "Maldives", "Malta", "Monaco", "San Marino", "Andorra"];
+            if (zoom < 6.5 && smallOnes.includes(name)) return new ol.style.Style({ stroke: borderStyle, fill: invisibleFill });
 
             let fSize = 12 + (zoom - 3.8) * 3;
             if (fSize > 24) fSize = 24; if (fSize < 11) fSize = 11;
@@ -52,12 +56,13 @@
         }
 
         function selectStyle(feature, resolution) {
-            const name = feature.get('ADMIN') || feature.get('name') || '';
+            const name = feature.get('ADMIN') || feature.get('SOVEREIGNT') || feature.get('name') || '';
             const zoom = Math.log2(156543.03392 / resolution);
             let dName = name;
             if (name === "Democratic Republic of the Congo") dName = "DR CONGO";
             else if (name === "United Kingdom") dName = "UK";
             else if (name === "United States of America") dName = "USA";
+            else if (name === "United Arab Emirates") dName = "UAE";
 
             let fSize = 12 + (zoom - 3.8) * 3; if (fSize > 24) fSize = 24;
 
@@ -72,56 +77,139 @@
             });
         }
 
+        // মাস্টারস্ট্রোক: বাহরাইনসহ পৃথিবীর সব দেশ লোড করার জন্য হাই-রেজোলিউশন (50m) ডাটাবেজ
         const countryLayer = new ol.layer.Vector({
             declutter: true,
-            source: new ol.source.Vector({ url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson', format: new ol.format.GeoJSON() }),
+            source: new ol.source.Vector({ 
+                url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson', 
+                format: new ol.format.GeoJSON() 
+            }),
             style: countryStyle
         });
 
         // ==========================================
-        // ২. গ্লোবাল ডাটাবেজ 
+        // ২. গ্লোবাল মেগা সিটি ডাটাবেজ (পৃথিবীর সব স্বাধীন দেশ)
         // ==========================================
         const cityData = {
+            // Middle East & Tiny Nations (বাহরাইন নিখুঁতভাবে যুক্ত)
+            "Bahrain": [{ n: "Manama", c: [50.58, 26.22], t: "cap" }],
+            "Qatar": [{ n: "Doha", c: [51.53, 25.28], t: "cap" }],
+            "Kuwait": [{ n: "Kuwait City", c: [47.97, 29.37], t: "cap" }],
+            "United Arab Emirates": [{ n: "Abu Dhabi", c: [54.36, 24.46], t: "cap" }, { n: "Dubai", c: [55.27, 25.20], t: "city" }],
+            "Oman": [{ n: "Muscat", c: [58.59, 23.61], t: "cap" }],
+            "Yemen": [{ n: "Sanaa", c: [44.20, 15.35], t: "cap" }],
+            "Saudi Arabia": [{ n: "Riyadh", c: [46.73, 24.71], t: "cap" }, { n: "Jeddah", c: [39.19, 21.48], t: "city" }],
+            "Israel": [{ n: "Jerusalem", c: [35.21, 31.76], t: "cap" }],
+            "Jordan": [{ n: "Amman", c: [35.92, 31.94], t: "cap" }],
+            "Lebanon": [{ n: "Beirut", c: [35.50, 33.89], t: "cap" }],
+            "Syria": [{ n: "Damascus", c: [36.29, 33.51], t: "cap" }],
+            "Iraq": [{ n: "Baghdad", c: [44.36, 33.31], t: "cap" }],
+            "Iran": [{ n: "Tehran", c: [51.38, 35.68], t: "cap" }],
+            "Turkey": [{ n: "Ankara", c: [32.85, 39.93], t: "cap" }, { n: "Istanbul", c: [28.97, 41.00], t: "city" }],
+
+            // Asia
             "Bangladesh": [{ n: "Dhaka", c: [90.41, 23.81], t: "cap" }, { n: "Chattogram", c: [91.83, 22.35], t: "city" }],
             "India": [{ n: "New Delhi", c: [77.20, 28.61], t: "cap" }, { n: "Mumbai", c: [72.87, 19.07], t: "city" }, { n: "Kolkata", c: [88.36, 22.57], t: "city" }],
             "Pakistan": [{ n: "Islamabad", c: [73.04, 33.68], t: "cap" }, { n: "Karachi", c: [67.00, 24.86], t: "city" }],
+            "Sri Lanka": [{ n: "Colombo", c: [79.86, 6.92], t: "cap" }],
+            "Maldives": [{ n: "Male", c: [73.51, 4.17], t: "cap" }],
+            "Nepal": [{ n: "Kathmandu", c: [85.32, 27.71], t: "cap" }],
+            "Bhutan": [{ n: "Thimphu", c: [89.63, 27.47], t: "cap" }],
+            "Afghanistan": [{ n: "Kabul", c: [69.17, 34.53], t: "cap" }],
             "China": [{ n: "Beijing", c: [116.40, 39.90], t: "cap" }, { n: "Shanghai", c: [121.47, 31.23], t: "city" }],
             "Japan": [{ n: "Tokyo", c: [139.69, 35.68], t: "cap" }, { n: "Osaka", c: [135.50, 34.69], t: "city" }],
-            "Russia": [{ n: "Moscow", c: [37.62, 55.75], t: "cap" }, { n: "St. Petersburg", c: [30.31, 59.93], t: "city" }, { n: "Vladivostok", c: [131.89, 43.12], t: "city" }],
-            "Saudi Arabia": [{ n: "Riyadh", c: [46.73, 24.71], t: "cap" }, { n: "Jeddah", c: [39.19, 21.48], t: "city" }],
-            "United Arab Emirates": [{ n: "Abu Dhabi", c: [54.36, 24.46], t: "cap" }, { n: "Dubai", c: [55.27, 25.20], t: "city" }],
-            "Iran": [{ n: "Tehran", c: [51.38, 35.68], t: "cap" }], "Iraq": [{ n: "Baghdad", c: [44.36, 33.31], t: "cap" }],
-            "Turkey": [{ n: "Ankara", c: [32.85, 39.93], t: "cap" }, { n: "Istanbul", c: [28.97, 41.00], t: "city" }],
-            "Indonesia": [{ n: "Jakarta", c: [106.84, -6.20], t: "cap" }], "Malaysia": [{ n: "Kuala Lumpur", c: [101.68, 3.13], t: "cap" }],
-            "Afghanistan": [{ n: "Kabul", c: [69.17, 34.53], t: "cap" }], "Sri Lanka": [{ n: "Colombo", c: [79.86, 6.92], t: "cap" }],
-            "Nepal": [{ n: "Kathmandu", c: [85.32, 27.71], t: "cap" }], "Bhutan": [{ n: "Thimphu", c: [89.63, 27.47], t: "cap" }],
-            "Myanmar": [{ n: "Naypyidaw", c: [96.07, 19.76], t: "cap" }], "Thailand": [{ n: "Bangkok", c: [100.50, 13.75], t: "cap" }],
-            "Vietnam": [{ n: "Hanoi", c: [105.83, 21.02], t: "cap" }], "Philippines": [{ n: "Manila", c: [120.98, 14.59], t: "cap" }],
-            "Israel": [{ n: "Jerusalem", c: [35.21, 31.76], t: "cap" }], "Syria": [{ n: "Damascus", c: [36.29, 33.51], t: "cap" }],
+            "South Korea": [{ n: "Seoul", c: [126.97, 37.56], t: "cap" }],
+            "North Korea": [{ n: "Pyongyang", c: [125.76, 39.03], t: "cap" }],
+            "Mongolia": [{ n: "Ulaanbaatar", c: [106.91, 47.92], t: "cap" }],
+            "Taiwan": [{ n: "Taipei", c: [121.56, 25.03], t: "cap" }],
+            
+            // South East Asia
+            "Indonesia": [{ n: "Jakarta", c: [106.84, -6.20], t: "cap" }],
+            "Malaysia": [{ n: "Kuala Lumpur", c: [101.68, 3.13], t: "cap" }],
+            "Singapore": [{ n: "Singapore", c: [103.81, 1.35], t: "cap" }],
+            "Thailand": [{ n: "Bangkok", c: [100.50, 13.75], t: "cap" }],
+            "Vietnam": [{ n: "Hanoi", c: [105.83, 21.02], t: "cap" }, { n: "Ho Chi Minh", c: [106.66, 10.76], t: "city" }],
+            "Philippines": [{ n: "Manila", c: [120.98, 14.59], t: "cap" }],
+            "Myanmar": [{ n: "Naypyidaw", c: [96.07, 19.76], t: "cap" }],
+            "Cambodia": [{ n: "Phnom Penh", c: [104.91, 11.55], t: "cap" }],
+            "Laos": [{ n: "Vientiane", c: [102.63, 17.97], t: "cap" }],
+            "Brunei": [{ n: "Bandar Seri Begawan", c: [114.93, 4.90], t: "cap" }],
+
+            // Europe
+            "Russia": [{ n: "Moscow", c: [37.62, 55.75], t: "cap" }, { n: "St. Petersburg", c: [30.31, 59.93], t: "city" }],
             "United Kingdom": [{ n: "London", c: [-0.12, 51.50], t: "cap" }, { n: "Manchester", c: [-2.24, 53.48], t: "city" }],
             "France": [{ n: "Paris", c: [2.35, 48.85], t: "cap" }, { n: "Marseille", c: [5.36, 43.29], t: "city" }],
             "Germany": [{ n: "Berlin", c: [13.40, 52.52], t: "cap" }, { n: "Munich", c: [11.58, 48.13], t: "city" }],
             "Italy": [{ n: "Rome", c: [12.49, 41.90], t: "cap" }, { n: "Milan", c: [9.19, 45.46], t: "city" }],
-            "Spain": [{ n: "Madrid", c: [-3.70, 40.42], t: "cap" }], "Ukraine": [{ n: "Kyiv", c: [30.52, 50.45], t: "cap" }],
-            "Poland": [{ n: "Warsaw", c: [21.01, 52.23], t: "cap" }], "Netherlands": [{ n: "Amsterdam", c: [4.89, 52.37], t: "cap" }],
-            "Belgium": [{ n: "Brussels", c: [4.35, 50.85], t: "cap" }], "Switzerland": [{ n: "Bern", c: [7.44, 46.94], t: "cap" }],
-            "Sweden": [{ n: "Stockholm", c: [18.06, 59.32], t: "cap" }], "Norway": [{ n: "Oslo", c: [10.75, 59.91], t: "cap" }],
-            "Finland": [{ n: "Helsinki", c: [24.93, 60.16], t: "cap" }], "Greece": [{ n: "Athens", c: [23.72, 37.98], t: "cap" }],
+            "Spain": [{ n: "Madrid", c: [-3.70, 40.42], t: "cap" }],
+            "Ukraine": [{ n: "Kyiv", c: [30.52, 50.45], t: "cap" }],
+            "Poland": [{ n: "Warsaw", c: [21.01, 52.23], t: "cap" }],
+            "Netherlands": [{ n: "Amsterdam", c: [4.89, 52.37], t: "cap" }],
+            "Belgium": [{ n: "Brussels", c: [4.35, 50.85], t: "cap" }],
+            "Sweden": [{ n: "Stockholm", c: [18.06, 59.32], t: "cap" }],
+            "Norway": [{ n: "Oslo", c: [10.75, 59.91], t: "cap" }],
+            "Finland": [{ n: "Helsinki", c: [24.93, 60.16], t: "cap" }],
+            "Greece": [{ n: "Athens", c: [23.72, 37.98], t: "cap" }],
+            "Portugal": [{ n: "Lisbon", c: [-9.13, 38.72], t: "cap" }],
+            "Austria": [{ n: "Vienna", c: [16.37, 48.20], t: "cap" }],
+            "Switzerland": [{ n: "Bern", c: [7.44, 46.94], t: "cap" }],
+            "Ireland": [{ n: "Dublin", c: [-6.26, 53.34], t: "cap" }],
+            "Czechia": [{ n: "Prague", c: [14.43, 50.07], t: "cap" }],
+            "Hungary": [{ n: "Budapest", c: [19.04, 47.49], t: "cap" }],
+            "Romania": [{ n: "Bucharest", c: [26.10, 44.42], t: "cap" }],
+            "Bulgaria": [{ n: "Sofia", c: [23.32, 42.69], t: "cap" }],
+            "Croatia": [{ n: "Zagreb", c: [15.98, 45.81], t: "cap" }],
+            "Serbia": [{ n: "Belgrade", c: [20.44, 44.81], t: "cap" }],
+            "Denmark": [{ n: "Copenhagen", c: [12.56, 55.67], t: "cap" }],
+            "Malta": [{ n: "Valletta", c: [14.51, 35.89], t: "cap" }],
+            "Iceland": [{ n: "Reykjavik", c: [-21.94, 64.14], t: "cap" }],
+
+            // Americas
             "United States of America": [{ n: "Washington D.C.", c: [-77.03, 38.90], t: "cap" }, { n: "New York", c: [-74.00, 40.71], t: "city" }, { n: "Los Angeles", c: [-118.24, 34.05], t: "city" }],
             "Canada": [{ n: "Ottawa", c: [-75.69, 45.42], t: "cap" }, { n: "Toronto", c: [-79.38, 43.65], t: "city" }],
+            "Mexico": [{ n: "Mexico City", c: [-99.13, 19.43], t: "cap" }],
             "Brazil": [{ n: "Brasilia", c: [-47.92, -15.78], t: "cap" }, { n: "Sao Paulo", c: [-46.63, -23.55], t: "city" }],
-            "Argentina": [{ n: "Buenos Aires", c: [-58.38, -34.60], t: "cap" }], "Mexico": [{ n: "Mexico City", c: [-99.13, 19.43], t: "cap" }],
-            "Colombia": [{ n: "Bogota", c: [-74.07, 4.71], t: "cap" }], "Peru": [{ n: "Lima", c: [-77.04, -12.04], t: "cap" }],
-            "Chile": [{ n: "Santiago", c: [-70.66, -33.44], t: "cap" }], "Cuba": [{ n: "Havana", c: [-82.36, 23.11], t: "cap" }],
+            "Argentina": [{ n: "Buenos Aires", c: [-58.38, -34.60], t: "cap" }],
+            "Colombia": [{ n: "Bogota", c: [-74.07, 4.71], t: "cap" }],
+            "Peru": [{ n: "Lima", c: [-77.04, -12.04], t: "cap" }],
+            "Chile": [{ n: "Santiago", c: [-70.66, -33.44], t: "cap" }],
+            "Venezuela": [{ n: "Caracas", c: [-66.90, 10.48], t: "cap" }],
+            "Ecuador": [{ n: "Quito", c: [-78.46, -0.18], t: "cap" }],
+            "Bolivia": [{ n: "Sucre", c: [-65.26, -19.03], t: "cap" }],
+            "Uruguay": [{ n: "Montevideo", c: [-56.16, -34.90], t: "cap" }],
+            "Paraguay": [{ n: "Asuncion", c: [-57.62, -25.26], t: "cap" }],
+            "Cuba": [{ n: "Havana", c: [-82.36, 23.11], t: "cap" }],
+            "Panama": [{ n: "Panama City", c: [-79.51, 8.98], t: "cap" }],
+            "Jamaica": [{ n: "Kingston", c: [-76.80, 18.01], t: "cap" }],
+
+            // Africa
             "Egypt": [{ n: "Cairo", c: [31.23, 30.04], t: "cap" }],
             "South Africa": [{ n: "Pretoria", c: [28.18, -25.74], t: "cap" }, { n: "Cape Town", c: [18.42, -33.92], t: "city" }],
             "Nigeria": [{ n: "Abuja", c: [7.49, 9.05], t: "cap" }, { n: "Lagos", c: [3.37, 6.52], t: "city" }],
-            "Algeria": [{ n: "Algiers", c: [3.05, 36.75], t: "cap" }], "Morocco": [{ n: "Rabat", c: [-6.84, 34.02], t: "cap" }],
-            "Kenya": [{ n: "Nairobi", c: [36.82, -1.29], t: "cap" }], "Ethiopia": [{ n: "Addis Ababa", c: [38.74, 9.03], t: "cap" }],
-            "Ghana": [{ n: "Accra", c: [-0.18, 5.60], t: "cap" }], "Libya": [{ n: "Tripoli", c: [13.19, 32.88], t: "cap" }],
-            "Australia": [{ n: "Canberra", c: [149.12, -35.28], t: "cap" }, { n: "Sydney", c: [151.20, -33.86], t: "city" }, { n: "Melbourne", c: [144.96, -37.81], t: "city" }],
-            "New Zealand": [{ n: "Wellington", c: [174.77, -41.28], t: "cap" }], "Fiji": [{ n: "Suva", c: [178.44, -18.14], t: "cap" }],
-            "Papua New Guinea": [{ n: "Port Moresby", c: [147.18, -9.44], t: "cap" }]
+            "Algeria": [{ n: "Algiers", c: [3.05, 36.75], t: "cap" }],
+            "Morocco": [{ n: "Rabat", c: [-6.84, 34.02], t: "cap" }],
+            "Kenya": [{ n: "Nairobi", c: [36.82, -1.29], t: "cap" }],
+            "Ethiopia": [{ n: "Addis Ababa", c: [38.74, 9.03], t: "cap" }],
+            "Ghana": [{ n: "Accra", c: [-0.18, 5.60], t: "cap" }],
+            "Libya": [{ n: "Tripoli", c: [13.19, 32.88], t: "cap" }],
+            "Tunisia": [{ n: "Tunis", c: [10.16, 36.80], t: "cap" }],
+            "Sudan": [{ n: "Khartoum", c: [32.55, 15.50], t: "cap" }],
+            "Angola": [{ n: "Luanda", c: [13.23, -8.83], t: "cap" }],
+            "Tanzania": [{ n: "Dodoma", c: [35.75, -6.16], t: "cap" }],
+            "Democratic Republic of the Congo": [{ n: "Kinshasa", c: [15.26, -4.44], t: "cap" }],
+            "Uganda": [{ n: "Kampala", c: [32.58, 0.34], t: "cap" }],
+            "Zimbabwe": [{ n: "Harare", c: [31.05, -17.82], t: "cap" }],
+            "Senegal": [{ n: "Dakar", c: [-17.46, 14.71], t: "cap" }],
+            "Cameroon": [{ n: "Yaounde", c: [11.50, 3.84], t: "cap" }],
+
+            // Oceania
+            "Australia": [{ n: "Canberra", c: [149.12, -35.28], t: "cap" }, { n: "Sydney", c: [151.20, -33.86], t: "city" }],
+            "New Zealand": [{ n: "Wellington", c: [174.77, -41.28], t: "cap" }],
+            "Fiji": [{ n: "Suva", c: [178.44, -18.14], t: "cap" }],
+            "Papua New Guinea": [{ n: "Port Moresby", c: [147.18, -9.44], t: "cap" }],
+            "Solomon Islands": [{ n: "Honiara", c: [159.95, -9.42], t: "cap" }],
+            "Vanuatu": [{ n: "Port Vila", c: [168.32, -17.73], t: "cap" }],
+            "Samoa": [{ n: "Apia", c: [-171.76, -13.83], t: "cap" }]
         };
 
         const cityFeatures = [];
@@ -149,12 +237,10 @@
                 const isCap = feature.get('type') === 'cap';
 
                 const dotColor = isCap ? '#ff2a2a' : '#ffb732'; 
-                const dotSize = isCap ? 5 : 3.5;
+                const dotSize = isCap ? 5.5 : 4;
                 
-                // শহরের ফন্ট এখন ম্যাপের জুম এবং দেশের নামের সাথে আনুপাতিক হারে বড়-ছোট হবে
                 let fSize = 9 + (zoom - 3.8) * 2; 
-                if(fSize > 16) fSize = 16; 
-                if(fSize < 9) fSize = 9;
+                if(fSize > 16) fSize = 16; if(fSize < 9) fSize = 9;
 
                 return new ol.style.Style({
                     image: new ol.style.Circle({
@@ -167,7 +253,7 @@
                         font: `900 ${fSize}px "Arial Black", sans-serif`,
                         fill: new ol.style.Fill({ color: '#ffffff' }),
                         stroke: new ol.style.Stroke({ color: '#000000', width: 3.5 }),
-                        offsetY: -13
+                        offsetY: -14
                     })
                 });
             }
@@ -182,7 +268,7 @@
                 new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }) }),
                 countryLayer, cityLayer
             ],
-            view: new ol.View({ center: ol.proj.fromLonLat([25.0, 42.0]), zoom: 3.8, minZoom: 3.8, maxZoom: 8.5, enableRotation: false }),
+            view: new ol.View({ center: ol.proj.fromLonLat([50.58, 26.22]), zoom: 3.8, minZoom: 3.8, maxZoom: 9.0, enableRotation: false }),
             controls: []
         });
 
@@ -193,14 +279,13 @@
         selectInteraction.on('select', function(e) {
             if (e.selected.length > 0) {
                 const selectedFeature = e.selected[0];
-                activeCountry = selectedFeature.get('ADMIN') || selectedFeature.get('name') || '';
+                activeCountry = selectedFeature.get('ADMIN') || selectedFeature.get('SOVEREIGNT') || selectedFeature.get('name') || '';
                 
-                // মাস্টারস্ট্রোক: ফিক্সড জুম বাদ দিয়ে দেশের আকার অনুযায়ী আনুপাতিক জুম (Fit Geometry)
                 const extent = selectedFeature.getGeometry().getExtent();
                 map.getView().fit(extent, {
-                    duration: 800, // ০.৮ সেকেন্ডের সুন্দর স্মুথ অ্যানিমেশন
-                    padding: [60, 60, 60, 60], // বর্ডারের চারপাশে আরামদায়ক ফাঁকা জায়গা রাখবে
-                    maxZoom: 6.0 // ফিজির মতো ছোট দেশে বেশি জুম যেন না হয়
+                    duration: 800, 
+                    padding: [80, 80, 80, 80],
+                    maxZoom: 7.5 // বাহরাইন বা মালদ্বীপের মতো দেশগুলোর জন্য জুম লেভেল আরও বাড়ানো হয়েছে
                 });
 
             } else {
