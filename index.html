@@ -1,141 +1,63 @@
 <!DOCTYPE html>
-<html lang="en" translate="no">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Modern Age 3 - Tactical Map Fixed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Modern Age 3 - Tactical Map Final</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #0d1b2a; font-family: sans-serif; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #0b1521; }
         #map { width: 100vw; height: 100vh; }
-        
-        #orientation-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #050b14; z-index: 9999; color: #ffffff;
-            flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 20px;
-        }
-        @media screen and (orientation: portrait) { #orientation-overlay { display: flex; } #map { display: none; } }
-
-        .hud-panel {
-            position: absolute; top: 20px; right: 20px; background: rgba(5, 11, 20, 0.85);
-            border: 1px solid #3a4d5c; color: #8fa0af; padding: 12px; border-radius: 4px;
-            font-family: monospace; font-size: 11px; z-index: 1000; pointer-events: none;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
-        }
     </style>
 </head>
 <body>
-    <div id="orientation-overlay">
-        <h2>দয়া করে আপনার ফোনটি চওড়া (Landscape) করুন</h2>
-    </div>
-
     <div id="map"></div>
-    
-    <div class="hud-panel">
-        <b style="color:#fff;">MODERN AGE III: VECTOR ENGINE</b><br><br>
-        • BORDERS: PERMANENT 1.4PX (PURE WHITE)<br>
-        • LABELS: DYNAMIC CULLING (NO OVERLAP)<br>
-        • TEXT STYLE: SLENDER GAME FONT
-    </div>
 
     <script>
-        // স্যাটেলাইট বেস লেয়ার (আর্কজিআইএস সার্ভার - নো ব্লকিং প্রবলেম)
-        const satelliteLayer = new ol.layer.Tile({
-            source: new ol.source.XYZ({
-                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                maxZoom: 19
-            })
+        // ১. সার্ভিস ওয়ার্কার (অফলাইন ক্যাশিংয়ের জন্য)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(console.error);
+        }
+
+        // ২. ম্যাপ ইঞ্জিন কনফিগারেশন
+        const satelliteSource = new ol.source.XYZ({
+            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            wrapX: true,
+            maxZoom: 19
         });
 
-        // দেশের বর্ডার এবং নামের জিওজেসন সোর্স
-        const vectorSource = new ol.source.Vector({
-            url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',
-            format: new ol.format.GeoJSON()
-        });
-
-        // গেম স্ক্রিনশট-২ এর মতো নিখুঁত ১.৪ পিক্সেল বর্ডার এবং স্মার্ট টেক্সট স্টাইল লেয়ার
-        const vectorLayer = new ol.layer.Vector({
-            source: vectorSource,
-            style: function (feature, resolution) {
-                const name = feature.get('ADMIN') || feature.get('name') || '';
-                const zoom = Math.log2(156543.03392 / resolution); // রেজোলিউশন থেকে জুমে কনভার্ট লজিক
-
-                // স্ক্রিনশট ১ এর মতো জটলা এড়াতে খুব ছোট জুমে ছোট দেশের নাম হাইড থাকবে
-                if (zoom < 2.8 && ["Lebanon", "Palestine", "Israel", "Singapore", "Bhutan", "Luxembourg", "Qatar", "Kuwait", "Albania"].includes(name)) {
-                    return new ol.style.Style({
-                        stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.45)', width: 1.4 })
-                    });
-                }
-
-                // গেমের মতো সুন্দর, হালকা ট্রান্সপারেন্ট ও ছড়ানো অক্ষরের টেক্সট স্টাইল
-                let textRotation = 0;
-                if (["Chile", "Norway", "Vietnam", "Lebanon"].includes(name)) {
-                    textRotation = -0.35; // আপনার বলা শর্ত অনুযায়ী লেবানন বা চিকন দেশগুলো কাত হয়ে বসবে
-                }
-
-                return new ol.style.Style({
-                    // ১.৪ পিক্সেল খাঁটি সাদা বর্ডার
-                    stroke: new ol.style.Stroke({
-                        color: 'rgba(255, 255, 255, 0.5)', 
-                        width: 1.4
-                    }),
-                    text: new ol.style.Text({
-                        text: name.toUpperCase(),
-                        font: 'bold 11px "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-                        letterSpacing: '2px',
-                        fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.85)' }),
-                        stroke: new ol.style.Stroke({ color: 'rgba(0, 0, 0, 0.8)', width: 2 }),
-                        overflow: false, // বর্ডারের বাইরে বা সাগরে নাম ছিটকে যাবে না
-                        rotation: textRotation,
-                        textAlign: 'center',
-                        textBaseline: 'middle'
-                    })
-                });
-            }
-        });
-
-        // ম্যাপ রেন্ডার ইঞ্জিন ইনিশিয়ালাইজেশন (ঘোরানো সম্পূর্ণ লকড)
         const map = new ol.Map({
             target: 'map',
-            layers: [satelliteLayer, vectorLayer],
+            layers: [
+                new ol.layer.Tile({ source: satelliteSource, preload: Infinity }),
+                new ol.layer.Vector({
+                    source: new ol.source.Vector({ url: 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson', format: new ol.format.GeoJSON() }),
+                    style: (feature) => {
+                        const name = feature.get('ADMIN') || '';
+                        let rotation = (name === "Lebanon" || name === "Chile") ? -1.35 : 0;
+                        return new ol.style.Style({
+                            stroke: new ol.style.Stroke({ color: '#ffffff', width: 1.4 }),
+                            text: new ol.style.Text({
+                                text: name.toUpperCase(),
+                                font: 'bold 12px Arial',
+                                fill: new ol.style.Fill({ color: '#fff' }),
+                                stroke: new ol.style.Stroke({ color: '#000', width: 3 }),
+                                rotation: rotation
+                            })
+                        });
+                    }
+                })
+            ],
             view: new ol.View({
-                center: ol.proj.fromLonLat([30.0, 15.0]),
-                zoom: 2.2,
-                minZoom: 2,
-                maxZoom: 8,
-                enableRotation: false // টু-ফিঙ্গার বা রাইট ক্লিক রোটেশন চিরতরে লক
+                center: ol.proj.fromLonLat([25, 42]),
+                zoom: 3.8,
+                minZoom: 3.8,
+                maxZoom: 8.5,
+                enableRotation: false
             }),
-            controls: [] // ডিফল্ট বাটন সরিয়ে ক্লিন গেম ইউজার ইন্টারফেস
-        });
-
-        // ক্লিক করলে দেশ হাইলাইট এবং ক্যাপিটাল মার্কার লজিক
-        let highlightLayer;
-        map.on('click', function (e) {
-            if (highlightLayer) map.removeLayer(highlightLayer);
-            
-            map.forEachFeatureAtPixel(e.pixel, function (feature) {
-                const name = feature.get('ADMIN') || feature.get('name');
-                
-                highlightLayer = new ol.layer.Vector({
-                    source: new ol.source.Vector({ features: [feature] }),
-                    style: new ol.style.Style({
-                        fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.15)' }),
-                        stroke: new ol.style.Stroke({ color: '#ffffff', width: 1.5 }),
-                        text: new ol.style.Text({
-                            text: '★ ' + name.toUpperCase() + ' (CAPITAL)',
-                            font: 'bold 12px monospace',
-                            fill: new ol.style.Fill({ color: '#ffcc00' }),
-                            stroke: new ol.style.Stroke({ color: '#000000', width: 2 }),
-                            offsetY: -15
-                        })
-                    })
-                });
-                map.addLayer(highlightLayer);
-                return true; 
-            });
+            controls: []
         });
     </script>
 </body>
