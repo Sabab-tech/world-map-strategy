@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modern Age 3 - Ultimate Tactical Map</title>
+    <title>Modern Age 3 - Proportional Auto-Zoom</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -79,10 +79,9 @@
         });
 
         // ==========================================
-        // ২. গ্লোবাল ডাটাবেজ (১৮০+ দেশের নিখুঁত তথ্য)
+        // ২. গ্লোবাল ডাটাবেজ 
         // ==========================================
         const cityData = {
-            // ASIA
             "Bangladesh": [{ n: "Dhaka", c: [90.41, 23.81], t: "cap" }, { n: "Chattogram", c: [91.83, 22.35], t: "city" }],
             "India": [{ n: "New Delhi", c: [77.20, 28.61], t: "cap" }, { n: "Mumbai", c: [72.87, 19.07], t: "city" }, { n: "Kolkata", c: [88.36, 22.57], t: "city" }],
             "Pakistan": [{ n: "Islamabad", c: [73.04, 33.68], t: "cap" }, { n: "Karachi", c: [67.00, 24.86], t: "city" }],
@@ -99,8 +98,6 @@
             "Myanmar": [{ n: "Naypyidaw", c: [96.07, 19.76], t: "cap" }], "Thailand": [{ n: "Bangkok", c: [100.50, 13.75], t: "cap" }],
             "Vietnam": [{ n: "Hanoi", c: [105.83, 21.02], t: "cap" }], "Philippines": [{ n: "Manila", c: [120.98, 14.59], t: "cap" }],
             "Israel": [{ n: "Jerusalem", c: [35.21, 31.76], t: "cap" }], "Syria": [{ n: "Damascus", c: [36.29, 33.51], t: "cap" }],
-
-            // EUROPE
             "United Kingdom": [{ n: "London", c: [-0.12, 51.50], t: "cap" }, { n: "Manchester", c: [-2.24, 53.48], t: "city" }],
             "France": [{ n: "Paris", c: [2.35, 48.85], t: "cap" }, { n: "Marseille", c: [5.36, 43.29], t: "city" }],
             "Germany": [{ n: "Berlin", c: [13.40, 52.52], t: "cap" }, { n: "Munich", c: [11.58, 48.13], t: "city" }],
@@ -110,24 +107,18 @@
             "Belgium": [{ n: "Brussels", c: [4.35, 50.85], t: "cap" }], "Switzerland": [{ n: "Bern", c: [7.44, 46.94], t: "cap" }],
             "Sweden": [{ n: "Stockholm", c: [18.06, 59.32], t: "cap" }], "Norway": [{ n: "Oslo", c: [10.75, 59.91], t: "cap" }],
             "Finland": [{ n: "Helsinki", c: [24.93, 60.16], t: "cap" }], "Greece": [{ n: "Athens", c: [23.72, 37.98], t: "cap" }],
-
-            // AMERICAS
             "United States of America": [{ n: "Washington D.C.", c: [-77.03, 38.90], t: "cap" }, { n: "New York", c: [-74.00, 40.71], t: "city" }, { n: "Los Angeles", c: [-118.24, 34.05], t: "city" }],
             "Canada": [{ n: "Ottawa", c: [-75.69, 45.42], t: "cap" }, { n: "Toronto", c: [-79.38, 43.65], t: "city" }],
             "Brazil": [{ n: "Brasilia", c: [-47.92, -15.78], t: "cap" }, { n: "Sao Paulo", c: [-46.63, -23.55], t: "city" }],
             "Argentina": [{ n: "Buenos Aires", c: [-58.38, -34.60], t: "cap" }], "Mexico": [{ n: "Mexico City", c: [-99.13, 19.43], t: "cap" }],
             "Colombia": [{ n: "Bogota", c: [-74.07, 4.71], t: "cap" }], "Peru": [{ n: "Lima", c: [-77.04, -12.04], t: "cap" }],
             "Chile": [{ n: "Santiago", c: [-70.66, -33.44], t: "cap" }], "Cuba": [{ n: "Havana", c: [-82.36, 23.11], t: "cap" }],
-
-            // AFRICA
             "Egypt": [{ n: "Cairo", c: [31.23, 30.04], t: "cap" }],
             "South Africa": [{ n: "Pretoria", c: [28.18, -25.74], t: "cap" }, { n: "Cape Town", c: [18.42, -33.92], t: "city" }],
             "Nigeria": [{ n: "Abuja", c: [7.49, 9.05], t: "cap" }, { n: "Lagos", c: [3.37, 6.52], t: "city" }],
             "Algeria": [{ n: "Algiers", c: [3.05, 36.75], t: "cap" }], "Morocco": [{ n: "Rabat", c: [-6.84, 34.02], t: "cap" }],
             "Kenya": [{ n: "Nairobi", c: [36.82, -1.29], t: "cap" }], "Ethiopia": [{ n: "Addis Ababa", c: [38.74, 9.03], t: "cap" }],
             "Ghana": [{ n: "Accra", c: [-0.18, 5.60], t: "cap" }], "Libya": [{ n: "Tripoli", c: [13.19, 32.88], t: "cap" }],
-
-            // OCEANIA
             "Australia": [{ n: "Canberra", c: [149.12, -35.28], t: "cap" }, { n: "Sydney", c: [151.20, -33.86], t: "city" }, { n: "Melbourne", c: [144.96, -37.81], t: "city" }],
             "New Zealand": [{ n: "Wellington", c: [174.77, -41.28], t: "cap" }], "Fiji": [{ n: "Suva", c: [178.44, -18.14], t: "cap" }],
             "Papua New Guinea": [{ n: "Port Moresby", c: [147.18, -9.44], t: "cap" }]
@@ -146,7 +137,7 @@
         let activeCountry = "";
 
         // ==========================================
-        // ৩. ডাইনামিক গাইড লজিক (Disorientation Fix)
+        // ৩. ডাইনামিক আনুপাতিক শহর স্টাইল
         // ==========================================
         const cityLayer = new ol.layer.Vector({
             source: new ol.source.Vector({ features: cityFeatures }),
@@ -157,12 +148,13 @@
                 const zoom = Math.log2(156543.03392 / resolution);
                 const isCap = feature.get('type') === 'cap';
 
-                // ট্রিপল লক শর্ত: রাজধানী সাথে সাথে জ্বলবে (গাইড), অন্য শহরগুলো জুম ৫.৫ এর পর দেখা যাবে
-                if (!isCap && zoom < 5.5) return null; 
-
                 const dotColor = isCap ? '#ff2a2a' : '#ffb732'; 
                 const dotSize = isCap ? 5 : 3.5;
-                let fSize = 10 + (zoom - 3.8) * 2; if(fSize > 16) fSize = 16;
+                
+                // শহরের ফন্ট এখন ম্যাপের জুম এবং দেশের নামের সাথে আনুপাতিক হারে বড়-ছোট হবে
+                let fSize = 9 + (zoom - 3.8) * 2; 
+                if(fSize > 16) fSize = 16; 
+                if(fSize < 9) fSize = 9;
 
                 return new ol.style.Style({
                     image: new ol.style.Circle({
@@ -175,12 +167,15 @@
                         font: `900 ${fSize}px "Arial Black", sans-serif`,
                         fill: new ol.style.Fill({ color: '#ffffff' }),
                         stroke: new ol.style.Stroke({ color: '#000000', width: 3.5 }),
-                        offsetY: -12
+                        offsetY: -13
                     })
                 });
             }
         });
 
+        // ==========================================
+        // ৪. ম্যাপ এবং স্মুথ প্রোপরশনাল ফিট ইঞ্জিন
+        // ==========================================
         const map = new ol.Map({
             target: 'map',
             layers: [
@@ -194,9 +189,23 @@
         const selectInteraction = new ol.interaction.Select({ style: selectStyle, layers: [countryLayer] });
         map.addInteraction(selectInteraction);
 
+        // প্রোপরশনাল অটো-ফিট লজিক
         selectInteraction.on('select', function(e) {
-            if (e.selected.length > 0) activeCountry = e.selected[0].get('ADMIN') || e.selected[0].get('name') || '';
-            else activeCountry = ""; 
+            if (e.selected.length > 0) {
+                const selectedFeature = e.selected[0];
+                activeCountry = selectedFeature.get('ADMIN') || selectedFeature.get('name') || '';
+                
+                // মাস্টারস্ট্রোক: ফিক্সড জুম বাদ দিয়ে দেশের আকার অনুযায়ী আনুপাতিক জুম (Fit Geometry)
+                const extent = selectedFeature.getGeometry().getExtent();
+                map.getView().fit(extent, {
+                    duration: 800, // ০.৮ সেকেন্ডের সুন্দর স্মুথ অ্যানিমেশন
+                    padding: [60, 60, 60, 60], // বর্ডারের চারপাশে আরামদায়ক ফাঁকা জায়গা রাখবে
+                    maxZoom: 6.0 // ফিজির মতো ছোট দেশে বেশি জুম যেন না হয়
+                });
+
+            } else {
+                activeCountry = ""; 
+            }
             cityLayer.changed(); 
         });
     </script>
