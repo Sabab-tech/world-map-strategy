@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Map - V23 Flawless 1:1 Map</title>
+    <title>Global Map - V25 Error Free & Decluttered</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
@@ -10,6 +10,7 @@
 <body>
     <div id="map"></div>
     <script>
+        // বড় নামগুলোর শর্ট ফর্ম
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -20,10 +21,26 @@
             "Saudi Arabia": "S. Arabia",
             "United Arab Emirates": "UAE",
             "Dominican Republic": "Dominican Rep.",
-            "The Bahamas": "Bahamas"
+            "The Bahamas": "Bahamas",
+            "Saint Vincent and the Grenadines": "St. Vincent",
+            "Antigua and Barbuda": "Antigua",
+            "Trinidad and Tobago": "Trinidad",
+            "Saint Kitts and Nevis": "St. Kitts",
+            "São Tomé and Príncipe": "São Tomé",
+            "Bosnia and Herzegovina": "Bosnia",
+            "Russian Federation": "Russia",
+            "Federated States of Micronesia": "Micronesia",
+            "Papua New Guinea": "PNG",
+            "Solomon Islands": "Solomons",
+            "Marshall Islands": "Marshalls",
+            "South Georgia and South Sandwich Islands": "SG & SSI",
+            "Turks and Caicos Islands": "Turks & Caicos",
+            "Northern Mariana Islands": "N. Mariana",
+            "Falkland Islands": "Falklands",
+            "Svalbard and Jan Mayen": "Svalbard"
         };
 
-        // স্পেশাল লিস্ট (এদের নাম সব সময় ম্যাপে বিন্দুর মতো ভাসবে, কখনো গায়েব হবে না)
+        // ক্ষুদ্র দেশগুলোর স্থানাঙ্ক
         const microstates = [
             { name: "Vatican", coord: [12.4534, 41.9029] },
             { name: "Monaco", coord: [7.4246, 43.7384] },
@@ -52,7 +69,7 @@
 
                 const countryMaxPolygon = {};
                 features.forEach(f => {
-                    const name = f.get('admin') || f.get('name');
+                    const name = f.get('admin') || f.get('name') || "";
                     if (!name) return;
                     const area = f.getGeometry().getArea();
                     if (!countryMaxPolygon[name] || area > countryMaxPolygon[name].area) {
@@ -62,16 +79,15 @@
 
                 const labelFeatures = [];
 
-                // ১. মূল ডেটাবেজ থেকে প্রতিটি দেশের সেন্টারে একটি বিন্দু তৈরি করা
                 Object.values(countryMaxPolygon).forEach(item => {
-                    const rawName = item.feature.get('admin') || item.feature.get('name');
+                    const rawName = item.feature.get('admin') || item.feature.get('name') || "";
                     
-                    // ডুপ্লিকেট চেকার: যদি নামটি স্পেশাল লিস্টে থাকে, তবে সাধারণ নাম ব্লক করে দেবে
+                    // ডুপ্লিকেট চেকার (নিরাপদ লজিক)
                     const isAlreadyInSpecialList = microstates.some(ms => 
                         rawName.toLowerCase().includes(ms.name.toLowerCase())
                     );
 
-                    if (isAlreadyInSpecialList) return; // ডুপ্লিকেট রোধ করা হলো
+                    if (isAlreadyInSpecialList) return; 
 
                     const geom = item.feature.getGeometry();
                     let centerPoint;
@@ -100,7 +116,7 @@
                     }
                 });
 
-                // ২. স্পেশাল লিস্টের দেশগুলোকে বিন্দু হিসেবে যুক্ত করা
+                // ছোট দেশগুলোকে পয়েন্ট হিসেবে যুক্ত করা
                 microstates.forEach(ms => {
                     const pt = new ol.Feature({
                         geometry: new ol.geom.Point(ol.proj.fromLonLat(ms.coord)),
@@ -119,10 +135,10 @@
         });
 
         const labelStyleFunction = function(feature, resolution) {
-            const rawName = feature.get('name');
+            const rawName = feature.get('name') || "";
             const displayName = shortNames[rawName] || rawName;
             const isMicro = feature.get('isMicrostate');
-            const area = feature.get('area');
+            const area = feature.get('area') || 0;
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
 
             if (isMicro) {
@@ -131,24 +147,29 @@
                     image: new ol.style.Circle({ radius: 3.5, fill: new ol.style.Fill({ color: '#FFCC33' }) }),
                     text: new ol.style.Text({
                         text: displayName,
-                        font: 'bold 11px "Arial Black", sans-serif',
+                        font: '900 12px "Arial Black", sans-serif', 
                         fill: new ol.style.Fill({ color: '#FFFFFF' }),
-                        stroke: new ol.style.Stroke({ color: '#000000', width: 2.5 }),
+                        stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
                         offsetY: -10
-                    })
+                    }),
+                    zIndex: 999 // ছোট দেশগুলো সবসময় ওপরে ভাসবে
                 });
             }
 
-            let fontSize = Math.min(22, Math.max(10, Math.sqrt(area) / (resolution * 10)));
-            if (area < 5000000000 && currentZoom < 3) return null; 
+            // ডায়নামিক ফন্ট সাইজ (রাশিয়ার জন্য সর্বোচ্চ ৬৫ পিক্সেল, সাধারণের জন্য আনুপাতিক)
+            let fontSize = Math.min(65, Math.max(10, Math.sqrt(area) / (resolution * 4.5)));
+            let strokeWidth = Math.max(2.5, fontSize * 0.12);
+
+            if (area < 5000000000 && currentZoom < 3.5) return null; // জুম আউট করলে হিজিবিজি এড়াবে
 
             return new ol.style.Style({
                 text: new ol.style.Text({
                     text: displayName,
-                    font: `bold ${fontSize}px "Arial Black", sans-serif`,
+                    font: `900 ${fontSize}px "Arial Black", sans-serif`,
                     fill: new ol.style.Fill({ color: '#FFFFFF' }),
-                    stroke: new ol.style.Stroke({ color: '#000000', width: 2.5 })
-                })
+                    stroke: new ol.style.Stroke({ color: '#000000', width: strokeWidth })
+                }),
+                zIndex: Math.round(100 - fontSize) // বড় লেখাগুলো নিচে থাকবে, ছোট লেখাগুলো ওপরে উঠবে
             });
         };
 
@@ -159,7 +180,8 @@
                     source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', wrapX: false }) 
                 }),
                 new ol.layer.Vector({ source: borderSource, style: borderStyle }), 
-                new ol.layer.Vector({ source: labelSource, style: labelStyleFunction, declutter: false }) 
+                // declutter: true করা হয়েছে, এতে ম্যাপে কোনো নাম ওভারল্যাপ করে বিশৃঙ্খলা তৈরি করবে না
+                new ol.layer.Vector({ source: labelSource, style: labelStyleFunction, declutter: true }) 
             ],
             view: new ol.View({ center: ol.proj.fromLonLat([20, 15]), zoom: 3, minZoom: 2.5, maxZoom: 8, enableRotation: false })
         });
