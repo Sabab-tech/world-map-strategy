@@ -1,50 +1,290 @@
-    "Afghanistan": [{"n": "Kabul", "c": [69.1722, 34.5333]}],
-    "Armenia": [{"n": "Yerevan", "c": [44.5136, 40.1811]}],
-    "Azerbaijan": [{"n": "Baku", "c": [49.8920, 40.3777]}],
-    "Bahrain": [{"n": "Manama", "c": [50.5833, 26.2167]}],
-    "Bangladesh": [{"n": "Dhaka", "c": [90.4125, 23.8103]}],
-    "Bhutan": [{"n": "Thimphu", "c": [89.6419, 27.4728]}],
-    "Brunei": [{"n": "Bandar Seri Begawan", "c": [114.9401, 4.9031]}],
-    "Cambodia": [{"n": "Phnom Penh", "c": [104.9160, 11.5564]}],
-    "China": [{"n": "Beijing", "c": [116.4074, 39.9042]}],
-    "Cyprus": [{"n": "Nicosia", "c": [33.3666, 35.1667]}],
-    "Georgia": [{"n": "Tbilisi", "c": [44.8271, 41.7151]}],
-    "India": [{"n": "New Delhi", "c": [77.2090, 28.6139]}],
-    "Indonesia": [{"n": "Jakarta", "c": [106.8227, -6.1751]}],
-    "Iran": [{"n": "Tehran", "c": [51.3890, 35.6892]}],
-    "Iraq": [{"n": "Baghdad", "c": [44.3615, 33.3128]}],
-    "Israel": [{"n": "Jerusalem", "c": [35.2137, 31.7683]}],
-    "Japan": [{"n": "Tokyo", "c": [139.6917, 35.6895]}],
-    "Jordan": [{"n": "Amman", "c": [35.9284, 31.9454]}],
-    "Kazakhstan": [{"n": "Astana", "c": [71.4460, 51.1694]}],
-    "Kuwait": [{"n": "Kuwait City", "c": [47.9774, 29.3759]}],
-    "Kyrgyzstan": [{"n": "Bishkek", "c": [74.5900, 42.8746]}],
-    "Laos": [{"n": "Vientiane", "c": [102.6000, 15.6333]}],
-    "Lebanon": [{"n": "Beirut", "c": [35.5018, 33.8938]}],
-    "Malaysia": [{"n": "Kuala Lumpur", "c": [101.6869, 3.1390]}],
-    "Maldives": [{"n": "Malé", "c": [73.5093, 4.1755]}],
-    "Mongolia": [{"n": "Ulaanbaatar", "c": [106.9176, 47.9200]}],
-    "Myanmar": [{"n": "Naypyidaw", "c": [96.1292, 19.7633]}],
-    "Nepal": [{"n": "Kathmandu", "c": [85.3240, 27.7172]}],
-    "North Korea": [{"n": "Pyongyang", "c": [125.7625, 39.0392]}],
-    "Oman": [{"n": "Muscat", "c": [58.4059, 23.5859]}],
-    "Pakistan": [{"n": "Islamabad", "c": [73.0479, 33.6844]}],
-    "Philippines": [{"n": "Manila", "c": [120.9842, 14.5995]}],
-    "Qatar": [{"n": "Doha", "c": [51.5310, 25.2854]}],
-    "Saudi Arabia": [{"n": "Riyadh", "c": [46.7102, 24.7136]}],
-    "Singapore": [{"n": "Singapore", "c": [103.8198, 1.3521]}],
-    "South Korea": [{"n": "Seoul", "c": [126.9780, 37.5665]}],
-    "Sri Lanka": [{"n": "Sri Jayawardenepura Kotte", "c": [79.9071, 6.8941]}],
-    "Syria": [{"n": "Damascus", "c": [36.2913, 33.5138]}],
-    "Taiwan": [{"n": "Taipei", "c": [121.5654, 25.0330]}],
-    "Tajikistan": [{"n": "Dushanbe", "c": [68.7870, 38.5598]}],
-    "Thailand": [{"n": "Bangkok", "c": [100.5018, 13.7563]}],
-    "Timor-Leste": [{"n": "Dili", "c": [125.5736, -8.5586]}],
-    "Turkey": [{"n": "Ankara", "c": [32.8597, 39.9334]}],
-    "Turkmenistan": [{"n": "Ashgabat", "c": [58.3261, 37.9601]}],
-    "United Arab Emirates": [{"n": "Abu Dhabi", "c": [54.3667, 24.4667]}],
-    "Uzbekistan": [{"n": "Tashkent", "c": [69.2401, 41.2995]}],
-    "Vietnam": [{"n": "Hanoi", "c": [105.8342, 21.0278]}],
-    "Yemen": [{"n": "Sana'a", "c": [44.2064, 15.3694]}],
-
-      
+{
+  "game_world": "Asia Ready Grid",
+  "regions": {
+    "SOUTH_ASIA": {
+      "countries": {
+        "Bangladesh": {
+          "locations": [
+            {"name": "Dhaka", "role": "capital", "status": "unlocked"},
+            {"name": "Chittagong", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Mongla", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Cox's Bazar", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Jessore Airbase", "role": "military_hub", "status": "unlocked"},
+            {"name": "Rooppur Nuclear Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"},
+            {"name": "Deep Bay Naval Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        },
+        "India": {
+          "locations": [
+            {"name": "New Delhi", "role": "capital", "status": "unlocked"},
+            {"name": "Mumbai", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Bengaluru", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Kolkata", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Chennai", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Hyderabad", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Visakhapatnam", "role": "military_hub", "status": "unlocked"},
+            {"name": "Ambala Air Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Leh Military Zone", "role": "military_hub", "status": "unlocked"},
+            {"name": "Andaman Strategic Command", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"},
+            {"name": "Pokhran Nuclear Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"},
+            {"name": "Nicobar Naval Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+          ]
+        },
+        "Pakistan": {
+          "locations": [
+            {"name": "Islamabad", "role": "capital", "status": "unlocked"},
+            {"name": "Karachi", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Lahore", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Faisalabad", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Rawalpindi GHQ", "role": "military_hub", "status": "unlocked"},
+            {"name": "Sargodha Airbase", "role": "military_hub", "status": "unlocked"},
+            {"name": "Gwadar Deep Port", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"},
+            {"name": "Kahuta Nuclear Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"},
+            {"name": "Skardu Defense Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+          ]
+        },
+        "Nepal": {
+          "locations": [
+            {"name": "Kathmandu", "role": "capital", "status": "unlocked"},
+            {"name": "Pokhara", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Birgunj", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Himalayan Border Defense Zone", "role": "military_hub", "status": "unlocked"},
+            {"name": "Lumbini Strategic Corridor", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+          ]
+        },
+        "Sri Lanka": {
+          "locations": [
+            {"name": "Colombo", "role": "capital", "status": "unlocked"},
+            {"name": "Kandy", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Galle", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Trincomalee Naval Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Hambantota Deep Sea Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        },
+        "Bhutan": {
+          "locations": [
+            {"name": "Thimphu", "role": "capital", "status": "unlocked"},
+            {"name": "Phuentsholing", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Himalayan Defense Posts", "role": "military_hub", "status": "unlocked"},
+            {"name": "Mountain Surveillance Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+          ]
+        },
+        "Maldives": {
+          "locations": [
+            {"name": "Mal\u00e9", "role": "capital", "status": "unlocked"},
+            {"name": "Addu City", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Gan Air Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Indian Ocean Watch Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        },
+        "Afghanistan": {
+          "locations": [
+            {"name": "Kabul", "role": "capital", "status": "unlocked"},
+            {"name": "Herat", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Kandahar", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Bagram Airbase", "role": "military_hub", "status": "unlocked"},
+            {"name": "Mountain Black Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+          ]
+        }
+      }
+    },
+    "SOUTHEAST_ASIA": {
+      "countries": {
+        "Indonesia": {
+          "locations": [
+            {"name": "Jakarta", "role": "capital", "status": "unlocked"},
+            {"name": "Surabaya", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Medan", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Makassar", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Natuna Military Zone", "role": "military_hub", "status": "unlocked"},
+            {"name": "Batam Naval Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Bali Surveillance Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"},
+            {"name": "Papua Strategic Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+          ]
+        },
+        "Vietnam": {
+          "locations": [
+            {"name": "Hanoi", "role": "capital", "status": "unlocked"},
+            {"name": "Ho Chi Minh City", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Da Nang", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Cam Ranh Naval Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "South China Sea Command Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        },
+        "Thailand": {
+          "locations": [
+            {"name": "Bangkok", "role": "capital", "status": "unlocked"},
+            {"name": "Chiang Mai", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Phuket", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Sattahip Naval Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Gulf Strategic Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+          ]
+        },
+        "Malaysia": {
+          "locations": [
+            {"name": "Kuala Lumpur", "role": "capital", "status": "unlocked"},
+            {"name": "Johor Bahru", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Penang", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Lumut Naval Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Sabah Strategic Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+          ]
+        },
+        "Singapore": {
+          "locations": [
+            {"name": "Singapore City", "role": "capital", "status": "unlocked"},
+            {"name": "Jurong Financial Hub", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Changi Naval-Air Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Strait Control Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        },
+        "Philippines": {
+          "locations": [
+            {"name": "Manila", "role": "capital", "status": "unlocked"},
+            {"name": "Cebu", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Davao", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Subic Naval Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Palawan Maritime Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+          ]
+        },
+        "Myanmar": {
+          "locations": [
+            {"name": "Naypyidaw", "role": "capital", "status": "unlocked"},
+            {"name": "Yangon", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Mandalay", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Coco Islands Military Zone", "role": "military_hub", "status": "unlocked"},
+            {"name": "Border Conflict Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+          ]
+        },
+        "Cambodia": {
+          "locations": [
+            {"name": "Phnom Penh", "role": "capital", "status": "unlocked"},
+            {"name": "Siem Reap", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Coastal Defense Zone", "role": "military_hub", "status": "unlocked"},
+            {"name": "Mekong Intelligence Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+          ]
+        },
+        "Laos": {
+          "locations": [
+            {"name": "Vientiane", "role": "capital", "status": "unlocked"},
+            {"name": "Luang Prabang", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Border Defense Zone", "role": "military_hub", "status": "unlocked"},
+            {"name": "Mekong Surveillance Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        },
+        "Brunei": {
+          "locations": [
+            {"name": "Bandar Seri Begawan", "role": "capital", "status": "unlocked"},
+            {"name": "Seria Oil Zone", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Coastal Defense Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Oil Reserve Secret Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        },
+        "Timor-Leste": {
+          "locations": [
+            {"name": "Dili", "role": "capital", "status": "unlocked"},
+            {"name": "Baucau", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Maritime Defense Zone", "role": "military_hub", "status": "unlocked"},
+            {"name": "Timor Sea Watch Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+          ]
+        }
+      }
+    },
+    "EAST_ASIA": {
+      "countries": {
+        "China": {
+          "locations": [
+            {"name": "Beijing", "role": "capital", "status": "unlocked"},
+            {"name": "Shanghai", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Shenzhen", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Guangzhou", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Qingdao Naval Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Chengdu Military Zone", "role": "military_hub", "status": "unlocked"},
+            {"name": "Tibet Command Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"},
+            {"name": "Xinjiang Defense Grid", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"},
+            {"name": "South China Sea HQ", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+          ]
+        },
+        "Japan": {
+          "locations": [
+            {"name": "Tokyo", "role": "capital", "status": "unlocked"},
+            {"name": "Osaka", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Nagoya", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Yokosuka Naval Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Okinawa Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Ryukyu Strategic Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"},
+            {"name": "Pacific Defense Grid", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        },
+        "South Korea": {
+          "locations": [
+            {"name": "Seoul", "role": "capital", "status": "unlocked"},
+            {"name": "Busan", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Incheon", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Pyeongtaek US-KR Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "DMZ High Command Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"},
+            {"name": "Jeju Strategic Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+          ]
+        },
+        "North Korea": {
+          "locations": [
+            {"name": "Pyongyang", "role": "capital", "status": "unlocked"},
+            {"name": "Hamhung", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Wonsan Naval Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Yongbyon Nuclear Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"},
+            {"name": "Missile Test Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        },
+        "Mongolia": {
+          "locations": [
+            {"name": "Ulaanbaatar", "role": "capital", "status": "unlocked"},
+            {"name": "Erdenet", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Steppe Defense Zone", "role": "military_hub", "status": "unlocked"},
+            {"name": "Gobi Surveillance Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+          ]
+        },
+        "Taiwan": {
+          "locations": [
+            {"name": "Taipei", "role": "capital", "status": "unlocked"},
+            {"name": "Kaohsiung", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Taichung", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Naval Defense Grid", "role": "military_hub", "status": "unlocked"},
+            {"name": "Strait Missile Defense Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        }
+      }
+    },
+    "CENTRAL_WEST_ASIA": {
+      "countries": {
+        "Iran": {
+          "locations": [
+            {"name": "Tehran", "role": "capital", "status": "unlocked"},
+            {"name": "Isfahan", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Shiraz", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Bandar Abbas Naval Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Natanz Nuclear Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"},
+            {"name": "Chabahar Strategic Port", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        },
+        "Saudi Arabia": {
+          "locations": [
+            {"name": "Riyadh", "role": "capital", "status": "unlocked"},
+            {"name": "Jeddah", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Dammam", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Tabuk Military Zone", "role": "military_hub", "status": "unlocked"},
+            {"name": "NEOM Future City Secret Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+          ]
+        },
+        "Turkey": {
+          "locations": [
+            {"name": "Ankara", "role": "capital", "status": "unlocked"},
+            {"name": "Istanbul", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Izmir", "role": "economic_hub", "status": "unlocked"},
+            {"name": "Incirlik Air Base", "role": "military_hub", "status": "unlocked"},
+            {"name": "Bosporus Control Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+          ]
+        }
+      }
+    }
+  }
+            }
+              
