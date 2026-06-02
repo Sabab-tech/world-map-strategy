@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Map - V26 Interactive Selection</title>
+    <title>Global Map - V27 Perfect Touch & Zoom</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
-        body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }
+        body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; touch-action: none; }
     </style>
 </head>
 <body>
@@ -128,7 +128,7 @@
                 labelSource.addFeatures(labelFeatures);
             });
 
-        // পরিবর্তন: বর্ডার হালকা মোটা করা হয়েছে (1.2 থেকে 1.6)
+        // বর্ডার হালকা মোটা রাখা হয়েছে (1.6)
         const borderLayer = new ol.layer.Vector({
             source: borderSource,
             style: new ol.style.Style({
@@ -141,19 +141,23 @@
             const displayName = shortNames[rawName] || rawName;
             const isMicro = feature.get('isMicrostate');
             const area = feature.get('area') || 0;
+            
+            // জুম লেভেল ডায়নামিক হিসাব
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
 
             if (isMicro) {
                 if (currentZoom < 3) return null; 
                 return new ol.style.Style({
-                    // পরিবর্তন: ছোট দেশের বিন্দু এখন উজ্জ্বল সবুজ (#00FF00)
-                    image: new ol.style.Circle({ radius: 3.5, fill: new ol.style.Fill({ color: '#00FF00' }) }),
+                    image: new ol.style.Circle({ radius: 4, fill: new ol.style.Fill({ color: '#00FF00' }) }),
                     text: new ol.style.Text({
                         text: displayName,
-                        font: '900 12px "Arial Black", sans-serif', 
+                        font: '900 16px "Arial Black", sans-serif', // ফন্ট সাইজ বড় করা হয়েছে (16px)
                         fill: new ol.style.Fill({ color: '#FFFFFF' }),
-                        stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
-                        offsetY: -10
+                        stroke: new ol.style.Stroke({ color: '#000000', width: 3.5 }),
+                        offsetX: 12, // বিন্দু থেকে একটু ডানে সরানো হয়েছে
+                        offsetY: -12, // বিন্দু থেকে একটু উপরে সরানো হয়েছে
+                        rotation: -0.5, // ম্যাজিক: টেক্সটটিকে উপরের দিকে ৪৫ ডিগ্রি কোণে কাত করা হয়েছে
+                        textAlign: 'left'
                     }),
                     zIndex: 999 
                 });
@@ -190,42 +194,49 @@
                 borderLayer, 
                 labelLayer 
             ],
-            view: new ol.View({ center: ol.proj.fromLonLat([20, 15]), zoom: 3, minZoom: 2.5, maxZoom: 8, enableRotation: false })
+            // পরিবর্তন: জুম লেভেল গেমের মনস্তত্ত্ব অনুযায়ী আপডেট করা হয়েছে
+            view: new ol.View({ 
+                center: ol.proj.fromLonLat([20, 15]), 
+                zoom: 3, 
+                minZoom: 2,   // পুরো পৃথিবীর ম্যাপ একসাথে দেখা যাবে
+                maxZoom: 12,  // একদম ছোট দ্বীপের গভীরে জুম করা যাবে
+                enableRotation: false 
+            })
         });
 
         // ==========================================
-        // কান্ট্রি সিলেক্ট অপশন (Interactive Selection)
+        // কান্ট্রি সিলেক্ট ও টাচ ফিক্স (Interactive Selection)
         // ==========================================
         const selectStyle = new ol.style.Style({
             fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0.25)' // সিলেক্ট হলে হালকা সাদা গ্লেজ দিবে
+                color: 'rgba(255, 255, 255, 0.25)' 
             }),
             stroke: new ol.style.Stroke({
-                color: '#00FFFF', // সিলেক্ট হলে বর্ডার সায়ান (Cyan) রঙের হবে
-                width: 2.5
+                color: '#00FFFF', 
+                width: 2.5 
             })
         });
 
         const selectInteraction = new ol.interaction.Select({
-            layers: [borderLayer],
+            layers: [borderLayer], // টাচ করলে যেন শুধু দেশের বর্ডার লেয়ার টার্গেট হয়
             style: selectStyle,
-            multi: false
+            multi: false,
+            hitTolerance: 10 // টাচ ফিক্স: মোবাইলের আঙুলের সাইজ অনুযায়ী সেন্সিটিভিটি বাড়ানো হয়েছে!
         });
+        
         map.addInteraction(selectInteraction);
 
-        // একটি দ্বীপে ক্লিক করলে যেন পুরো দেশ সিলেক্ট হয় তার লজিক
         selectInteraction.on('select', function(e) {
             const selectedFeaturesCollection = selectInteraction.getFeatures();
             if (e.selected.length > 0) {
                 const clickedFeature = e.selected[0];
                 const countryName = clickedFeature.get('admin') || clickedFeature.get('name');
                 
-                selectedFeaturesCollection.clear(); // ডিফল্ট সিলেকশন ক্লিয়ার করা
+                selectedFeaturesCollection.clear(); 
                 
                 if (countryName) {
                     borderSource.getFeatures().forEach(f => {
                         const fName = f.get('admin') || f.get('name');
-                        // একই নামের সব ভূখণ্ড সিলেক্টেড লিস্টে ঢুকিয়ে দেওয়া
                         if (fName === countryName) {
                             selectedFeaturesCollection.push(f);
                         }
@@ -235,4 +246,5 @@
         });
     </script>
 </body>
-</html>
+    </html>
+    
