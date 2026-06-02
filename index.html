@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Map - Dissolved & Point Layer Architecture V20</title>
+    <title>Global Map - V21 Cache Cleared</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
@@ -10,7 +10,6 @@
 <body>
     <div id="map"></div>
     <script>
-        // বড় নামের সংক্ষেপ রূপ
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -23,8 +22,8 @@
             "Dominican Republic": "Dominican Rep."
         };
 
-        // ৩ নম্বর সমাধান: ছোট দেশগুলোর জন্য স্পেশাল পয়েন্ট লেয়ার কোঅর্ডিনেটস (যাতে কখনো গায়েব না হয়)
-        const microstatesPoints = [
+        // আপনার নিখোঁজ দেশগুলোর স্থানাঙ্ক (যাতে এরা ম্যাপে বিন্দুর মতো সবসময় থাকে)
+        const microstates = [
             { name: "Vatican City", coord: [12.4534, 41.9029] },
             { name: "Monaco", coord: [7.4246, 43.7384] },
             { name: "San Marino", coord: [12.4578, 43.9424] },
@@ -35,95 +34,59 @@
             { name: "Lebanon", coord: [35.8623, 33.8547] },
             { name: "Fiji", coord: [178.0650, -17.7134] },
             { name: "Bahamas", coord: [-77.3963, 25.0343] },
-            { name: "Mauritius", coord: [57.5522, -20.3484] }
+            { name: "Cyprus", coord: [33.4299, 35.1264] }
         ];
 
-        // ম্যাপের মূল সোর্স (শুরুতে সম্পূর্ণ খালি)
         const vectorSource = new ol.source.Vector({ wrapX: false });
 
-        // ১ ও ৪ নম্বর সমাধান: রানটাইমে Dissolve (একত্রীকরণ) করার লজিক
-        fetch('https://cdn.jsdelivr.net/gh/datasets/geo-countries@master/data/countries.geojson')
+        // ডেটা ফেচ করে শুধুমাত্র সবচেয়ে বড় ভূখণ্ডে নাম বসানোর লজিক
+        fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson')
             .then(res => res.json())
             .then(data => {
                 const format = new ol.format.GeoJSON();
-                const rawFeatures = format.readFeatures(data, { featureProjection: 'EPSG:3857' });
+                const features = format.readFeatures(data, { featureProjection: 'EPSG:3857' });
 
-                // একই দেশের সমস্ত আলাদা পলিগন এক জায়গায় গ্রুপ করা
-                const countryGroups = {};
-                rawFeatures.forEach(f => {
-                    const name = f.get('ADMIN') || f.get('name') || f.get('NAME') || "Unknown";
-                    if (!countryGroups[name]) {
-                        countryGroups[name] = [];
+                const countryMap = {};
+                features.forEach(f => {
+                    const name = f.get('admin') || f.get('name');
+                    if (!name) return;
+                    const area = f.getGeometry().getArea();
+                    if (!countryMap[name] || area > countryMap[name].area) {
+                        countryMap[name] = { area: area, feature: f };
                     }
-                    countryGroups[name].push(f.getGeometry());
+                    f.set('showName', false); 
                 });
 
-                const dissolvedFeatures = [];
+                Object.values(countryMap).forEach(item => item.feature.set('showName', true));
 
-                // প্রতি দেশের সব টুকরোকে Dissolve বা Merge করে একটি একক MultiPolygon বানানো
-                Object.keys(countryGroups).forEach(name => {
-                    const geometries = countryGroups[name];
-                    let mergedGeometry;
-
-                    if (geometries.length === 1) {
-                        mergedGeometry = geometries[0];
-                    } else {
-                        // একাধিক পলিগনকে একটি MultiPolygon অবজেক্টে রূপান্তর
-                        const polygons = [];
-                        geometries.forEach(g => {
-                            if (g.getType() === 'Polygon') {
-                                polygons.push(g);
-                            } else if (g.getType() === 'MultiPolygon') {
-                                polygons.push(...g.getPolygons());
-                            }
-                        });
-                        mergedGeometry = new ol.geom.MultiPolygon(polygons);
-                    }
-
-                    const newFeature = new ol.Feature({
-                        geometry: mergedGeometry,
-                        name: name,
-                        isPointLayer: false
+                // নিখোঁজ দেশগুলোকে পয়েন্ট হিসেবে যুক্ত করা
+                microstates.forEach(ms => {
+                    const pt = new ol.Feature({
+                        geometry: new ol.geom.Point(ol.proj.fromLonLat(ms.coord)),
+                        name: ms.name,
+                        isMicrostate: true
                     });
-                    dissolvedFeatures.push(newFeature);
+                    features.push(pt);
                 });
 
-                // ছোট দেশগুলোকে পয়েন্ট লেয়ার (Point Layer) হিসেবে যুক্ত করা (সমাধান ৩)
-                microstatesPoints.forEach(mp => {
-                    const pointFeature = new ol.Feature({
-                        geometry: new ol.geom.Point(ol.proj.fromLonLat(mp.coord)),
-                        name: mp.name,
-                        isPointLayer: true
-                    });
-                    dissolvedFeatures.push(pointFeature);
-                });
-
-                // চূড়ান্ত ডেটা ম্যাপে পুশ করা হলো (এখানে প্রতি দেশের আইডি এবং নাম কেবল একটিই থাকবে)
-                vectorSource.addFeatures(dissolvedFeatures);
+                vectorSource.addFeatures(features);
             });
 
-        // স্টাইল ফাংশন এবং সেন্ট্রয়েড লেবেলিং (সমাধান ১-খ)
         const styleFunction = function(feature, resolution) {
-            const geom = feature.getGeometry();
-            if (!geom) return null;
-
-            const isPoint = feature.get('isPointLayer');
-            const rawName = feature.get('name') || "";
+            const isMicro = feature.get('isMicrostate');
+            const showName = feature.get('showName');
+            const rawName = feature.get('admin') || feature.get('name') || "";
             const displayName = shortNames[rawName] || rawName;
+            const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
 
-            // যদি এটি পয়েন্ট লেয়ার হয় (ছোট দেশ), তবে জুম লেভেলে সব সময় নাম দেখাবে
-            if (isPoint) {
-                const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
-                if (currentZoom < 3.5) return null; // খুব বেশি জুম আউট থাকলে ছোট বিন্দুর নাম হাইড থাকবে জটলা এড়াতে
-
+            // ছোট দেশগুলোর পয়েন্ট স্টাইল
+            if (isMicro) {
+                if (currentZoom < 3) return null; // জুম আউট থাকলে নাম লুকাবে
                 return new ol.style.Style({
-                    image: new ol.style.Circle({
-                        radius: 3,
-                        fill: new ol.style.Fill({ color: '#FFCC33' }) // ম্যাপে ছোট দেশগুলো সোনালী বিন্দু হিসেবে জ্বলজ্বল করবে
-                    }),
+                    image: new ol.style.Circle({ radius: 3, fill: new ol.style.Fill({ color: '#FFCC33' }) }),
                     text: new ol.style.Text({
                         text: displayName,
-                        font: 'bold 10px "Arial Black", sans-serif',
+                        font: 'bold 11px "Arial Black", sans-serif',
                         fill: new ol.style.Fill({ color: '#FFFFFF' }),
                         stroke: new ol.style.Stroke({ color: '#000000', width: 2.5 }),
                         offsetY: -10
@@ -131,22 +94,17 @@
                 });
             }
 
-            // সাধারণ দেশের বর্ডার স্টাইল
             const baseStyle = new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: 'rgba(255, 255, 255, 0.4)', 
-                    width: 1.2
-                })
+                stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.2 })
             });
 
-            // সেন্ট্রয়েড লেবেলিং লজিক (Centroid Labeling)
-            const area = geom.getArea();
-            let fontSize = Math.min(22, Math.max(10, Math.sqrt(area) / (resolution * 10)));
-            const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
+            // যদি সবচেয়ে বড় ভূখণ্ড না হয়, শুধু বর্ডার দেখাবে, নাম নয়
+            if (!showName) return baseStyle;
 
-            if (area < 5000000000 && currentZoom < 3) {
-                return baseStyle; // জুম আউট অবস্থায় ছোট পলিগনের নাম হাইড থাকবে (কারণ পয়েন্ট লেয়ার অলরেডি ব্যাকআপ দিচ্ছে)
-            }
+            const area = feature.getGeometry().getArea();
+            let fontSize = Math.min(22, Math.max(10, Math.sqrt(area) / (resolution * 10)));
+
+            if (area < 5000000000 && currentZoom < 3) return baseStyle;
 
             baseStyle.setText(new ol.style.Text({
                 text: displayName,
@@ -157,48 +115,30 @@
                 geometry: function(f) {
                     const g = f.getGeometry();
                     if (g.getType() === 'MultiPolygon') {
-                        // দেশের সব টুকরোর মধ্যে যেটি সবচেয়ে বড় (মূল ভূখণ্ড), তার সেন্ট্রয়েডে নাম বসবে
                         const polygons = g.getPolygons();
-                        let largestPolygon = polygons[0];
+                        let largest = polygons[0];
                         for (let i = 1; i < polygons.length; i++) {
-                            if (polygons[i].getArea() > largestPolygon.getArea()) {
-                                largestPolygon = polygons[i];
+                            if (polygons[i].getArea() > largest.getArea()) {
+                                largest = polygons[i];
                             }
                         }
-                        return largestPolygon.getInteriorPoint(); 
+                        return largest.getInteriorPoint(); 
                     }
                     return g.getInteriorPoint(); 
                 },
-                overflow: true
+                overflow: true 
             }));
 
             return baseStyle;
         };
 
-        const countryLayer = new ol.layer.Vector({
-            source: vectorSource,
-            style: styleFunction,
-            declutter: false 
-        });
-
         const map = new ol.Map({
             target: 'map',
             layers: [
-                new ol.layer.Tile({ 
-                    source: new ol.source.XYZ({ 
-                        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                        wrapX: false 
-                    }) 
-                }),
-                countryLayer
+                new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', wrapX: false }) }),
+                new ol.layer.Vector({ source: vectorSource, style: styleFunction, declutter: true }) // declutter ওভারল্যাপ বন্ধ করবে
             ],
-            view: new ol.View({ 
-                center: ol.proj.fromLonLat([20, 15]), 
-                zoom: 3, 
-                minZoom: 2.5, 
-                maxZoom: 8,   
-                enableRotation: false 
-            })
+            view: new ol.View({ center: ol.proj.fromLonLat([20, 15]), zoom: 3, minZoom: 2.5, maxZoom: 8, enableRotation: false })
         });
     </script>
 </body>
