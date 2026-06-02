@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Map - V31 3D Text & Fixed Blank Screen</title>
+    <title>Global Map - V33 Grand Strategy HOI4 Style</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
 
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #0b1d33; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #0b1521; overflow: hidden; touch-action: none; }
         #map { width: 100%; height: 100%; }
     </style>
 </head>
@@ -18,74 +18,198 @@
     <div id="map"></div>
 
     <script>
-        // ২. ৩ডি টেক্সট স্টাইল ফাংশন
-        function create3DTextStyle(name, isCapital = false) {
-            return new ol.style.Text({
-                text: name.toUpperCase(),
-                font: isCapital ? 'bold 16px "Impact", "Arial Black", sans-serif' : 'bold 12px "Impact", "Arial Black", sans-serif',
-                fill: new ol.style.Fill({
-                    color: isCapital ? '#FFCC00' : '#FFFFFF' 
-                }),
-                stroke: new ol.style.Stroke({
-                    color: '#000000',
-                    width: 3.5 // কালো আউটলাইন আরেকটু স্পষ্ট করা হয়েছে
-                }),
-                offsetX: 0,
-                offsetY: 0,
-                placement: 'point',
-                overflow: false
-            });
-        }
+        // দীর্ঘ নামগুলোকে স্ট্র্যাটেজি গেমের মতো সংক্ষেপ করার তালিকা
+        const shortNames = {
+            "Democratic Republic of the Congo": "DR Congo",
+            "Central African Republic": "C.A.R.",
+            "Republic of the Congo": "Congo",
+            "Equatorial Guinea": "Eq. Guinea",
+            "United States of America": "USA",
+            "United Kingdom": "UK",
+            "Saudi Arabia": "S. Arabia",
+            "United Arab Emirates": "UAE",
+            "Dominican Republic": "Dominican Rep.",
+            "The Bahamas": "Bahamas",
+            "South Korea": "S. Korea",
+            "North Korea": "N. Korea",
+            "Russian Federation": "Russia",
+            "Papua New Guinea": "PNG"
+        };
 
-        // ৩. ন্যাচারাল আর্থ GeoJSON এর সঠিক ডাটা লিংক
-        const countrySource = new ol.source.Vector({
-            url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson',
-            format: new ol.format.GeoJSON()
-        });
+        // নির্দিষ্ট কিছু বাঁকা ভৌগোলিক দেশের নিখুঁত সেন্টার পয়েন্ট ফিক্স
+        const manualCenters = {
+            "South Korea": [127.90, 36.30],
+            "North Korea": [127.10, 40.20],
+            "Lebanon": [35.86, 33.85],
+            "Vietnam": [108.00, 14.00],
+            "Chile": [-71.50, -35.00],
+            "Israel": [34.85, 31.04]
+        };
 
-        // ৪. দেশের নাম এবং স্টাইল রেন্ডার
-        const countryLayer = new ol.layer.Vector({
-            source: countrySource,
-            declutter: true, // নামগুলো যেন একটার ওপর আরেকটা না ওঠে
-            style: function(feature) {
-                // ডাটাবেজ থেকে সঠিক নাম তুলে আনা
-                const countryName = feature.get('admin') || feature.get('name') || '';
-                
-                // গেমের স্টাইল রুলস (যে দেশগুলো গোল্ডেন কালার হবে)
-                const isCapitalCountry = ["Saudi Arabia", "Bangladesh", "Egypt", "Turkey", "United States of America", "Russia"].includes(countryName);
+        const borderSource = new ol.source.Vector({ wrapX: false }); 
+        const labelSource = new ol.source.Vector({ wrapX: false });  
 
-                return new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: 'rgba(255, 255, 255, 0.4)', // হালকা সাদা বর্ডার
-                        width: 1.5
-                    }),
-                    text: create3DTextStyle(countryName, isCapitalCountry)
+        // Natural Earth এর গ্লোবাল ডেটাবেজ লোড
+        fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson')
+            .then(res => res.json())
+            .then(data => {
+                const format = new ol.format.GeoJSON();
+                const features = format.readFeatures(data, { featureProjection: 'EPSG:3857' });
+
+                borderSource.addFeatures(features);
+
+                const countryMaxPolygon = {};
+                features.forEach(f => {
+                    const name = f.get('admin') || f.get('name') || "";
+                    if (!name) return;
+                    const area = f.getGeometry().getArea();
+                    if (!countryMaxPolygon[name] || area > countryMaxPolygon[name].area) {
+                        countryMaxPolygon[name] = { area: area, feature: f };
+                    }
                 });
+
+                const labelFeatures = [];
+
+                Object.values(countryMaxPolygon).forEach(item => {
+                    const rawName = item.feature.get('admin') || item.feature.get('name') || "";
+                    const geom = item.feature.getGeometry();
+                    let centerPoint;
+                    
+                    // দেশের বাউন্ডারি বক্স মেপে লম্বালম্বি কিনা তা স্বয়ংক্রিয়ভাবে বের করার লজিক
+                    const extent = geom.getExtent();
+                    const width = extent[2] - extent[0];
+                    const height = extent[3] - extent[1];
+                    // যদি উচ্চতা প্রস্থের চেয়ে ১.২ গুণের বেশি হয়, তবে সেটি লম্বালম্বি দেশ
+                    const isVerticalCountry = (height / width) > 1.2;
+
+                    if (manualCenters[rawName] || manualCenters[shortNames[rawName]]) {
+                        const coords = manualCenters[rawName] || manualCenters[shortNames[rawName]];
+                        centerPoint = new ol.geom.Point(ol.proj.fromLonLat(coords));
+                    } else {
+                        if (geom.getType() === 'MultiPolygon') {
+                            const polygons = geom.getPolygons();
+                            let largest = polygons[0];
+                            for (let i = 1; i < polygons.length; i++) {
+                                if (polygons[i].getArea() > largest.getArea()) largest = polygons[i];
+                            }
+                            centerPoint = largest.getInteriorPoint(); 
+                        } else {
+                            centerPoint = geom.getInteriorPoint();
+                        }
+                    }
+
+                    if (centerPoint) {
+                        labelFeatures.push(new ol.Feature({ 
+                            geometry: centerPoint, 
+                            name: rawName, 
+                            area: item.area,
+                            isVertical: isVerticalCountry 
+                        }));
+                    }
+                });
+
+                labelSource.addFeatures(labelFeatures);
+            });
+
+        const borderLayer = new ol.layer.Vector({
+            source: borderSource,
+            style: new ol.style.Style({ stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.35)', width: 1.5 }) })
+        });
+
+        const labelStyleFunction = function(feature, resolution) {
+            const rawName = feature.get('name') || "";
+            const displayName = shortNames[rawName] || rawName;
+            const area = feature.get('area') || 0;
+            const isVertical = feature.get('isVertical');
+            const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
+
+            // জুম লেভেল অনুযায়ী প্রোগ্রেসিভ দৃশ্যমানতা
+            let minZoomToShow = 5; 
+            let baseSize = 12;
+
+            if (["Russia", "Canada", "China", "USA", "Brazil", "Australia"].includes(displayName)) {
+                minZoomToShow = 2.5;
+                baseSize = 18;
+            } else if (area > 200000000000) { 
+                minZoomToShow = 3;
+                baseSize = 15;
+            } else if (area > 50000000000) {  
+                minZoomToShow = 4;
+                baseSize = 13;
+            } else { 
+                minZoomToShow = 4.5;
+                baseSize = 11;
             }
-        });
 
-        // ৫. স্যাটেলাইট বেসম্যাপ লেয়ার (এটি না থাকলে স্ক্রিন কালো দেখায়)
-        const baseLayer = new ol.layer.Tile({ 
-            source: new ol.source.XYZ({ 
-                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 
-                wrapX: false 
-            }) 
-        });
+            if (currentZoom < minZoomToShow) return null;
 
-        // ৬. গেমের ম্যাপ ভিউ
+            // জুম ইন মেকানিজম (কাছে গেলে লেখা বড় হবে)
+            let dynamicFontSize = baseSize + ((currentZoom - minZoomToShow) * 2.5);
+            dynamicFontSize = Math.min(dynamicFontSize, baseSize + 13); 
+
+            // স্বয়ংক্রিয় রোটেশন লজিক (শুধু লম্বা বা পাশাপাশি ছোট দেশগুলোর নাম কাত হবে)
+            let textRotation = 0;
+            if (isVertical) {
+                textRotation = -0.65; // HOI4 গেমের মতো নিখুঁত বাঁকা বা কাত কোণ
+            }
+
+            return new ol.style.Style({
+                text: new ol.style.Text({
+                    text: displayName.toUpperCase(), // গেমের মতো সবগুলো অক্ষর বড় হাতের (Capital)
+                    font: `900 ${dynamicFontSize}px "Arial Black", "Impact", sans-serif`,
+                    fill: new ol.style.Fill({ color: '#FFFDF0' }), // অফ-হোয়াইট বা ওল্ড পেপার প্রিমিয়াম কালার
+                    stroke: new ol.style.Stroke({ color: '#000000', width: Math.max(3, dynamicFontSize * 0.15) }), // ৩ডি ব্ল্যাক শ্যাডো বর্ডার
+                    rotation: textRotation,
+                    overflow: false
+                }),
+                zIndex: Math.round(100 - dynamicFontSize) 
+            });
+        };
+
+        const labelLayer = new ol.layer.Vector({ source: labelSource, style: labelStyleFunction, declutter: true });
+
         const map = new ol.Map({
             target: 'map',
             layers: [
-                baseLayer,   // প্রথমে স্যাটেলাইট ম্যাপ বসবে
-                countryLayer // তার ওপর বর্ডার ও ৩ডি নাম বসবে
+                new ol.layer.Tile({ 
+                    source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', wrapX: false }) 
+                }),
+                borderLayer, 
+                labelLayer 
             ],
-            view: new ol.View({
-                center: ol.proj.fromLonLat([45, 25]), 
-                zoom: 3,
-                minZoom: 2,
-                maxZoom: 10,
-                enableRotation: false
+            view: new ol.View({ 
+                center: ol.proj.fromLonLat([20, 15]), 
+                zoom: 3, 
+                minZoom: 2.5, 
+                maxZoom: 12, 
+                enableRotation: false 
             })
+        });
+
+        // সিলেকশন মেকানিজম
+        const selectStyle = new ol.style.Style({
+            fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.22)' }),
+            stroke: new ol.style.Stroke({ color: '#00FFFF', width: 2.5 })
+        });
+
+        const selectInteraction = new ol.interaction.Select({
+            layers: [borderLayer], style: selectStyle, multi: false, hitTolerance: 15
+        });
+        map.addInteraction(selectInteraction);
+
+        selectInteraction.on('select', function(e) {
+            const selectedFeaturesCollection = selectInteraction.getFeatures();
+            if (e.selected.length > 0) {
+                const clickedFeature = e.selected[0];
+                const countryName = clickedFeature.get('admin') || clickedFeature.get('name');
+                selectedFeaturesCollection.clear(); 
+                if (countryName) {
+                    borderSource.getFeatures().forEach(f => {
+                        const fName = f.get('admin') || f.get('name');
+                        if (fName === countryName) selectedFeaturesCollection.push(f);
+                    });
+                }
+            }
         });
     </script>
 </body>
