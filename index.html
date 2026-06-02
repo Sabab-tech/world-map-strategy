@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Map - V35 Precision Text Fit</title>
+    <title>Global Map - V36 Strict Border Fit Mechanics</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
@@ -18,7 +18,7 @@
     <div id="map"></div>
 
     <script>
-        // ছোট ও মাঝারি দেশের নাম সীমানার ভেতরে রাখতে আরও সংক্ষিপ্ত রূপ
+        // সংক্ষেপণ তালিকা
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -38,7 +38,6 @@
             "Trinidad and Tobago": "Trinidad"
         };
 
-        // নির্দিষ্ট কিছু বাঁকা ভৌগোলিক দেশের নিখুঁত সেন্টার পয়েন্ট
         const manualCenters = {
             "South Korea": [127.90, 36.30],
             "North Korea": [127.10, 40.20],
@@ -51,7 +50,7 @@
         const borderSource = new ol.source.Vector({ wrapX: false }); 
         const labelSource = new ol.source.Vector({ wrapX: false });  
 
-        // Natural Earth এর গ্লোবাল ডেটাবেজ লোড
+        // ডেটাবেজ ফেচ ও জ্যামিতিক বিশ্লেষণ
         fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson')
             .then(res => res.json())
             .then(data => {
@@ -76,35 +75,40 @@
                     const rawName = item.feature.get('admin') || item.feature.get('name') || "";
                     const geom = item.feature.getGeometry();
                     let centerPoint;
-                    
-                    // দেশের বাউন্ডারি বক্স মেপে লম্বালম্বি অনুপাত বের করার লজিক
-                    const extent = geom.getExtent();
+                    let largestPolyGeom = geom;
+
+                    // সবচেয়ে বড় ভূখণ্ড (Largest Landmass) বের করার লজিক (যাতে ছড়ানো দ্বীপের কারণে সাইজ ভুল না হয়)
+                    if (geom.getType() === 'MultiPolygon') {
+                        const polygons = geom.getPolygons();
+                        let largest = polygons[0];
+                        for (let i = 1; i < polygons.length; i++) {
+                            if (polygons[i].getArea() > largest.getArea()) largest = polygons[i];
+                        }
+                        largestPolyGeom = largest;
+                        centerPoint = largest.getInteriorPoint(); 
+                    } else {
+                        centerPoint = geom.getInteriorPoint();
+                    }
+
+                    // শুধুমাত্র মূল ভূখণ্ডের উচ্চতা ও প্রস্থ মাপা হচ্ছে
+                    const extent = largestPolyGeom.getExtent();
                     const width = extent[2] - extent[0];
                     const height = extent[3] - extent[1];
-                    const isVerticalCountry = (height / width) > 1.3; 
+                    const isVerticalCountry = (height / width) > 1.25; 
 
                     if (manualCenters[rawName] || manualCenters[shortNames[rawName]]) {
                         const coords = manualCenters[rawName] || manualCenters[shortNames[rawName]];
                         centerPoint = new ol.geom.Point(ol.proj.fromLonLat(coords));
-                    } else {
-                        if (geom.getType() === 'MultiPolygon') {
-                            const polygons = geom.getPolygons();
-                            let largest = polygons[0];
-                            for (let i = 1; i < polygons.length; i++) {
-                                if (polygons[i].getArea() > largest.getArea()) largest = polygons[i];
-                            }
-                            centerPoint = largest.getInteriorPoint(); 
-                        } else {
-                            centerPoint = geom.getInteriorPoint();
-                        }
-                    }
+                    } 
 
                     if (centerPoint) {
                         labelFeatures.push(new ol.Feature({ 
                             geometry: centerPoint, 
                             name: rawName, 
                             area: item.area,
-                            isVertical: isVerticalCountry 
+                            isVertical: isVerticalCountry,
+                            polyWidth: width,   // আসল প্রস্থ ডেটাবেজে সেভ করা হলো
+                            polyHeight: height  // আসল উচ্চতা ডেটাবেজে সেভ করা হলো
                         }));
                     }
                 });
@@ -117,52 +121,73 @@
             style: new ol.style.Style({ stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.35)', width: 1.5 }) })
         });
 
+        // 🟢 মেইন গেম-চেঞ্জিং টেক্সট রেন্ডার ইঞ্জিন
         const labelStyleFunction = function(feature, resolution) {
             const rawName = feature.get('name') || "";
             const displayName = shortNames[rawName] || rawName;
             const area = feature.get('area') || 0;
             const isVertical = feature.get('isVertical');
+            
+            // রেজোলিউশন অনুযায়ী স্ক্রিনে দেশের সাইজ পিক্সেল হিসেবে কনভার্ট করা
+            const polyWidth = feature.get('polyWidth');
+            const polyHeight = feature.get('polyHeight');
+            const widthPx = polyWidth / resolution;
+            const heightPx = polyHeight / resolution;
+
+            // বর্ডারের ভেতরে রাখার জন্য ফাঁকা জায়গার হিসেব (৮০% জায়গা ব্যবহার করবে, ২০% গ্যাপ থাকবে)
+            let availableSpacePx = widthPx * 0.80; 
+            if (isVertical) {
+                // দেশ লম্বা বা কাত হলে ডায়াগোনাল জায়গা হিসাব করবে
+                availableSpacePx = Math.sqrt(widthPx * widthPx + heightPx * heightPx) * 0.65;
+            }
+
+            // ক্যারেক্টার অনুযায়ী সর্বোচ্চ ফন্ট সাইজের কঠোর ম্যাথ (যাতে বর্ডার ক্রস না করে)
+            const charCount = displayName.length;
+            const maxAllowedFontSize = availableSpacePx / (charCount * 0.52);
+
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
 
-            // জুম লেভেল অনুযায়ী প্রোগ্রেসিভ দৃশ্যমানতা
             let minZoomToShow = 5; 
-            let baseSize = 9; 
+            let baseSize = 10; 
 
             if (["Russia", "Canada", "China", "USA", "Brazil", "Australia"].includes(displayName)) {
-                minZoomToShow = 2.5;
-                baseSize = 14;
+                minZoomToShow = 2.5; baseSize = 14;
             } else if (area > 200000000000) { 
-                minZoomToShow = 3;
-                baseSize = 12;
+                minZoomToShow = 3.5; baseSize = 11;
             } else if (area > 50000000000) {  
-                minZoomToShow = 4;
-                baseSize = 10;
+                minZoomToShow = 4.5; baseSize = 9;
             } else { 
-                minZoomToShow = 4.5;
-                baseSize = 8.5; // ছোট দেশের সাইজ আরও নিখুঁত করা হলো
+                minZoomToShow = 5; baseSize = 8;
             }
 
             if (currentZoom < minZoomToShow) return null;
 
-            // নতুন ম্যাথমেটিক্যাল ফর্মুলা: রেজোলিউশনের সাথে টেক্সট সাইজ লক করা হলো যেন সীমানা না ছড়ায়
-            let dynamicFontSize = baseSize + ((currentZoom - minZoomToShow) * 1.2);
-            dynamicFontSize = Math.min(dynamicFontSize, baseSize + 5); 
+            // জুম ইন সাইজ ক্যালকুলেশন
+            let dynamicFontSize = baseSize + ((currentZoom - minZoomToShow) * 1.5);
 
-            // স্বয়ংক্রিয় রোটেশন লজিক (লম্বা বা ছোট দেশগুলোর জন্য)
+            // ⛔ বর্ডার-ক্রসিং আটকানোর চূড়ান্ত ফিল্টার
+            dynamicFontSize = Math.min(dynamicFontSize, maxAllowedFontSize);
+            dynamicFontSize = Math.min(dynamicFontSize, baseSize + 6); // ওভারসাইজ আটকানো
+
+            // যদি লেখা এত ছোট হয়ে যায় যে পড়া যাবে না, তবে লেয়ারটি লুকিয়ে ফেলবে (হিজিবিজি রোধ)
+            if (dynamicFontSize < 6) return null;
+
             let textRotation = 0;
             if (isVertical) {
-                textRotation = -0.55; // সামান্য কাত কোণ যা বর্ডারে টেক্সট ফিট করতে সাহায্য করবে
+                textRotation = -0.60; 
             }
+
+            // কালো বর্ডারের পুরুত্ব ফন্ট সাইজের সাথে মানানসই করা হলো
+            let strokeWidth = Math.max(1.8, dynamicFontSize * 0.12);
 
             return new ol.style.Style({
                 text: new ol.style.Text({
                     text: displayName.toUpperCase(), 
-                    // ইমপ্যাক্ট এবং কনডেন্সড ফন্ট ফ্যামিলি যা নামগুলোকে লম্বা কিন্তু চিপা রাখে
-                    font: `800 ${dynamicFontSize}px "Impact", "Arial Narrow", "Arial Condensed", sans-serif`,
+                    font: `900 ${dynamicFontSize}px "Impact", "Arial Narrow", sans-serif`,
                     fill: new ol.style.Fill({ color: '#FFFDF0' }), 
-                    stroke: new ol.style.Stroke({ color: '#000000', width: Math.max(2.2, dynamicFontSize * 0.12) }), 
+                    stroke: new ol.style.Stroke({ color: '#000000', width: strokeWidth }), 
                     rotation: textRotation,
-                    overflow: false // সীমানার বাইরে গেলে নাম হাইড থাকবে, বিশ্রীভাবে ছড়াবে না
+                    overflow: false 
                 }),
                 zIndex: Math.round(100 - dynamicFontSize) 
             });
