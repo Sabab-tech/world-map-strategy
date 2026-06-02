@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>এশিয়ান জিওপলিটিক্যাল স্ট্র্যাটেজি ম্যাপ</title>
-    <!-- Leaflet CSS for Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * {
@@ -112,7 +111,6 @@
 </head>
 <body>
 
-    <!-- Strategic Control Dashboard -->
     <div class="control-panel">
         <h3>Power Grid Layers</h3>
         <button class="layer-btn active" onclick="filterLayer('all', this)"><span>🌐</span> All Nodes</button>
@@ -122,10 +120,8 @@
         <button class="layer-btn" onclick="filterLayer('secret_zone', this)"><span>🔒</span> Intel / Secret Zones</button>
     </div>
 
-    <!-- Map Container -->
     <div id="map"></div>
 
-    <!-- Leaflet JS for Map -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // এশিয়ার উপর ফোকাস রেখে ডার্ক থিম ম্যাপ ইনিশিয়ালাইজ করা
@@ -168,8 +164,7 @@
             }
         }
 
-        // এশিয়ার প্রধান দেশগুলোর জন্য এপ্রক্সিমেট কোঅর্ডিনেটস (যেহেতু JSON-এ ল্যাট-লং নেই)
-        // বাস্তব গেমে ডাটাবেসেই ল্যাট-লং রাখা হয়, এখানে নোডগুলো সাজাতে এই রেফারেন্স কোড ব্যবহার করা হয়েছে
+        // এশিয়ার প্রধান দেশগুলোর জন্য এপ্রক্সিমেট কোঅর্ডিনেটস
         const countryCoords = {
             "Bangladesh": [23.6850, 90.3563], "India": [20.5937, 78.9629], "Pakistan": [30.3753, 69.3451],
             "Nepal": [28.3949, 84.1240], "Sri Lanka": [7.8731, 80.7718], "Bhutan": [27.5142, 90.4336],
@@ -183,8 +178,8 @@
             "Turkey": [38.9637, 35.2433]
         };
 
-        // cities.json থেকে ডেটা ফেচ করে ম্যাপে রেন্ডার করা
-        fetch('cities.json')
+        // গিটহাব পেজেস এর জন্য সরাসরি এবং ১০০% নিরাপদ পাথ ব্যবহার করা হয়েছে
+        fetch('https://raw.githubusercontent.com/Sabab-tech/world-map-strategy/main/cities.json')
             .then(response => response.json())
             .then(data => {
                 const regions = data.regions;
@@ -197,8 +192,8 @@
 
                         locations.forEach((loc, index) => {
                             // মানচিত্রে নোডগুলো যেন গায়ে গায়ে লেগে না থাকে তাই সামান্য দূরত্ব তৈরি করা (Offset)
-                            const latOffset = (index % 3 - 1) * 0.9;
-                            const lngOffset = (Math.floor(index / 3) - 1) * 0.9;
+                            const latOffset = (index % 3 - 1) * 1.1;
+                            const lngOffset = (Math.floor(index / 3) - 1) * 1.1;
                             const finalCoord = [baseCoord[0] + latOffset, baseCoord[1] + lngOffset];
 
                             const style = getMarkerStyle(loc.role, loc.status);
@@ -262,22 +257,19 @@
             updateZoomVisibility();
         }
 
-        // জুম লেভেল লজিক কন্ট্রোল (Zoom Out থাকলে শুধু Capital দেখাবে, Zoom In হলে বাকি নোড দেখাবে)
+        // জুম লেভেল লজিক কন্ট্রোল
         function updateZoomVisibility() {
             const currentZoom = map.getZoom();
             
             allMarkers.forEach(marker => {
-                // যদি ফিল্টারের সাথে মেলে শুধু তখনই জুম লজিক কাজ করবে
                 if (currentFilter === 'all' || marker.gameData.role === currentFilter) {
                     if (currentZoom <= 4) {
-                        // জুম আউট অবস্থায় শুধু ক্যাপিটাল অন থাকবে, বাকিগুলো হাইড হবে
                         if (marker.gameData.role !== 'capital') {
                             if (map.hasLayer(marker)) map.removeLayer(marker);
                         } else {
                             if (!map.hasLayer(marker)) marker.addTo(map);
                         }
                     } else {
-                        // জুম ইন করলে ফিল্টারের অন্তর্গত সব নোড শো করবে
                         if (!map.hasLayer(marker)) marker.addTo(map);
                     }
                 }
