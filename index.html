@@ -28,7 +28,7 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            background: rgba(13, 17, 23, 0.85);
+            background: rgba(13, 17, 23, 0.9);
             border: 2px solid #30363d;
             border-radius: 8px;
             padding: 15px;
@@ -114,7 +114,7 @@
     <div class="control-panel">
         <h3>Power Grid Layers</h3>
         <button class="layer-btn active" onclick="filterLayer('all', this)"><span>🌐</span> All Nodes</button>
-        <button class="layer-btn" onclick="filterLayer('capital', this)"><span>🏛️</span> Political Control (Capitals)</button>
+        <button class="layer-btn" onclick="filterLayer('capital', this)"><span>🏛️</span> Political Control</button>
         <button class="layer-btn" onclick="filterLayer('economic_hub', this)"><span>💰</span> Economic Trade Grid</button>
         <button class="layer-btn" onclick="filterLayer('military_hub', this)"><span>🪖</span> Military Command</button>
         <button class="layer-btn" onclick="filterLayer('secret_zone', this)"><span>🔒</span> Intel / Secret Zones</button>
@@ -124,15 +124,15 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // এশিয়ার উপর ফোকাস রেখে ডার্ক থিম ম্যাপ ইনিশিয়ালাইজ করা
+        // ম্যাপ ইনিশিয়ালাইজেশন
         const map = L.map('map', {
-            center: [22.0, 90.0], 
+            center: [20.0, 95.0], 
             zoom: 4,
             minZoom: 3,
             maxZoom: 7
         });
 
-        // ডার্ক মোড জিওপলিটিক্যাল ম্যাপ টাইলস (CartoDB Dark Matter)
+        // ডার্ক মোড টাইলস
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap &copy; CARTO'
         }).addTo(map);
@@ -140,145 +140,176 @@
         let allMarkers = [];
         let currentFilter = 'all';
 
-        // প্রতিটি ক্যাটাগরির জন্য কাস্টম কালার ও আইকন লজিক
-        function getMarkerStyle(role, status) {
-            if (status === 'locked') return { color: '#555555', fillColor: '#222222', radius: 6 };
-            
-            switch(role) {
-                case 'capital': return { color: '#ff5555', fillColor: '#ff0000', radius: 10 };
-                case 'economic_hub': return { color: '#55ff55', fillColor: '#00cc00', radius: 8 };
-                case 'military_hub': return { color: '#5555ff', fillColor: '#0000ff', radius: 8 };
-                case 'secret_zone': return { color: '#ffff55', fillColor: '#cccc00', radius: 7 };
-                default: return { color: '#ffffff', fillColor: '#888888', radius: 6 };
-            }
-        }
-
-        // ক্যাটাগরি অনুযায়ী ইমোজি নির্ধারণ
-        function getEmoji(role) {
-            switch(role) {
-                case 'capital': return '🏛️';
-                case 'economic_hub': return '💰';
-                case 'military_hub': return '🪖';
-                case 'secret_zone': return '🔒';
-                default: return '🏙️';
-            }
-        }
-
-        // এশিয়ার প্রধান দেশগুলোর জন্য এপ্রক্সিমেট কোঅর্ডিনেটস
-        const countryCoords = {
-            "Bangladesh": [23.6850, 90.3563], "India": [20.5937, 78.9629], "Pakistan": [30.3753, 69.3451],
-            "Nepal": [28.3949, 84.1240], "Sri Lanka": [7.8731, 80.7718], "Bhutan": [27.5142, 90.4336],
-            "Maldives": [3.2028, 73.2207], "Afghanistan": [33.9391, 67.7100], "Indonesia": [-0.7893, 113.9213],
-            "Vietnam": [14.0583, 108.2772], "Thailand": [15.8700, 100.9925], "Malaysia": [4.2105, 101.9758],
-            "Singapore": [1.3521, 103.8198], "Philippines": [12.8797, 121.7740], "Myanmar": [21.9162, 95.9560],
-            "Cambodia": [12.5657, 104.9910], "Laos": [19.8563, 102.4955], "Brunei": [4.5353, 114.7277],
-            "Timor-Leste": [-8.8742, 125.7275], "China": [35.8617, 104.1954], "Japan": [36.2048, 138.2529],
-            "South Korea": [35.9078, 127.7669], "North Korea": [40.3399, 127.5101], "Mongolia": [46.8625, 103.8467],
-            "Taiwan": [23.6978, 120.9605], "Iran": [32.4279, 53.6880], "Saudi Arabia": [23.8859, 45.0792],
-            "Turkey": [38.9637, 35.2433]
-        };
-
-        // গিটহাব পেজেস এর জন্য সরাসরি এবং ১০০% নিরাপদ পাথ ব্যবহার করা হয়েছে
-        fetch('https://raw.githubusercontent.com/Sabab-tech/world-map-strategy/main/cities.json')
-            .then(response => response.json())
-            .then(data => {
-                const regions = data.regions;
-                
-                for (let region in regions) {
-                    const countries = regions[region].countries;
-                    for (let countryName in countries) {
-                        const locations = countries[countryName].locations;
-                        const baseCoord = countryCoords[countryName] || [20, 77];
-
-                        locations.forEach((loc, index) => {
-                            // মানচিত্রে নোডগুলো যেন গায়ে গায়ে লেগে না থাকে তাই সামান্য দূরত্ব তৈরি করা (Offset)
-                            const latOffset = (index % 3 - 1) * 1.1;
-                            const lngOffset = (Math.floor(index / 3) - 1) * 1.1;
-                            const finalCoord = [baseCoord[0] + latOffset, baseCoord[1] + lngOffset];
-
-                            const style = getMarkerStyle(loc.role, loc.status);
-                            
-                            // সার্কেল মার্কার তৈরি
-                            const marker = L.circleMarker(finalCoord, {
-                                radius: style.radius,
-                                fillColor: style.fillColor,
-                                color: style.color,
-                                weight: 2,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            });
-
-                            // পপআপ কন্টেন্ট স্ট্রাকচার
-                            let popupContent = `
-                                <div class="popup-title">${getEmoji(loc.role)} ${loc.name}</div>
-                                <div class="popup-meta">দেশ: ${countryName}</div>
-                                <div class="popup-meta">ক্যাটাগরি: ${loc.role.replace('_', ' ')}</div>
-                            `;
-
-                            if(loc.status === 'locked') {
-                                popupContent += `
-                                    <div class="popup-status status-locked">🔒 LOCKED</div>
-                                    <div class="popup-meta" style="margin-top:5px; color:#ff7b72;">Unlock: ${loc.unlock_condition}</div>
-                                `;
-                            } else {
-                                popupContent += `<div class="popup-status status-unlocked">🟢 ACTIVE NODE</div>`;
-                            }
-
-                            marker.bindPopup(popupContent);
-                            
-                            // ফিল্টারিং এর জন্য মেটাডেটা সেভ রাখা
-                            marker.gameData = { role: loc.role, status: loc.status };
-                            
-                            // প্রাথমিক অবস্থায় ম্যাপে যুক্ত করা
-                            marker.addTo(map);
-                            allMarkers.push(marker);
-                        });
+        // সরাসরি ইন-লাইন ডাটাবেস (CORS বা লোডিং এরর এড়াতে)
+        const gameDataRaw = {
+            "game_world": "Asia Ready Grid",
+            "regions": {
+                "SOUTH_ASIA": {
+                    "countries": {
+                        "Bangladesh": { "coords": [23.6850, 90.3563], "locations": [
+                            {"name": "Dhaka", "role": "capital", "status": "unlocked"},
+                            {"name": "Chittagong", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Mongla", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Cox's Bazar", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Jessore Airbase", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Rooppur Nuclear Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"},
+                            {"name": "Deep Bay Naval Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+                        ]},
+                        "India": { "coords": [20.5937, 78.9629], "locations": [
+                            {"name": "New Delhi", "role": "capital", "status": "unlocked"},
+                            {"name": "Mumbai", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Bengaluru", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Kolkata", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Chennai", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Hyderabad", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Visakhapatnam", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Ambala Air Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Leh Military Zone", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Andaman Strategic Command", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"},
+                            {"name": "Pokhran Nuclear Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"},
+                            {"name": "Nicobar Naval Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+                        ]},
+                        "Pakistan": { "coords": [30.3753, 69.3451], "locations": [
+                            {"name": "Islamabad", "role": "capital", "status": "unlocked"},
+                            {"name": "Karachi", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Lahore", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Faisalabad", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Rawalpindi GHQ", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Sargodha Airbase", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Gwadar Deep Port", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"},
+                            {"name": "Kahuta Nuclear Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"},
+                            {"name": "Skardu Defense Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+                        ]},
+                        "Nepal": { "coords": [28.3949, 84.1240], "locations": [
+                            {"name": "Kathmandu", "role": "capital", "status": "unlocked"},
+                            {"name": "Pokhara", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Birgunj", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Himalayan Border Defense Zone", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Lumbini Strategic Corridor", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+                        ]},
+                        "Sri Lanka": { "coords": [7.8731, 80.7718], "locations": [
+                            {"name": "Colombo", "role": "capital", "status": "unlocked"},
+                            {"name": "Kandy", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Galle", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Trincomalee Naval Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Hambantota Deep Sea Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+                        ]},
+                        "Bhutan": { "coords": [27.5142, 90.4336], "locations": [
+                            {"name": "Thimphu", "role": "capital", "status": "unlocked"},
+                            {"name": "Phuentsholing", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Himalayan Defense Posts", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Mountain Surveillance Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+                        ]},
+                        "Maldives": { "coords": [3.2028, 73.2207], "locations": [
+                            {"name": "Malé", "role": "capital", "status": "unlocked"},
+                            {"name": "Addu City", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Gan Air Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Indian Ocean Watch Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+                        ]},
+                        "Afghanistan": { "coords": [33.9391, 67.7100], "locations": [
+                            {"name": "Kabul", "role": "capital", "status": "unlocked"},
+                            {"name": "Herat", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Kandahar", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Bagram Airbase", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Mountain Black Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+                        ]}
                     }
-                }
-                updateZoomVisibility();
-            })
-            .catch(error => console.error('Error loading cities.json:', error));
-
-        // ৪টি লেয়ার ফিল্টার করার ফাংশন
-        function filterLayer(role, btn) {
-            currentFilter = role;
-            
-            // বাটনের একটিভ ক্লাস চেঞ্জ করা
-            document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            allMarkers.forEach(marker => {
-                if (role === 'all' || marker.gameData.role === role) {
-                    if (!map.hasLayer(marker)) marker.addTo(map);
-                } else {
-                    if (map.hasLayer(marker)) map.removeLayer(marker);
-                }
-            });
-            updateZoomVisibility();
-        }
-
-        // জুম লেভেল লজিক কন্ট্রোল
-        function updateZoomVisibility() {
-            const currentZoom = map.getZoom();
-            
-            allMarkers.forEach(marker => {
-                if (currentFilter === 'all' || marker.gameData.role === currentFilter) {
-                    if (currentZoom <= 4) {
-                        if (marker.gameData.role !== 'capital') {
-                            if (map.hasLayer(marker)) map.removeLayer(marker);
-                        } else {
-                            if (!map.hasLayer(marker)) marker.addTo(map);
-                        }
-                    } else {
-                        if (!map.hasLayer(marker)) marker.addTo(map);
+                },
+                "SOUTHEAST_ASIA": {
+                    "countries": {
+                        "Indonesia": { "coords": [-0.7893, 113.9213], "locations": [
+                            {"name": "Jakarta", "role": "capital", "status": "unlocked"},
+                            {"name": "Surabaya", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Medan", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Makassar", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Natuna Military Zone", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Batam Naval Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Bali Surveillance Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"},
+                            {"name": "Papua Strategic Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+                        ]},
+                        "Vietnam": { "coords": [14.0583, 108.2772], "locations": [
+                            {"name": "Hanoi", "role": "capital", "status": "unlocked"},
+                            {"name": "Ho Chi Minh City", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Da Nang", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Cam Ranh Naval Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "South China Sea Command Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+                        ]},
+                        "Thailand": { "coords": [15.8700, 100.9925], "locations": [
+                            {"name": "Bangkok", "role": "capital", "status": "unlocked"},
+                            {"name": "Chiang Mai", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Phuket", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Sattahip Naval Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Gulf Strategic Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+                        ]},
+                        "Malaysia": { "coords": [4.2105, 101.9758], "locations": [
+                            {"name": "Kuala Lumpur", "role": "capital", "status": "unlocked"},
+                            {"name": "Johor Bahru", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Penang", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Lumut Naval Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Sabah Strategic Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+                        ]},
+                        "Singapore": { "coords": [1.3521, 103.8198], "locations": [
+                            {"name": "Singapore City", "role": "capital", "status": "unlocked"},
+                            {"name": "Jurong Financial Hub", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Changi Naval-Air Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Strait Control Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+                        ]},
+                        "Philippines": { "coords": [12.8797, 121.7740], "locations": [
+                            {"name": "Manila", "role": "capital", "status": "unlocked"},
+                            {"name": "Cebu", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Davao", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Subic Naval Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Palawan Maritime Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+                        ]},
+                        "Myanmar": { "coords": [21.9162, 95.9560], "locations": [
+                            {"name": "Naypyidaw", "role": "capital", "status": "unlocked"},
+                            {"name": "Yangon", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Mandalay", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Coco Islands Military Zone", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Border Conflict Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"}
+                        ]},
+                        "Cambodia": { "coords": [12.5657, 104.9910], "locations": [
+                            {"name": "Phnom Penh", "role": "capital", "status": "unlocked"},
+                            {"name": "Siem Reap", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Coastal Defense Zone", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Mekong Intelligence Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+                        ]},
+                        "Laos": { "coords": [19.8563, 102.4955], "locations": [
+                            {"name": "Vientiane", "role": "capital", "status": "unlocked"},
+                            {"name": "Luang Prabang", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Border Defense Zone", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Mekong Surveillance Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+                        ]},
+                        "Brunei": { "coords": [4.5353, 114.7277], "locations": [
+                            {"name": "Bandar Seri Begawan", "role": "capital", "status": "unlocked"},
+                            {"name": "Seria Oil Zone", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Coastal Defense Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Oil Reserve Secret Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
+                        ]},
+                        "Timor-Leste": { "coords": [-8.8742, 125.7275], "locations": [
+                            {"name": "Dili", "role": "capital", "status": "unlocked"},
+                            {"name": "Baucau", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Maritime Defense Zone", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Timor Sea Watch Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+                        ]}
                     }
-                }
-            });
-        }
-
-        // ম্যাপের জুম চেঞ্জ হলে লজিক ট্রিগার করা
-        map.on('zoomend', updateZoomVisibility);
-    </script>
-</body>
-    </html>
-    
+                },
+                "EAST_ASIA": {
+                    "countries": {
+                        "China": { "coords": [35.8617, 104.1954], "locations": [
+                            {"name": "Beijing", "role": "capital", "status": "unlocked"},
+                            {"name": "Shanghai", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Shenzhen", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Guangzhou", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Qingdao Naval Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Chengdu Military Zone", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Tibet Command Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "WAR_CAPTURE"},
+                            {"name": "Xinjiang Defense Grid", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"},
+                            {"name": "South China Sea HQ", "role": "secret_zone", "status": "locked", "unlock_condition": "ESPIONAGE_SUCCESS"}
+                        ]},
+                        "Japan": { "coords": [36.2048, 138.2529], "locations": [
+                            {"name": "Tokyo", "role": "capital", "status": "unlocked"},
+                            {"name": "Osaka", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Nagoya", "role": "economic_hub", "status": "unlocked"},
+                            {"name": "Yokosuka Naval Base", "role": "military_hub", "status": "unlocked"},
+                            {"name": "Okinawa Base"
