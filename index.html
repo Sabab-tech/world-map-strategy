@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Map - V36 Strict Border Fit Mechanics</title>
+    <title>Global Map - V43 Ultimate Strategy Precision</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
@@ -18,7 +18,7 @@
     <div id="map"></div>
 
     <script>
-        // সংক্ষেপণ তালিকা
+        // দীর্ঘ নামগুলোকে স্ট্র্যাটেজি গেমের মতো সংক্ষিপ্ত করার তালিকা
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -38,162 +38,81 @@
             "Trinidad and Tobago": "Trinidad"
         };
 
-        const manualCenters = {
-            "South Korea": [127.90, 36.30],
-            "North Korea": [127.10, 40.20],
-            "Lebanon": [35.86, 33.85],
-            "Vietnam": [108.00, 14.00],
-            "Chile": [-71.50, -35.00],
-            "Israel": [34.85, 31.04]
-        };
+        const vectorSource = new ol.source.Vector({ wrapX: false }); 
 
-        const borderSource = new ol.source.Vector({ wrapX: false }); 
-        const labelSource = new ol.source.Vector({ wrapX: false });  
-
-        // ডেটাবেজ ফেচ ও জ্যামিতিক বিশ্লেষণ
+        // গ্লোবাল ডেটাবেজ লোড
         fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson')
             .then(res => res.json())
             .then(data => {
                 const format = new ol.format.GeoJSON();
                 const features = format.readFeatures(data, { featureProjection: 'EPSG:3857' });
-
-                borderSource.addFeatures(features);
-
-                const countryMaxPolygon = {};
-                features.forEach(f => {
-                    const name = f.get('admin') || f.get('name') || "";
-                    if (!name) return;
-                    const area = f.getGeometry().getArea();
-                    if (!countryMaxPolygon[name] || area > countryMaxPolygon[name].area) {
-                        countryMaxPolygon[name] = { area: area, feature: f };
-                    }
-                });
-
-                const labelFeatures = [];
-
-                Object.values(countryMaxPolygon).forEach(item => {
-                    const rawName = item.feature.get('admin') || item.feature.get('name') || "";
-                    const geom = item.feature.getGeometry();
-                    let centerPoint;
-                    let largestPolyGeom = geom;
-
-                    // সবচেয়ে বড় ভূখণ্ড (Largest Landmass) বের করার লজিক (যাতে ছড়ানো দ্বীপের কারণে সাইজ ভুল না হয়)
-                    if (geom.getType() === 'MultiPolygon') {
-                        const polygons = geom.getPolygons();
-                        let largest = polygons[0];
-                        for (let i = 1; i < polygons.length; i++) {
-                            if (polygons[i].getArea() > largest.getArea()) largest = polygons[i];
-                        }
-                        largestPolyGeom = largest;
-                        centerPoint = largest.getInteriorPoint(); 
-                    } else {
-                        centerPoint = geom.getInteriorPoint();
-                    }
-
-                    // শুধুমাত্র মূল ভূখণ্ডের উচ্চতা ও প্রস্থ মাপা হচ্ছে
-                    const extent = largestPolyGeom.getExtent();
-                    const width = extent[2] - extent[0];
-                    const height = extent[3] - extent[1];
-                    const isVerticalCountry = (height / width) > 1.25; 
-
-                    if (manualCenters[rawName] || manualCenters[shortNames[rawName]]) {
-                        const coords = manualCenters[rawName] || manualCenters[shortNames[rawName]];
-                        centerPoint = new ol.geom.Point(ol.proj.fromLonLat(coords));
-                    } 
-
-                    if (centerPoint) {
-                        labelFeatures.push(new ol.Feature({ 
-                            geometry: centerPoint, 
-                            name: rawName, 
-                            area: item.area,
-                            isVertical: isVerticalCountry,
-                            polyWidth: width,   // আসল প্রস্থ ডেটাবেজে সেভ করা হলো
-                            polyHeight: height  // আসল উচ্চতা ডেটাবেজে সেভ করা হলো
-                        }));
-                    }
-                });
-
-                labelSource.addFeatures(labelFeatures);
+                vectorSource.addFeatures(features);
             });
 
-        const borderLayer = new ol.layer.Vector({
-            source: borderSource,
-            style: new ol.style.Style({ stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.35)', width: 1.5 }) })
-        });
-
-        // 🟢 মেইন গেম-চেঞ্জিং টেক্সট রেন্ডার ইঞ্জিন
-        const labelStyleFunction = function(feature, resolution) {
-            const rawName = feature.get('name') || "";
+        // 🟢 মেইন রেন্ডার ইঞ্জিন (সিঙ্গেল লেয়ার অপ্টিমাইজড মেকানিজম)
+        const countryStyleFunction = function(feature, resolution) {
+            const rawName = feature.get('admin') || feature.get('name') || "";
             const displayName = shortNames[rawName] || rawName;
-            const area = feature.get('area') || 0;
-            const isVertical = feature.get('isVertical');
             
-            // রেজোলিউশন অনুযায়ী স্ক্রিনে দেশের সাইজ পিক্সেল হিসেবে কনভার্ট করা
-            const polyWidth = feature.get('polyWidth');
-            const polyHeight = feature.get('polyHeight');
-            const widthPx = polyWidth / resolution;
-            const heightPx = polyHeight / resolution;
+            const geom = feature.getGeometry();
+            const area = geom.getArea(); // দেশের আসল জ্যামিতিক আয়তন
 
-            // বর্ডারের ভেতরে রাখার জন্য ফাঁকা জায়গার হিসেব (৮০% জায়গা ব্যবহার করবে, ২০% গ্যাপ থাকবে)
-            let availableSpacePx = widthPx * 0.80; 
-            if (isVertical) {
-                // দেশ লম্বা বা কাত হলে ডায়াগোনাল জায়গা হিসাব করবে
-                availableSpacePx = Math.sqrt(widthPx * widthPx + heightPx * heightPx) * 0.65;
-            }
-
-            // ক্যারেক্টার অনুযায়ী সর্বোচ্চ ফন্ট সাইজের কঠোর ম্যাথ (যাতে বর্ডার ক্রস না করে)
-            const charCount = displayName.length;
-            const maxAllowedFontSize = availableSpacePx / (charCount * 0.52);
-
+            // বর্তমান ম্যাপ জুম লেভেল হিসাব
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
 
-            let minZoomToShow = 5; 
-            let baseSize = 10; 
+            // ⛔ কমান্ড ১ ও ২: দেশের সাইজ এবং জুম লেভেল অনুযায়ী প্রোগ্রেসিভ জুম রুলস
+            let minZoomToShow = 7; 
+            let baseSize = 8; 
 
-            if (["Russia", "Canada", "China", "USA", "Brazil", "Australia"].includes(displayName)) {
-                minZoomToShow = 2.5; baseSize = 14;
-            } else if (area > 200000000000) { 
+            // বিশ্বের সব দেশকে আয়তন অনুযায়ী ৫টি ক্যাটাগরিতে ভাগ করে জুম লক করা হলো
+            if (["Russia", "Canada", "China", "United States of America", "Brazil", "Australia"].includes(rawName)) {
+                minZoomToShow = 2.5; baseSize = 13;
+            } else if (area > 1000000000000) { 
+                // ভারত, কাজাখস্তান, আলজেরিয়া, সৌদি আরব ইত্যাদি বড় দেশ
                 minZoomToShow = 3.5; baseSize = 11;
-            } else if (area > 50000000000) {  
-                minZoomToShow = 4.5; baseSize = 9;
-            } else { 
-                minZoomToShow = 5; baseSize = 8;
+            } else if (area > 250000000000) {  
+                // বেলারুশ, ফিনল্যান্ড, নরওয়ে, সুইডেন, কেনিয়া, ইথিওপিয়ার মতো মাঝারি দেশ
+                minZoomToShow = 4.5; baseSize = 9.2; 
+            } else if (area > 50000000000) {   
+                // গ্রিস, কিউবা এবং সমমানের ছোট মাঝারি দেশ
+                minZoomToShow = 5.5; baseSize = 8.5;
+            } else {                           
+                // ক্ষুদ্রতম দেশ (লেবানন, ইসরায়েল ইত্যাদি) যা দেখতে সবচেয়ে বেশি জুম করতে হবে
+                minZoomToShow = 6.5; baseSize = 7.5;
             }
 
-            if (currentZoom < minZoomToShow) return null;
+            let textStyle = null;
 
-            // জুম ইন সাইজ ক্যালকুলেশন
-            let dynamicFontSize = baseSize + ((currentZoom - minZoomToShow) * 1.5);
+            // প্লেয়ার নির্দিষ্ট জুম লেভেলে আসলেই কেবল টেক্সট জেনারেট হবে
+            if (currentZoom >= minZoomToShow) {
+                
+                // জুম ইনের সাথে ফন্ট সাইজ সামান্য বড় হবে কিন্তু সর্বোচ্চ ৪ পিক্সেলের বেশি বাড়বে না
+                let dynamicFontSize = baseSize + ((currentZoom - minZoomToShow) * 1.1);
+                dynamicFontSize = Math.min(dynamicFontSize, baseSize + 4); 
 
-            // ⛔ বর্ডার-ক্রসিং আটকানোর চূড়ান্ত ফিল্টার
-            dynamicFontSize = Math.min(dynamicFontSize, maxAllowedFontSize);
-            dynamicFontSize = Math.min(dynamicFontSize, baseSize + 6); // ওভারসাইজ আটকানো
-
-            // যদি লেখা এত ছোট হয়ে যায় যে পড়া যাবে না, তবে লেয়ারটি লুকিয়ে ফেলবে (হিজিবিজি রোধ)
-            if (dynamicFontSize < 6) return null;
-
-            let textRotation = 0;
-            if (isVertical) {
-                textRotation = -0.60; 
-            }
-
-            // কালো বর্ডারের পুরুত্ব ফন্ট সাইজের সাথে মানানসই করা হলো
-            let strokeWidth = Math.max(1.8, dynamicFontSize * 0.12);
-
-            return new ol.style.Style({
-                text: new ol.style.Text({
+                textStyle = new ol.style.Text({
                     text: displayName.toUpperCase(), 
                     font: `900 ${dynamicFontSize}px "Impact", "Arial Narrow", sans-serif`,
-                    fill: new ol.style.Fill({ color: '#FFFDF0' }), 
-                    stroke: new ol.style.Stroke({ color: '#000000', width: strokeWidth }), 
-                    rotation: textRotation,
-                    overflow: false 
-                }),
-                zIndex: Math.round(100 - dynamicFontSize) 
+                    fill: new ol.style.Fill({ color: '#FFFDF0' }), // ওল্ড পেপার হোয়াইট
+                    stroke: new ol.style.Stroke({ color: '#000000', width: Math.max(2, dynamicFontSize * 0.12) }), // থ্রিডি স্ট্রোক
+                    placement: 'polygon', // টেক্সট সরাসরি দেশের পলিগনের বর্ডারের ভেতর লক করা হলো
+                    maxAngle: 0.6, // বাঁকা দেশগুলোর জন্য স্বয়ংক্রিয় রাজকীয় রোটেশন কোণ
+                    overflow: false // ⛔ ম্যাজিক কমান্ড: লেখা দেশের সীমানা ক্রস করলেই হাইড হয়ে যাবে, বাইরে যাবে না
+                });
+            }
+
+            // বর্ডার লাইন ও টেক্সট লেবেল একসাথে রিটার্ন করা হচ্ছে
+            return new ol.style.Style({
+                stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.35)', width: 1.5 }),
+                text: textStyle
             });
         };
 
-        const labelLayer = new ol.layer.Vector({ source: labelSource, style: labelStyleFunction, declutter: true });
+        const countryLayer = new ol.layer.Vector({ 
+            source: vectorSource, 
+            style: countryStyleFunction, 
+            declutter: true // ওভারল্যাপিং প্রতিরোধ করার জন্য
+        });
 
         const map = new ol.Map({
             target: 'map',
@@ -201,14 +120,14 @@
                 new ol.layer.Tile({ 
                     source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', wrapX: false }) 
                 }),
-                borderLayer, 
-                labelLayer 
+                countryLayer 
             ],
+            // ⛔ কমান্ড ৩: প্লেয়ারদের জন্য সর্বোচ্চ এবং সর্বনিম্ন জুমের কঠোর সীমা নির্ধারণ (গেমপ্লে প্রোটেকশন)
             view: new ol.View({ 
                 center: ol.proj.fromLonLat([20, 15]), 
                 zoom: 3, 
-                minZoom: 2.5, 
-                maxZoom: 12, 
+                minZoom: 2.5, // সর্বোচ্চ দূর থেকে দেখার সীমা (জুম আউট লক)
+                maxZoom: 8,   // সর্বনিম্ন কাছে থেকে দেখার সীমা (অতিরিক্ত জুম ইন লক)
                 enableRotation: false 
             })
         });
@@ -220,7 +139,7 @@
         });
 
         const selectInteraction = new ol.interaction.Select({
-            layers: [borderLayer], style: selectStyle, multi: false, hitTolerance: 15
+            layers: [countryLayer], style: selectStyle, multi: false, hitTolerance: 15
         });
         map.addInteraction(selectInteraction);
 
@@ -231,7 +150,7 @@
                 const countryName = clickedFeature.get('admin') || clickedFeature.get('name');
                 selectedFeaturesCollection.clear(); 
                 if (countryName) {
-                    borderSource.getFeatures().forEach(f => {
+                    vectorSource.getFeatures().forEach(f => {
                         const fName = f.get('admin') || f.get('name');
                         if (fName === countryName) selectedFeaturesCollection.push(f);
                     });
