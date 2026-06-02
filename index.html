@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Map - V25 Error Free & Decluttered</title>
+    <title>Global Map - V26 Interactive Selection</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
-    <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
+    <style>
+        body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }
+    </style>
 </head>
 <body>
     <div id="map"></div>
     <script>
-        // বড় নামগুলোর শর্ট ফর্ম
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -40,7 +41,6 @@
             "Svalbard and Jan Mayen": "Svalbard"
         };
 
-        // ক্ষুদ্র দেশগুলোর স্থানাঙ্ক
         const microstates = [
             { name: "Vatican", coord: [12.4534, 41.9029] },
             { name: "Monaco", coord: [7.4246, 43.7384] },
@@ -82,7 +82,6 @@
                 Object.values(countryMaxPolygon).forEach(item => {
                     const rawName = item.feature.get('admin') || item.feature.get('name') || "";
                     
-                    // ডুপ্লিকেট চেকার (নিরাপদ লজিক)
                     const isAlreadyInSpecialList = microstates.some(ms => 
                         rawName.toLowerCase().includes(ms.name.toLowerCase())
                     );
@@ -116,7 +115,6 @@
                     }
                 });
 
-                // ছোট দেশগুলোকে পয়েন্ট হিসেবে যুক্ত করা
                 microstates.forEach(ms => {
                     const pt = new ol.Feature({
                         geometry: new ol.geom.Point(ol.proj.fromLonLat(ms.coord)),
@@ -130,8 +128,12 @@
                 labelSource.addFeatures(labelFeatures);
             });
 
-        const borderStyle = new ol.style.Style({
-            stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.2 })
+        // পরিবর্তন: বর্ডার হালকা মোটা করা হয়েছে (1.2 থেকে 1.6)
+        const borderLayer = new ol.layer.Vector({
+            source: borderSource,
+            style: new ol.style.Style({
+                stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.6 })
+            })
         });
 
         const labelStyleFunction = function(feature, resolution) {
@@ -144,7 +146,8 @@
             if (isMicro) {
                 if (currentZoom < 3) return null; 
                 return new ol.style.Style({
-                    image: new ol.style.Circle({ radius: 3.5, fill: new ol.style.Fill({ color: '#FFCC33' }) }),
+                    // পরিবর্তন: ছোট দেশের বিন্দু এখন উজ্জ্বল সবুজ (#00FF00)
+                    image: new ol.style.Circle({ radius: 3.5, fill: new ol.style.Fill({ color: '#00FF00' }) }),
                     text: new ol.style.Text({
                         text: displayName,
                         font: '900 12px "Arial Black", sans-serif', 
@@ -152,15 +155,14 @@
                         stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
                         offsetY: -10
                     }),
-                    zIndex: 999 // ছোট দেশগুলো সবসময় ওপরে ভাসবে
+                    zIndex: 999 
                 });
             }
 
-            // ডায়নামিক ফন্ট সাইজ (রাশিয়ার জন্য সর্বোচ্চ ৬৫ পিক্সেল, সাধারণের জন্য আনুপাতিক)
             let fontSize = Math.min(65, Math.max(10, Math.sqrt(area) / (resolution * 4.5)));
             let strokeWidth = Math.max(2.5, fontSize * 0.12);
 
-            if (area < 5000000000 && currentZoom < 3.5) return null; // জুম আউট করলে হিজিবিজি এড়াবে
+            if (area < 5000000000 && currentZoom < 3.5) return null; 
 
             return new ol.style.Style({
                 text: new ol.style.Text({
@@ -169,9 +171,15 @@
                     fill: new ol.style.Fill({ color: '#FFFFFF' }),
                     stroke: new ol.style.Stroke({ color: '#000000', width: strokeWidth })
                 }),
-                zIndex: Math.round(100 - fontSize) // বড় লেখাগুলো নিচে থাকবে, ছোট লেখাগুলো ওপরে উঠবে
+                zIndex: Math.round(100 - fontSize) 
             });
         };
+
+        const labelLayer = new ol.layer.Vector({
+            source: labelSource,
+            style: labelStyleFunction,
+            declutter: true 
+        });
 
         const map = new ol.Map({
             target: 'map',
@@ -179,11 +187,51 @@
                 new ol.layer.Tile({ 
                     source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', wrapX: false }) 
                 }),
-                new ol.layer.Vector({ source: borderSource, style: borderStyle }), 
-                // declutter: true করা হয়েছে, এতে ম্যাপে কোনো নাম ওভারল্যাপ করে বিশৃঙ্খলা তৈরি করবে না
-                new ol.layer.Vector({ source: labelSource, style: labelStyleFunction, declutter: true }) 
+                borderLayer, 
+                labelLayer 
             ],
             view: new ol.View({ center: ol.proj.fromLonLat([20, 15]), zoom: 3, minZoom: 2.5, maxZoom: 8, enableRotation: false })
+        });
+
+        // ==========================================
+        // কান্ট্রি সিলেক্ট অপশন (Interactive Selection)
+        // ==========================================
+        const selectStyle = new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.25)' // সিলেক্ট হলে হালকা সাদা গ্লেজ দিবে
+            }),
+            stroke: new ol.style.Stroke({
+                color: '#00FFFF', // সিলেক্ট হলে বর্ডার সায়ান (Cyan) রঙের হবে
+                width: 2.5
+            })
+        });
+
+        const selectInteraction = new ol.interaction.Select({
+            layers: [borderLayer],
+            style: selectStyle,
+            multi: false
+        });
+        map.addInteraction(selectInteraction);
+
+        // একটি দ্বীপে ক্লিক করলে যেন পুরো দেশ সিলেক্ট হয় তার লজিক
+        selectInteraction.on('select', function(e) {
+            const selectedFeaturesCollection = selectInteraction.getFeatures();
+            if (e.selected.length > 0) {
+                const clickedFeature = e.selected[0];
+                const countryName = clickedFeature.get('admin') || clickedFeature.get('name');
+                
+                selectedFeaturesCollection.clear(); // ডিফল্ট সিলেকশন ক্লিয়ার করা
+                
+                if (countryName) {
+                    borderSource.getFeatures().forEach(f => {
+                        const fName = f.get('admin') || f.get('name');
+                        // একই নামের সব ভূখণ্ড সিলেক্টেড লিস্টে ঢুকিয়ে দেওয়া
+                        if (fName === countryName) {
+                            selectedFeaturesCollection.push(f);
+                        }
+                    });
+                }
+            }
         });
     </script>
 </body>
