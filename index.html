@@ -1,257 +1,292 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Map - V47 Standalone Capital Masterpiece</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
-
+    <title>এশিয়ান জিওপলিটিক্যাল স্ট্র্যাটেজি ম্যাপ</title>
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #0b1521; overflow: hidden; touch-action: none; }
-        #map { width: 100%; height: 100%; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #0d1117;
+            overflow: hidden;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        /* Dashboard Control UI */
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(13, 17, 23, 0.85);
+            border: 2px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            z-index: 1000;
+            color: #c9d1d9;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            max-width: 300px;
+        }
+        .control-panel h3 {
+            margin-bottom: 12px;
+            color: #58a6ff;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 5px;
+        }
+        .layer-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .layer-btn:hover {
+            background: #30363d;
+            border-color: #8b949e;
+        }
+        .layer-btn.active {
+            background: #1f6feb;
+            border-color: #58a6ff;
+            color: #ffffff;
+            font-weight: bold;
+        }
+        .layer-btn span {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        /* Custom Popup Styling */
+        .leaflet-popup-content-wrapper {
+            background: #161b22 !important;
+            color: #c9d1d9 !important;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+        .leaflet-popup-tip {
+            background: #161b22 !important;
+        }
+        .popup-title {
+            font-weight: bold;
+            color: #58a6ff;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .popup-meta {
+            font-size: 11px;
+            color: #8b949e;
+            text-transform: uppercase;
+        }
+        .popup-status {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status-unlocked { background: #238636; color: white; }
+        .status-locked { background: #da3633; color: white; }
     </style>
 </head>
 <body>
 
+    <!-- Strategic Control Dashboard -->
+    <div class="control-panel">
+        <h3>Power Grid Layers</h3>
+        <button class="layer-btn active" onclick="filterLayer('all', this)"><span>🌐</span> All Nodes</button>
+        <button class="layer-btn" onclick="filterLayer('capital', this)"><span>🏛️</span> Political Control (Capitals)</button>
+        <button class="layer-btn" onclick="filterLayer('economic_hub', this)"><span>💰</span> Economic Trade Grid</button>
+        <button class="layer-btn" onclick="filterLayer('military_hub', this)"><span>🪖</span> Military Command</button>
+        <button class="layer-btn" onclick="filterLayer('secret_zone', this)"><span>🔒</span> Intel / Secret Zones</button>
+    </div>
+
+    <!-- Map Container -->
     <div id="map"></div>
 
+    <!-- Leaflet JS for Map -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // স্ট্র্যাটেজি গেমের মতো দেশের নাম সংক্ষিপ্তকরণের তালিকা
-        const shortNames = {
-            "Democratic Republic of the Congo": "DR Congo",
-            "Central African Republic": "C.A.R.",
-            "Republic of the Congo": "Congo",
-            "Equatorial Guinea": "Eq. Guinea",
-            "United States of America": "USA",
-            "United Kingdom": "UK",
-            "Saudi Arabia": "S. Arabia",
-            "United Arab Emirates": "UAE",
-            "Dominican Republic": "Dominican Rep.",
-            "The Bahamas": "Bahamas",
-            "South Korea": "S. Korea",
-            "North Korea": "N. Korea",
-            "Russian Federation": "Russia",
-            "Papua New Guinea": "PNG",
-            "Bosnia and Herzegovina": "Bosnia",
-            "Trinidad and Tobago": "Trinidad"
+        // এশিয়ার উপর ফোকাস রেখে ডার্ক থিম ম্যাপ ইনিশিয়ালাইজ করা
+        const map = L.map('map', {
+            center: [22.0, 90.0], 
+            zoom: 4,
+            minZoom: 3,
+            maxZoom: 7
+        });
+
+        // ডার্ক মোড জিওপলিটিক্যাল ম্যাপ টাইলস (CartoDB Dark Matter)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO'
+        }).addTo(map);
+
+        let allMarkers = [];
+        let currentFilter = 'all';
+
+        // প্রতিটি ক্যাটাগরির জন্য কাস্টম কালার ও আইকন লজিক
+        function getMarkerStyle(role, status) {
+            if (status === 'locked') return { color: '#555555', fillColor: '#222222', radius: 6 };
+            
+            switch(role) {
+                case 'capital': return { color: '#ff5555', fillColor: '#ff0000', radius: 10 };
+                case 'economic_hub': return { color: '#55ff55', fillColor: '#00cc00', radius: 8 };
+                case 'military_hub': return { color: '#5555ff', fillColor: '#0000ff', radius: 8 };
+                case 'secret_zone': return { color: '#ffff55', fillColor: '#cccc00', radius: 7 };
+                default: return { color: '#ffffff', fillColor: '#888888', radius: 6 };
+            }
+        }
+
+        // ক্যাটাগরি অনুযায়ী ইমোজি নির্ধারণ
+        function getEmoji(role) {
+            switch(role) {
+                case 'capital': return '🏛️';
+                case 'economic_hub': return '💰';
+                case 'military_hub': return '🪖';
+                case 'secret_zone': return '🔒';
+                default: return '🏙️';
+            }
+        }
+
+        // এশিয়ার প্রধান দেশগুলোর জন্য এপ্রক্সিমেট কোঅর্ডিনেটস (যেহেতু JSON-এ ল্যাট-লং নেই)
+        // বাস্তব গেমে ডাটাবেসেই ল্যাট-লং রাখা হয়, এখানে নোডগুলো সাজাতে এই রেফারেন্স কোড ব্যবহার করা হয়েছে
+        const countryCoords = {
+            "Bangladesh": [23.6850, 90.3563], "India": [20.5937, 78.9629], "Pakistan": [30.3753, 69.3451],
+            "Nepal": [28.3949, 84.1240], "Sri Lanka": [7.8731, 80.7718], "Bhutan": [27.5142, 90.4336],
+            "Maldives": [3.2028, 73.2207], "Afghanistan": [33.9391, 67.7100], "Indonesia": [-0.7893, 113.9213],
+            "Vietnam": [14.0583, 108.2772], "Thailand": [15.8700, 100.9925], "Malaysia": [4.2105, 101.9758],
+            "Singapore": [1.3521, 103.8198], "Philippines": [12.8797, 121.7740], "Myanmar": [21.9162, 95.9560],
+            "Cambodia": [12.5657, 104.9910], "Laos": [19.8563, 102.4955], "Brunei": [4.5353, 114.7277],
+            "Timor-Leste": [-8.8742, 125.7275], "China": [35.8617, 104.1954], "Japan": [36.2048, 138.2529],
+            "South Korea": [35.9078, 127.7669], "North Korea": [40.3399, 127.5101], "Mongolia": [46.8625, 103.8467],
+            "Taiwan": [23.6978, 120.9605], "Iran": [32.4279, 53.6880], "Saudi Arabia": [23.8859, 45.0792],
+            "Turkey": [38.9637, 35.2433]
         };
 
-        // 🌍 গ্লোবাল ইন-কোড ক্যাপিটাল ডাটাবেজ (আপনার ফাইলের ফরম্যাট অনুযায়ী নির্মিত)
-        const globalCapitals = {
-            "Bangladesh": [{ "n": "Dhaka", "c": [90.41, 23.81] }],
-            "India": [{ "n": "New Delhi", "c": [77.20, 28.61] }],
-            "Pakistan": [{ "n": "Islamabad", "c": [73.04, 33.68] }],
-            "United States of America": [{ "n": "Washington D.C.", "c": [-77.03, 38.90] }],
-            "Russian Federation": [{ "n": "Moscow", "c": [37.61, 55.75] }],
-            "China": [{ "n": "Beijing", "c": [116.40, 39.90] }],
-            "United Kingdom": [{ "n": "London", "c": [-0.12, 51.50] }],
-            "France": [{ "n": "Paris", "c": [2.35, 48.85] }],
-            "Germany": [{ "n": "Berlin", "c": [13.40, 52.52] }],
-            "Japan": [{ "n": "Tokyo", "c": [139.69, 35.67] }],
-            "Saudi Arabia": [{ "n": "Riyadh", "c": [46.67, 24.71] }],
-            "Egypt": [{ "n": "Cairo", "c": [31.23, 30.04] }],
-            "Brazil": [{ "n": "Brasilia", "c": [-47.88, -15.79] }],
-            "Australia": [{ "n": "Canberra", "c": [149.13, -35.28] }],
-            "Canada": [{ "n": "Ottawa", "c": [-75.69, 45.42] }],
-            "South Africa": [{ "n": "Pretoria", "c": [28.18, -25.74] }],
-            "Argentina": [{ "n": "Buenos Aires", "c": [-58.38, -34.60] }],
-            "Turkey": [{ "n": "Ankara", "c": [32.85, 39.93] }],
-            "Iran": [{ "n": "Tehran", "c": [51.38, 35.68] }],
-            "Iraq": [{ "n": "Baghdad", "c": [44.36, 33.31] }],
-            "Afghanistan": [{ "n": "Kabul", "c": [69.17, 34.53] }],
-            "Indonesia": [{ "n": "Jakarta", "c": [106.82, -6.17] }],
-            "Malaysia": [{ "n": "Kuala Lumpur", "c": [101.68, 3.13] }],
-            "South Korea": [{ "n": "Seoul", "c": [126.97, 37.56] }],
-            "North Korea": [{ "n": "Pyongyang", "c": [125.76, 39.03] }],
-            "Italy": [{ "n": "Rome", "c": [12.49, 41.90] }],
-            "Spain": [{ "n": "Madrid", "c": [-3.70, 40.41] }],
-            "Ukraine": [{ "n": "Kyiv", "c": [30.52, 50.45] }],
-            "Belarus": [{ "n": "Minsk", "c": [27.56, 53.90] }],
-            "Finland": [{ "n": "Helsinki", "c": [24.93, 60.16] }],
-            "Norway": [{ "n": "Oslo", "c": [10.75, 59.91] }],
-            "Sweden": [{ "n": "Stockholm", "c": [18.06, 59.32] }],
-            "Greece": [{ "n": "Athens", "c": [23.72, 37.98] }],
-            "Lebanon": [{ "n": "Beirut", "c": [35.50, 33.89] }],
-            "Israel": [{ "n": "Jerusalem", "c": [35.21, 31.76] }],
-            "Vietnam": [{ "n": "Hanoi", "c": [105.83, 21.02] }],
-            "Chile": [{ "n": "Santiago", "c": [-70.66, -33.44] }],
-            "Algeria": [{ "n": "Algiers", "c": [3.05, 36.75] }],
-            "Ethiopia": [{ "n": "Addis Ababa", "c": [38.74, 9.03] }],
-            "Kenya": [{ "n": "Nairobi", "c": [36.82, -1.29] }]
-        };
-
-        // গ্লোবাল ট্র্যাকিং ভেরিয়েবল (কোন দেশ সিলেক্ট আছে তা মনে রাখবে)
-        let selectedCountryName = null;
-
-        const vectorSource = new ol.source.Vector({ wrapX: false }); 
-        const citySource = new ol.source.Vector({ wrapX: false });
-
-        // দেশের সীমানার ডেটাবেজ ফেচ 
-        fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson')
-            .then(res => res.json())
+        // cities.json থেকে ডেটা ফেচ করে ম্যাপে রেন্ডার করা
+        fetch('cities.json')
+            .then(response => response.json())
             .then(data => {
-                const format = new ol.format.GeoJSON();
-                const features = format.readFeatures(data, { featureProjection: 'EPSG:3857' });
-                vectorSource.addFeatures(features);
-            });
-
-        // 🟢 দেশের নাম ও বর্ডারের রেন্ডার ইঞ্জিন
-        const countryStyleFunction = function(feature, resolution) {
-            const rawName = feature.get('admin') || feature.get('name') || "";
-            const displayName = shortNames[rawName] || rawName;
-            
-            const geom = feature.getGeometry();
-            const area = geom.getArea(); 
-
-            const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
-
-            let minZoomToShow = 7; 
-            let baseSize = 8; 
-
-            if (["Russia", "Canada", "China", "United States of America", "Brazil", "Australia"].includes(rawName)) {
-                minZoomToShow = 2.5; baseSize = 13;
-            } else if (area > 1000000000000) { 
-                minZoomToShow = 3.2; baseSize = 11;
-            } else if (area > 250000000000) {  
-                minZoomToShow = 4.2; baseSize = 9.2; 
-            } else if (area > 50000000000) {   
-                minZoomToShow = 5.2; baseSize = 8.5;
-            } else {                           
-                minZoomToShow = 6.2; baseSize = 7.5;
-            }
-
-            let textStyle = null;
-
-            if (currentZoom >= minZoomToShow) {
-                let dynamicFontSize = baseSize + ((currentZoom - minZoomToShow) * 1.1);
-                dynamicFontSize = Math.min(dynamicFontSize, baseSize + 4); 
-
-                textStyle = new ol.style.Text({
-                    text: displayName.toUpperCase(), 
-                    font: `900 ${dynamicFontSize}px "Impact", "Arial Narrow", sans-serif`,
-                    fill: new ol.style.Fill({ color: '#FFFDF0' }), 
-                    stroke: new ol.style.Stroke({ color: '#000000', width: Math.max(2, dynamicFontSize * 0.12) }), 
-                    placement: 'polygon', 
-                    maxAngle: 0.6, 
-                    overflow: false 
-                });
-            }
-
-            return new ol.style.Style({
-                fill: new ol.style.Fill({ color: 'rgba(0, 0, 0, 0)' }), // সম্পূর্ণ ভূমি ক্লিকেবল রাখার অদৃশ্য ফিল
-                stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.35)', width: 1.5 }),
-                text: textStyle
-            });
-        };
-
-        // 🟢 রাজধানীর জন্য ডায়নামিক রেন্ডার ইঞ্জিন (সিলেকশন ভিত্তিক)
-        const cityStyleFunction = function(feature, resolution) {
-            const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
-            
-            // ⛔ শর্ত: দেশ সিলেক্টেড থাকতে হবে এবং জুম লেভেল ৪ বা তার বেশি হতে হবে
-            if (!selectedCountryName || currentZoom < 4) return null;
-
-            // বর্তমান ফিচারের দেশের নাম এবং ক্যাপিটাল ডেটা মেলানো
-            const featureCountry = feature.get('countryName') || "";
-            if (featureCountry.toLowerCase() !== selectedCountryName.toLowerCase()) return null;
-
-            const cityName = feature.get('name') || "";
-
-            return new ol.style.Style({
-                text: new ol.style.Text({
-                    text: `⭐ ${cityName.toUpperCase()}`,
-                    font: 'bold 11px "Arial", sans-serif',
-                    fill: new ol.style.Fill({ color: '#FFFFE0' }), 
-                    stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
-                    offsetY: -10,
-                    overflow: false
-                }),
-                image: new ol.style.Circle({
-                    radius: 4,
-                    fill: new ol.style.Fill({ color: '#FF3333' }),
-                    stroke: new ol.style.Stroke({ color: '#FFFFFF', width: 1.5 })
-                })
-            });
-        };
-
-        const countryLayer = new ol.layer.Vector({ 
-            source: vectorSource, 
-            style: countryStyleFunction, 
-            declutter: true 
-        });
-
-        const cityLayer = new ol.layer.Vector({
-            source: citySource,
-            style: cityStyleFunction,
-            zIndex: 200
-        });
-
-        const map = new ol.Map({
-            target: 'map',
-            layers: [
-                new ol.layer.Tile({ 
-                    source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', wrapX: false }) 
-                }),
-                countryLayer,
-                cityLayer
-            ],
-            view: new ol.View({ 
-                center: ol.proj.fromLonLat([20, 15]), 
-                zoom: 3.5,   
-                minZoom: 3.2, 
-                maxZoom: 7,   
-                enableRotation: false 
-            })
-        });
-
-        // স্টাইলিশ হালকা সাদা সিলেকশন স্টাইল
-        const selectStyle = new ol.style.Style({
-            fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.10)' }), 
-            stroke: new ol.style.Stroke({ color: '#FFFFFF', width: 2 }) 
-        });
-
-        const selectInteraction = new ol.interaction.Select({
-            layers: [countryLayer], style: selectStyle, multi: false, hitTolerance: 15
-        });
-        map.addInteraction(selectInteraction);
-
-        // 🟢 সিলেকশন হ্যান্ডলার এবং ক্যাপিটাল ট্রিগার মেকানিজম
-        selectInteraction.on('select', function(e) {
-            citySource.clear(); // আগের শহরের ফিচার পরিষ্কার করা হচ্ছে
-
-            if (e.selected.length > 0) {
-                const clickedFeature = e.selected[0];
-                // ডেটাবেজের সাথে সামঞ্জস্য রেখে দেশের নাম ট্র্যাকিং
-                let countryName = clickedFeature.get('admin') || clickedFeature.get('name');
+                const regions = data.regions;
                 
-                // রাশিয়ার নাম সিনক্রোনাইজেশন প্রোটেকশন
-                if (countryName === "Russia") countryName = "Russian Federation";
+                for (let region in regions) {
+                    const countries = regions[region].countries;
+                    for (let countryName in countries) {
+                        const locations = countries[countryName].locations;
+                        const baseCoord = countryCoords[countryName] || [20, 77];
 
-                if (countryName) {
-                    selectedCountryName = countryName;
+                        locations.forEach((loc, index) => {
+                            // মানচিত্রে নোডগুলো যেন গায়ে গায়ে লেগে না থাকে তাই সামান্য দূরত্ব তৈরি করা (Offset)
+                            const latOffset = (index % 3 - 1) * 0.9;
+                            const lngOffset = (Math.floor(index / 3) - 1) * 0.9;
+                            const finalCoord = [baseCoord[0] + latOffset, baseCoord[1] + lngOffset];
 
-                    // গ্লোবাল ডাটাবেজ থেকে সিলেক্টেড দেশের রাজধানী খুঁজে ম্যাপে বসানো হচ্ছে
-                    const capitals = globalCapitals[countryName] || globalCapitals[clickedFeature.get('name')];
-                    if (capitals) {
-                        capitals.forEach(cap => {
-                            const cityFeature = new ol.Feature({
-                                geometry: new ol.geom.Point(ol.proj.fromLonLat(cap.c)),
-                                name: cap.n,
-                                countryName: countryName
+                            const style = getMarkerStyle(loc.role, loc.status);
+                            
+                            // সার্কেল মার্কার তৈরি
+                            const marker = L.circleMarker(finalCoord, {
+                                radius: style.radius,
+                                fillColor: style.fillColor,
+                                color: style.color,
+                                weight: 2,
+                                opacity: 1,
+                                fillOpacity: 0.8
                             });
-                            citySource.addFeature(cityFeature);
+
+                            // পপআপ কন্টেন্ট স্ট্রাকচার
+                            let popupContent = `
+                                <div class="popup-title">${getEmoji(loc.role)} ${loc.name}</div>
+                                <div class="popup-meta">দেশ: ${countryName}</div>
+                                <div class="popup-meta">ক্যাটাগরি: ${loc.role.replace('_', ' ')}</div>
+                            `;
+
+                            if(loc.status === 'locked') {
+                                popupContent += `
+                                    <div class="popup-status status-locked">🔒 LOCKED</div>
+                                    <div class="popup-meta" style="margin-top:5px; color:#ff7b72;">Unlock: ${loc.unlock_condition}</div>
+                                `;
+                            } else {
+                                popupContent += `<div class="popup-status status-unlocked">🟢 ACTIVE NODE</div>`;
+                            }
+
+                            marker.bindPopup(popupContent);
+                            
+                            // ফিল্টারিং এর জন্য মেটাডেটা সেভ রাখা
+                            marker.gameData = { role: loc.role, status: loc.status };
+                            
+                            // প্রাথমিক অবস্থায় ম্যাপে যুক্ত করা
+                            marker.addTo(map);
+                            allMarkers.push(marker);
                         });
                     }
                 }
-            } else {
-                selectedCountryName = null;
-            }
+                updateZoomVisibility();
+            })
+            .catch(error => console.error('Error loading cities.json:', error));
 
-            cityLayer.changed();
-            countryLayer.changed();
-        });
+        // ৪টি লেয়ার ফিল্টার করার ফাংশন
+        function filterLayer(role, btn) {
+            currentFilter = role;
+            
+            // বাটনের একটিভ ক্লাস চেঞ্জ করা
+            document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            allMarkers.forEach(marker => {
+                if (role === 'all' || marker.gameData.role === role) {
+                    if (!map.hasLayer(marker)) marker.addTo(map);
+                } else {
+                    if (map.hasLayer(marker)) map.removeLayer(marker);
+                }
+            });
+            updateZoomVisibility();
+        }
+
+        // জুম লেভেল লজিক কন্ট্রোল (Zoom Out থাকলে শুধু Capital দেখাবে, Zoom In হলে বাকি নোড দেখাবে)
+        function updateZoomVisibility() {
+            const currentZoom = map.getZoom();
+            
+            allMarkers.forEach(marker => {
+                // যদি ফিল্টারের সাথে মেলে শুধু তখনই জুম লজিক কাজ করবে
+                if (currentFilter === 'all' || marker.gameData.role === currentFilter) {
+                    if (currentZoom <= 4) {
+                        // জুম আউট অবস্থায় শুধু ক্যাপিটাল অন থাকবে, বাকিগুলো হাইড হবে
+                        if (marker.gameData.role !== 'capital') {
+                            if (map.hasLayer(marker)) map.removeLayer(marker);
+                        } else {
+                            if (!map.hasLayer(marker)) marker.addTo(map);
+                        }
+                    } else {
+                        // জুম ইন করলে ফিল্টারের অন্তর্গত সব নোড শো করবে
+                        if (!map.hasLayer(marker)) marker.addTo(map);
+                    }
+                }
+            });
+        }
+
+        // ম্যাপের জুম চেঞ্জ হলে লজিক ট্রিগার করা
+        map.on('zoomend', updateZoomVisibility);
     </script>
 </body>
-</html>
+    </html>
+    
