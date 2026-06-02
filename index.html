@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Map - V44 Perfect Zoom Constraints</title>
+    <title>Global Map - V45 Ultimate Strategy Masterpiece</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
@@ -19,7 +18,7 @@
     <div id="map"></div>
 
     <script>
-        // স্ট্র্যাটেজি গেমের মতো নাম সংক্ষিপ্তকরণের তালিকা (যাতে বর্ডারের ভেতরে নিখুঁতভাবে ফিট হয়)
+        // স্ট্র্যাটেজি গেমের মতো নাম সংক্ষিপ্তকরণের তালিকা
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -50,61 +49,53 @@
                 vectorSource.addFeatures(features);
             });
 
-        // 🟢 মেইন রেন্ডার ইঞ্জিন (আপনার দেওয়া প্রতিটি কমান্ড অক্ষরে অক্ষরে মেনে তৈরি)
+        // 🟢 মেইন রেন্ডার ইঞ্জিন
         const countryStyleFunction = function(feature, resolution) {
             const rawName = feature.get('admin') || feature.get('name') || "";
             const displayName = shortNames[rawName] || rawName;
             
             const geom = feature.getGeometry();
-            const area = geom.getArea(); // দেশের আসল জ্যামিতিক আয়তন বা এরিয়া
+            const area = geom.getArea(); 
 
-            // ম্যাপের বর্তমান জুম লেভেল হিসাব করার নিখুঁত গাণিতিক সূত্র
+            // ম্যাপের বর্তমান জুম লেভেল হিসাব
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
 
-            // ⛔ জুম লেভেলের সাথে দেশগুলোর নাম দৃশ্যমান হওয়ার প্রোগ্রেসিভ লজিক
+            // জুম লেভেলের সাথে দেশগুলোর নাম দৃশ্যমান হওয়ার প্রোগ্রেসিভ লজিক
             let minZoomToShow = 7; 
             let baseSize = 8; 
 
-            // বিশ্বের সব দেশকে তাদের আয়তন অনুযায়ী ৫টি সুনির্দিষ্ট স্তরে ভাগ করা হলো
             if (["Russia", "Canada", "China", "United States of America", "Brazil", "Australia"].includes(rawName)) {
-                // ১. অতি বিশাল পরাশক্তি দেশ (খুব কম জমে দেখা যাবে)
                 minZoomToShow = 2.5; baseSize = 13;
             } else if (area > 1000000000000) { 
-                // ২. বড় দেশ (যেমন: ভারত, কাজাখস্তান, আলজেরিয়া, সৌদি আরব)
                 minZoomToShow = 3.2; baseSize = 11;
             } else if (area > 250000000000) {  
-                // ৩. মাঝারি দেশ (যেমন: বেলারুশ, ফিনল্যান্ড, নরওয়ে, সুইডেন, কেনিয়া, ইথিওপিয়া)
                 minZoomToShow = 4.2; baseSize = 9.2; 
             } else if (area > 50000000000) {   
-                // ৪. ছোট মাঝারি দেশ (যেমন: গ্রিস, কিউবা, বুলগেরিয়া)
                 minZoomToShow = 5.2; baseSize = 8.5;
             } else {                           
-                // ৫. ক্ষুদ্রতম দেশ (যেমন: লেবানন, ইসরায়েল) যা দেখতে সবচেয়ে বেশি জুম করতে হবে
                 minZoomToShow = 6.2; baseSize = 7.5;
             }
 
             let textStyle = null;
 
-            // প্লেয়ার নির্দিষ্ট জুম লেভেলে পৌঁছালেই কেবল দেশের নাম জেনারেট হবে
             if (currentZoom >= minZoomToShow) {
-                
-                // জুম ইনের সাথে টেক্সটের ডাইনামিক স্কেলিং (সর্বোচ্চ ৪ পিক্সেলের বেশি বড় হবে না)
                 let dynamicFontSize = baseSize + ((currentZoom - minZoomToShow) * 1.1);
                 dynamicFontSize = Math.min(dynamicFontSize, baseSize + 4); 
 
                 textStyle = new ol.style.Text({
                     text: displayName.toUpperCase(), 
                     font: `900 ${dynamicFontSize}px "Impact", "Arial Narrow", sans-serif`,
-                    fill: new ol.style.Fill({ color: '#FFFDF0' }), // ওল্ড পেপার থ্রিডি হোয়াইট
-                    stroke: new ol.style.Stroke({ color: '#000000', width: Math.max(2, dynamicFontSize * 0.12) }), // ব্ল্যাক শ্যাডো বর্ডার
-                    placement: 'polygon', // টেক্সটকে সরাসরি দেশের আসল সীমানার ভেতরে লক করা হলো
-                    maxAngle: 0.6, // লম্বা দেশগুলোর জন্য স্বয়ংক্রিয় রাজকীয় বাঁকা কোণ
-                    overflow: false // ⛔ ম্যাজিক কমান্ড: লেখা সীমানার বাইরে যাওয়ার চেষ্টা করলেই স্বয়ংক্রিয়ভাবে হাইড হয়ে যাবে
+                    fill: new ol.style.Fill({ color: '#FFFDF0' }), 
+                    stroke: new ol.style.Stroke({ color: '#000000', width: Math.max(2, dynamicFontSize * 0.12) }), 
+                    placement: 'polygon', 
+                    maxAngle: 0.6, 
+                    overflow: false 
                 });
             }
 
-            // একই সাথে বর্ডার এবং টেক্সট রিটার্ন করা হচ্ছে
             return new ol.style.Style({
+                // ✅ সমাধান ৪: অদৃশ্য ফিল কালার, যা সম্পূর্ণ ভূমিকে ক্লিক ও টাচ করার যোগ্য করে তোলে
+                fill: new ol.style.Fill({ color: 'rgba(0, 0, 0, 0)' }), 
                 stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.35)', width: 1.5 }),
                 text: textStyle
             });
@@ -124,20 +115,20 @@
                 }),
                 countryLayer 
             ],
-            // ⛔ প্লেয়ার সর্বোচ্চ কতটুকু এবং সর্বনিম্ন কতটুকু জুম করতে পারবে তার কঠোর সীমা নির্ধারণ
             view: new ol.View({ 
                 center: ol.proj.fromLonLat([20, 15]), 
-                zoom: 3, 
-                minZoom: 2.5, // 🌍 সর্বোচ্চ উপর থেকে দেখার সীমা (এর চেয়ে বেশি জুম আউট লক)
-                maxZoom: 7,   // 🔍 সর্বনিম্ন নিচুতে দেখার সীমা (এর চেয়ে বেশি জুম ইন লক, যাতে গেমপ্লে নষ্ট না হয়)
+                zoom: 3.5,   
+                // ✅ সমাধান ১: ম্যাপ অনেক উপর থেকে দেখা বন্ধ করা হলো (২.৫ থেকে বাড়িয়ে ৩.২ করা হয়েছে)
+                minZoom: 3.2, 
+                maxZoom: 7,   
                 enableRotation: false 
             })
         });
 
-        // সিলেকশন বা ক্লিক মেকানিজম
+        // ✅ সমাধান ২ ও ৩: অদ্ভুত নীল রং বাদ দিয়ে স্টাইলিশ হালকা সাদা সিলেকশন মেকানিজম
         const selectStyle = new ol.style.Style({
-            fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.22)' }),
-            stroke: new ol.style.Stroke({ color: '#00FFFF', width: 2.5 })
+            fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.10)' }), // তীব্রতা কমিয়ে একদম হালকা সাদা ফিল
+            stroke: new ol.style.Stroke({ color: '#FFFFFF', width: 2 }) // সাদা বর্ডার
         });
 
         const selectInteraction = new ol.interaction.Select({
