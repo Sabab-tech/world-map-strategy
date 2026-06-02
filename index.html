@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- ১. আপনার ব্রাউজার ট্যাবের নাম সেট করা হলো -->
-    <title>Global Map - V30 Ultimate Player Mechanics</title>
+    <title>Global Map - V31 3D Text & Fixed Blank Screen</title>
     
-    <!-- OpenLayers এর অফিশিয়াল লাইব্রেরি লিংক -->
-    <link rel="stylesheet" href="https://jsdelivr.net">
-    <script src="https://jsdelivr.net"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
 
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #0b1d33; overflow: hidden; }
@@ -17,72 +15,76 @@
 </head>
 <body>
 
-    <!-- গেমের মূল ওপেনলেয়ার্স ম্যাপ কন্টেইনার -->
     <div id="map"></div>
 
     <script>
-        // ২. ৩ডি টেক্সট স্টাইল ফাংশন (যা ২য় ছবির মতো বোল্ড, বর্ডার ও শ্যাডো তৈরি করবে)
+        // ২. ৩ডি টেক্সট স্টাইল ফাংশন
         function create3DTextStyle(name, isCapital = false) {
             return new ol.style.Text({
                 text: name.toUpperCase(),
-                font: isCapital ? 'bold 15px "Impact", "Arial Black", sans-serif' : 'bold 11px "Impact", "Arial Black", sans-serif',
+                font: isCapital ? 'bold 16px "Impact", "Arial Black", sans-serif' : 'bold 12px "Impact", "Arial Black", sans-serif',
                 fill: new ol.style.Fill({
-                    color: isCapital ? '#FFD700' : '#FFFFFF' // রাজধানী গোল্ডেন, অন্যান্য শহর সাদা
+                    color: isCapital ? '#FFCC00' : '#FFFFFF' 
                 }),
-                // ২য় ছবির মতো নিখুঁত কালো বর্ডার (আউটলাইন)
                 stroke: new ol.style.Stroke({
                     color: '#000000',
-                    width: 3
+                    width: 3.5 // কালো আউটলাইন আরেকটু স্পষ্ট করা হয়েছে
                 }),
-                // ল্যাগ ফ্রি জিপিইউ এক্সিলারেটেড পজিশনিং
-                offsetX: 2,
-                offsetY: 3,
+                offsetX: 0,
+                offsetY: 0,
                 placement: 'point',
                 overflow: false
             });
         }
 
-        // ৩. ন্যাচারাল আর্থ GeoJSON ডাটা লেয়ার তৈরি (আপনার প্রজেক্টের ডাটাবেজ কানেকশন)
+        // ৩. ন্যাচারাল আর্থ GeoJSON এর সঠিক ডাটা লিংক
         const countrySource = new ol.source.Vector({
-            // এখানে Natural Earth এর GeoJSON ফাইলটি লোড হবে
-            url: 'https://githubusercontent.com',
+            url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson',
             format: new ol.format.GeoJSON()
         });
 
-        // ৪. ম্যাপের প্রতিটি দেশের ওপর নাম এবং স্টাইল রেন্ডার করার মেকানিজম
+        // ৪. দেশের নাম এবং স্টাইল রেন্ডার
         const countryLayer = new ol.layer.Vector({
             source: countrySource,
+            declutter: true, // নামগুলো যেন একটার ওপর আরেকটা না ওঠে
             style: function(feature) {
-                // GeoJSON থেকে দেশের নাম তুলে আনা
-                const countryName = feature.get('NAME') || feature.get('name') || '';
+                // ডাটাবেজ থেকে সঠিক নাম তুলে আনা
+                const countryName = feature.get('admin') || feature.get('name') || '';
                 
-                // গেমের স্টাইল রুলস
-                const isCapitalCountry = ["Saudi Arabia", "Bangladesh", "Egypt", "Turkey", "USA", "Russia"].includes(countryName);
+                // গেমের স্টাইল রুলস (যে দেশগুলো গোল্ডেন কালার হবে)
+                const isCapitalCountry = ["Saudi Arabia", "Bangladesh", "Egypt", "Turkey", "United States of America", "Russia"].includes(countryName);
 
                 return new ol.style.Style({
-                    // ম্যাপের ব্যাকগ্রাউন্ড বর্ডার বা ফিল স্টাইল (আপনার বর্তমান গেমের থিম অনুযায়ী থাকবে)
                     stroke: new ol.style.Stroke({
-                        color: 'rgba(255, 255, 255, 0.2)',
-                        width: 1
+                        color: 'rgba(255, 255, 255, 0.4)', // হালকা সাদা বর্ডার
+                        width: 1.5
                     }),
-                    // এখানে ৩ডি টেক্সট ইনজেক্ট করা হচ্ছে
                     text: create3DTextStyle(countryName, isCapitalCountry)
                 });
             }
         });
 
-        // ৫. গেমের ম্যাপ ভিউ এবং ইনিশিয়ালাইজেশন
+        // ৫. স্যাটেলাইট বেসম্যাপ লেয়ার (এটি না থাকলে স্ক্রিন কালো দেখায়)
+        const baseLayer = new ol.layer.Tile({ 
+            source: new ol.source.XYZ({ 
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 
+                wrapX: false 
+            }) 
+        });
+
+        // ৬. গেমের ম্যাপ ভিউ
         const map = new ol.Map({
             target: 'map',
             layers: [
-                // নিচে আপনার বেসম্যাপ লেয়ার (যদি থাকে) এবং ওপরে আমাদের ৩ডি কান্ট্রি লেয়ার
-                countryLayer
+                baseLayer,   // প্রথমে স্যাটেলাইট ম্যাপ বসবে
+                countryLayer // তার ওপর বর্ডার ও ৩ডি নাম বসবে
             ],
             view: new ol.View({
-                center: ol.proj.fromLonLat([45, 25]), // ম্যাপের শুরুর ফোকাস (মিডল ইস্ট কেন্দ্রিক)
+                center: ol.proj.fromLonLat([45, 25]), 
                 zoom: 3,
                 minZoom: 2,
-                maxZoom: 8
+                maxZoom: 10,
+                enableRotation: false
             })
         });
     </script>
