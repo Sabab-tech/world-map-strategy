@@ -1,33 +1,25 @@
-let gameData = null;
-
-// Load cities.json
 fetch("cities.json")
-  .then(response => response.json())
+  .then(res => res.json())
   .then(data => {
-    gameData = data;
-    console.log("Cities Loaded:", gameData);
-    renderCountries(gameData);
+    renderCountries(data.countries);
   });
 
-// Render function
-function renderCountries(data) {
-  const container = document.createElement("div");
-  document.body.appendChild(container);
+function renderCountries(countries) {
+  const container = document.getElementById("map");
 
-  data.countries.forEach(country => {
-    const countryBox = document.createElement("div");
-    countryBox.style.border = "1px solid black";
-    countryBox.style.margin = "10px";
-    countryBox.style.padding = "10px";
+  countries.forEach(country => {
+    const div = document.createElement("div");
+    div.className = "country";
 
-    countryBox.innerHTML = `
+    div.innerHTML = `
       <h2>${country.name}</h2>
-      <p><b>Capital:</b> ${country.capital}</p>
-      <p><b>Cities:</b> ${country.cities.join(", ")}</p>
-      <p><b>Economic:</b> ${country.economic_hubs.join(", ")}</p>
-      <p><b>Military:</b> ${country.military_hubs.join(", ")}</p>
+      <p>🏛️ Capital: ${country.capital}</p>
+      <p>🏙️ Cities: ${country.cities.join(", ")}</p>
+      <p>💰 Economic: ${country.economic_hubs.join(", ")}</p>
+      <p>🪖 Military: ${country.military_hubs.join(", ")}</p>
+      <p>🔒 Secret: ${country.secret_zones.length}</p>
     `;
 
-    container.appendChild(countryBox);
+    container.appendChild(div);
   });
-      }
+}
