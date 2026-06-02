@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Map - V27 Perfect Touch & Zoom</title>
+    <title>Global Map - V29 Perfect Hierarchy</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -56,6 +56,9 @@
             { name: "Mauritius", coord: [57.5522, -20.3484] }
         ];
 
+        // যে দেশগুলোকে কাত করলে ম্যাপ সুন্দর দেখাবে (বাকি সব সোজা থাকবে)
+        const slantedMicrostates = ["Bahrain", "Maldives", "Lebanon", "Fiji"];
+
         const borderSource = new ol.source.Vector({ wrapX: false }); 
         const labelSource = new ol.source.Vector({ wrapX: false });  
 
@@ -81,11 +84,7 @@
 
                 Object.values(countryMaxPolygon).forEach(item => {
                     const rawName = item.feature.get('admin') || item.feature.get('name') || "";
-                    
-                    const isAlreadyInSpecialList = microstates.some(ms => 
-                        rawName.toLowerCase().includes(ms.name.toLowerCase())
-                    );
-
+                    const isAlreadyInSpecialList = microstates.some(ms => rawName.toLowerCase().includes(ms.name.toLowerCase()));
                     if (isAlreadyInSpecialList) return; 
 
                     const geom = item.feature.getGeometry();
@@ -95,9 +94,7 @@
                         const polygons = geom.getPolygons();
                         let largest = polygons[0];
                         for (let i = 1; i < polygons.length; i++) {
-                            if (polygons[i].getArea() > largest.getArea()) {
-                                largest = polygons[i];
-                            }
+                            if (polygons[i].getArea() > largest.getArea()) { largest = polygons[i]; }
                         }
                         centerPoint = largest.getInteriorPoint(); 
                     } else {
@@ -105,35 +102,22 @@
                     }
 
                     if (centerPoint) {
-                        const labelFeature = new ol.Feature({
-                            geometry: centerPoint,
-                            name: rawName,
-                            area: item.area,
-                            isMicrostate: false
-                        });
-                        labelFeatures.push(labelFeature);
+                        labelFeatures.push(new ol.Feature({ geometry: centerPoint, name: rawName, area: item.area, isMicrostate: false }));
                     }
                 });
 
                 microstates.forEach(ms => {
-                    const pt = new ol.Feature({
-                        geometry: new ol.geom.Point(ol.proj.fromLonLat(ms.coord)),
-                        name: ms.name,
-                        area: 1000000, 
-                        isMicrostate: true
-                    });
-                    labelFeatures.push(pt);
+                    labelFeatures.push(new ol.Feature({
+                        geometry: new ol.geom.Point(ol.proj.fromLonLat(ms.coord)), name: ms.name, area: 1000000, isMicrostate: true
+                    }));
                 });
 
                 labelSource.addFeatures(labelFeatures);
             });
 
-        // বর্ডার হালকা মোটা রাখা হয়েছে (1.6)
         const borderLayer = new ol.layer.Vector({
             source: borderSource,
-            style: new ol.style.Style({
-                stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.6 })
-            })
+            style: new ol.style.Style({ stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.6 }) })
         });
 
         const labelStyleFunction = function(feature, resolution) {
@@ -141,89 +125,91 @@
             const displayName = shortNames[rawName] || rawName;
             const isMicro = feature.get('isMicrostate');
             const area = feature.get('area') || 0;
-            
-            // জুম লেভেল ডায়নামিক হিসাব
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
 
             if (isMicro) {
-                if (currentZoom < 3) return null; 
+                if (currentZoom < 3.5) return null; // জুম আউট অবস্থায় ছোট দেশ হাইড থাকবে
+
+                // কাত করার লজিক (শুধু সিলেক্টেড দেশগুলো কাত হবে)
+                let textRotation = 0;
+                let textOffsetX = 8;
+                let textOffsetY = 0;
+                
+                if (slantedMicrostates.includes(displayName)) {
+                    textRotation = -0.6; // ৪৫ ডিগ্রি কাত
+                    textOffsetX = 12;
+                    textOffsetY = -12;
+                }
+
                 return new ol.style.Style({
                     image: new ol.style.Circle({ radius: 4, fill: new ol.style.Fill({ color: '#00FF00' }) }),
                     text: new ol.style.Text({
                         text: displayName,
-                        font: '900 16px "Arial Black", sans-serif', // ফন্ট সাইজ বড় করা হয়েছে (16px)
+                        font: '900 13px "Arial Black", sans-serif', 
                         fill: new ol.style.Fill({ color: '#FFFFFF' }),
-                        stroke: new ol.style.Stroke({ color: '#000000', width: 3.5 }),
-                        offsetX: 12, // বিন্দু থেকে একটু ডানে সরানো হয়েছে
-                        offsetY: -12, // বিন্দু থেকে একটু উপরে সরানো হয়েছে
-                        rotation: -0.5, // ম্যাজিক: টেক্সটটিকে উপরের দিকে ৪৫ ডিগ্রি কোণে কাত করা হয়েছে
+                        stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
+                        offsetX: textOffsetX,
+                        offsetY: textOffsetY,
+                        rotation: textRotation, 
                         textAlign: 'left'
                     }),
                     zIndex: 999 
                 });
             }
 
-            let fontSize = Math.min(65, Math.max(10, Math.sqrt(area) / (resolution * 4.5)));
-            let strokeWidth = Math.max(2.5, fontSize * 0.12);
+            // জুম প্রোগ্রেসিভ ভিজিবিলিটি (ক্লিন ম্যাপ লজিক)
+            if (currentZoom <= 3 && area < 80000000000) return null; // জুম ২-৩ এ শুধু বিশাল দেশ দেখাবে
+            if (currentZoom <= 4 && area < 20000000000) return null; // জুম ৪ এ মাঝারি দেশগুলো আসবে
+            if (currentZoom <= 5 && area < 2000000000) return null;  // জুম ৫ এ সব দেশ ফুটে উঠবে
 
-            if (area < 5000000000 && currentZoom < 3.5) return null; 
+            // স্মার্ট ফন্ট সাইজ কন্ট্রোল
+            let maxFontSize = 15; // সাধারণ দেশের জন্য সর্বোচ্চ ফন্ট সাইজ (যাতে বিশ্রী না লাগে)
+            if (displayName === "Russia") maxFontSize = 38;
+            else if (displayName === "China" || displayName === "Greenland") maxFontSize = 32;
+            else if (displayName === "USA" || displayName === "Canada" || displayName === "Brazil" || displayName === "Australia") maxFontSize = 26;
+            else if (displayName === "India" || displayName === "Kazakhstan" || displayName === "Algeria") maxFontSize = 18;
+
+            let fontSize = Math.min(maxFontSize, Math.max(10, Math.sqrt(area) / (resolution * 6)));
+            let strokeWidth = Math.max(2.5, fontSize * 0.12);
 
             return new ol.style.Style({
                 text: new ol.style.Text({
                     text: displayName,
                     font: `900 ${fontSize}px "Arial Black", sans-serif`,
                     fill: new ol.style.Fill({ color: '#FFFFFF' }),
-                    stroke: new ol.style.Stroke({ color: '#000000', width: strokeWidth })
+                    stroke: new ol.style.Stroke({ color: '#000000', width: strokeWidth }),
+                    overflow: false
                 }),
                 zIndex: Math.round(100 - fontSize) 
             });
         };
 
-        const labelLayer = new ol.layer.Vector({
-            source: labelSource,
-            style: labelStyleFunction,
-            declutter: true 
-        });
+        const labelLayer = new ol.layer.Vector({ source: labelSource, style: labelStyleFunction, declutter: true });
 
         const map = new ol.Map({
             target: 'map',
             layers: [
-                new ol.layer.Tile({ 
-                    source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', wrapX: false }) 
-                }),
-                borderLayer, 
-                labelLayer 
+                new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', wrapX: false }) }),
+                borderLayer, labelLayer 
             ],
-            // পরিবর্তন: জুম লেভেল গেমের মনস্তত্ত্ব অনুযায়ী আপডেট করা হয়েছে
             view: new ol.View({ 
                 center: ol.proj.fromLonLat([20, 15]), 
                 zoom: 3, 
-                minZoom: 2,   // পুরো পৃথিবীর ম্যাপ একসাথে দেখা যাবে
-                maxZoom: 12,  // একদম ছোট দ্বীপের গভীরে জুম করা যাবে
+                minZoom: 2.5, // পৃথিবীর ম্যাপ পুরোপুরি দেখাবে, এর নিচে যাবে না
+                maxZoom: 10,  // গেমের জুম ইন লেভেল
                 enableRotation: false 
             })
         });
 
-        // ==========================================
-        // কান্ট্রি সিলেক্ট ও টাচ ফিক্স (Interactive Selection)
-        // ==========================================
+        // কান্ট্রি সিলেক্ট ও টাচ ফিক্স 
         const selectStyle = new ol.style.Style({
-            fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0.25)' 
-            }),
-            stroke: new ol.style.Stroke({
-                color: '#00FFFF', 
-                width: 2.5 
-            })
+            fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.25)' }),
+            stroke: new ol.style.Stroke({ color: '#00FFFF', width: 2.5 })
         });
 
         const selectInteraction = new ol.interaction.Select({
-            layers: [borderLayer], // টাচ করলে যেন শুধু দেশের বর্ডার লেয়ার টার্গেট হয়
-            style: selectStyle,
-            multi: false,
-            hitTolerance: 10 // টাচ ফিক্স: মোবাইলের আঙুলের সাইজ অনুযায়ী সেন্সিটিভিটি বাড়ানো হয়েছে!
+            layers: [borderLayer], style: selectStyle, multi: false, hitTolerance: 15
         });
-        
         map.addInteraction(selectInteraction);
 
         selectInteraction.on('select', function(e) {
@@ -231,20 +217,15 @@
             if (e.selected.length > 0) {
                 const clickedFeature = e.selected[0];
                 const countryName = clickedFeature.get('admin') || clickedFeature.get('name');
-                
                 selectedFeaturesCollection.clear(); 
-                
                 if (countryName) {
                     borderSource.getFeatures().forEach(f => {
                         const fName = f.get('admin') || f.get('name');
-                        if (fName === countryName) {
-                            selectedFeaturesCollection.push(f);
-                        }
+                        if (fName === countryName) selectedFeaturesCollection.push(f);
                     });
                 }
             }
         });
     </script>
 </body>
-    </html>
-    
+</html>
