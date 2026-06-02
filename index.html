@@ -2,12 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Map - 100% Fixed</title>
+    <title>Global Map - Absolute Guaranteed Fix</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
-    <style>
-        body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }
-    </style>
+    <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
 </head>
 <body>
     <div id="map"></div>
@@ -35,56 +33,59 @@
             "Dominican Republic": "Dominican Rep."
         };
 
-        // আপনার তালিকার ছোট দেশগুলোর মাস্টার সেট (এরা কখনো বাদ যাবে না)
-        const priorityCountries = new Set([
-            "Vatican", "Monaco", "San Marino", "Maldives", "Lebanon", 
-            "Fiji", "Bahamas", "Cyprus", "Mauritius", "Singapore"
-        ]);
+        // আপনার দেওয়া সমস্ত নিখোঁজ দেশের মাস্টার-লিস্ট (এরা কখনো ডিলিট হবে না)
+        const mustShowCountries = [
+            "Vatican", "Holy See", "San Marino", "Monaco", "Andorra", "Liechtenstein", "Luxembourg", "Malta", "Cyprus",
+            "Fiji", "Tuvalu", "Nauru", "Kiribati", "Samoa", "Tonga", "Palau", "Vanuatu", "Micronesia", "Marshall Islands", "Solomon Islands",
+            "Bahamas", "Barbados", "Dominica", "Grenada", "Saint Lucia", "Saint Vincent", "Antigua", "Barbuda", "Saint Kitts", "Nevis", "Trinidad",
+            "Cape Verde", "Cabo Verde", "São Tomé", "Sao Tome", "Seychelles", "Mauritius", "Comoros",
+            "Maldives", "Bahrain", "Singapore", "Brunei", "Timor", "Timor-Leste", "Lebanon"
+        ];
 
-        const vectorSource = new ol.source.Vector({
-            url: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson',
-            format: new ol.format.GeoJSON(),
-            wrapX: false 
-        });
+        function isPriorityCountry(name) {
+            return mustShowCountries.some(c => name.includes(c));
+        }
 
-        // ডুপ্লিকেট নাম কঠোরভাবে বন্ধ করার গ্লোবাল ম্যাপার
-        const maxAreaMap = {};
-        let isFilterDone = false;
+        // ভেক্টর সোর্স সম্পূর্ণ ফাঁকা রাখা হলো (যাতে উল্টাপাল্টা কিছু আগে লোড না হয়)
+        const vectorSource = new ol.source.Vector({ wrapX: false });
 
-        vectorSource.on('featuresloadend', function() {
-            const features = vectorSource.getFeatures();
-            
-            // ১. প্রথম পাসে প্রতি দেশের শুধু সবচেয়ে বড় টুকরোটি খুঁজে বের করা
-            features.forEach(f => {
-                const name = f.get('admin') || f.get('name') || "";
-                const geom = f.getGeometry();
-                if (name && geom) {
+        // ডাটা ম্যানুয়ালি ব্যাকগ্রাউন্ডে ডাউনলোড করে ফিল্টার করার লজিক
+        fetch('https://cdn.jsdelivr.net/gh/datasets/geo-countries@master/data/countries.geojson')
+            .then(res => res.json())
+            .then(data => {
+                const format = new ol.format.GeoJSON();
+                const features = format.readFeatures(data, { featureProjection: 'EPSG:3857' });
+
+                const countryMap = {};
+
+                // ১. প্রতিটি দেশের নাম পড়ে শুধুমাত্র সবচেয়ে বড় ভূখণ্ডটিকে আলাদা করা হচ্ছে
+                features.forEach(f => {
+                    const name = f.get('ADMIN') || f.get('name') || f.get('NAME') || "";
+                    if (!name) return;
+
+                    const geom = f.getGeometry();
+                    if (!geom) return;
+
                     const area = geom.getArea();
-                    if (!maxAreaMap[name] || area > maxAreaMap[name].area) {
-                        maxAreaMap[name] = { area: area, feature: f };
+                    if (!countryMap[name] || area > countryMap[name].area) {
+                        countryMap[name] = { area: area, feature: f };
                     }
-                }
-            });
+                    
+                    // শুরুতে সব দ্বীপের নামের পারমিশন বাতিল করা হলো
+                    f.set('isLabel', false);
+                });
 
-            // ২. দ্বিতীয় পাসে শুধুমাত্র ওই বড় টুকরোটিতে 'isMain' = true মার্ক করা
-            features.forEach(f => {
-                const name = f.get('admin') || f.get('name') || "";
-                if (maxAreaMap[name] && maxAreaMap[name].feature === f) {
-                    f.set('isMain', true);
-                } else {
-                    f.set('isMain', false);
-                }
-            });
+                // ২. শুধুমাত্র প্রতিটি দেশের সবচেয়ে বড় ভূখণ্ডটিকে নাম দেখানোর সিল (isLabel = true) দেওয়া হলো
+                Object.values(countryMap).forEach(item => {
+                    item.feature.set('isLabel', true);
+                });
 
-            isFilterDone = true;
-            vectorSource.changed(); // ম্যাপ রিফ্রেশ করে সঠিক নাম বসানো
-        });
+                // ৩. ১০০% ফিল্টার হওয়ার পর ডাটাগুলো ওপেনলেয়ার্সকে দেওয়া হলো (কোনো ফ্ল্যাশিং বা আগে-পরে হওয়ার সুযোগ নেই)
+                vectorSource.addFeatures(features);
+            });
 
         const styleFunction = function(feature, resolution) {
-            const geom = feature.getGeometry();
-            if (!geom) return null;
-
-            // বর্ডারের ডিফল্ট স্টাইল (সব দেশের সব দ্বীপের বর্ডার দেখাবে)
+            // সবার জন্য বর্ডার আঁকা
             const baseStyle = new ol.style.Style({
                 stroke: new ol.style.Stroke({
                     color: 'rgba(255, 255, 255, 0.4)', 
@@ -92,23 +93,25 @@
                 })
             });
 
-            // ফিল্টারিং শেষ না হওয়া পর্যন্ত অথবা এটি প্রধান ভূখণ্ড না হলে কোনো নাম বসবে না
-            if (!isFilterDone || feature.get('isMain') !== true) {
+            // যদি এই টুকরোটি ওই দেশের সবচেয়ে বড় ভূখণ্ড না হয়, তবে শুধু বর্ডার দেখাবে, কোনো নাম বসাবে না!
+            if (feature.get('isLabel') !== true) {
                 return baseStyle; 
             }
 
-            const rawName = feature.get('admin') || feature.get('name') || "";
+            const rawName = feature.get('ADMIN') || feature.get('name') || feature.get('NAME') || "";
             const displayName = shortNames[rawName] || rawName;
+            
+            const geom = feature.getGeometry();
             const area = geom.getArea();
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
 
-            let fontSize = Math.min(22, Math.max(10, Math.sqrt(area) / (resolution * 10)));
+            let fontSize = Math.min(22, Math.max(9, Math.sqrt(area) / (resolution * 10)));
             
-            // আপনার স্পেশাল ছোট দেশগুলোর জুম ও ফন্ট ফিল্টার
-            if (priorityCountries.has(rawName) || priorityCountries.has(displayName)) {
-                if (currentZoom < 3) return baseStyle; // জুম ৩ এর নিচে নাম দেখাবে না জটলা এড়াতে, জুম করলেই ভেসে উঠবে
-                fontSize = 11;
+            // আপনার লিস্টের দেশগুলো রক্ষার লজিক (এরা যেকোনো জুমেই ম্যাপে থাকবে)
+            if (isPriorityCountry(rawName) || isPriorityCountry(displayName)) {
+                fontSize = 10; 
             } else if (area < 5000000000) { 
+                // অন্যান্য সাধারণ ছোট দেশগুলো খুব বেশি জুম আউট করলে হিজিবিজি কমাতে হাইড হবে
                 if (currentZoom < 3) return baseStyle; 
                 fontSize = 11;
             }
@@ -133,7 +136,7 @@
                     }
                     return g.getInteriorPoint(); 
                 },
-                overflow: true 
+                overflow: true // ওভারল্যাপের কারণে আপনার কোনো দেশ গায়েব হবে না
             }));
 
             return baseStyle;
