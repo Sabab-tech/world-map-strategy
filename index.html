@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Map - V21 Cache Cleared</title>
+    <title>Global Map - V23 Flawless 1:1 Map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>body, html, #map { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #0b1521; }</style>
@@ -19,12 +19,13 @@
             "United Kingdom": "UK",
             "Saudi Arabia": "S. Arabia",
             "United Arab Emirates": "UAE",
-            "Dominican Republic": "Dominican Rep."
+            "Dominican Republic": "Dominican Rep.",
+            "The Bahamas": "Bahamas"
         };
 
-        // আপনার নিখোঁজ দেশগুলোর স্থানাঙ্ক (যাতে এরা ম্যাপে বিন্দুর মতো সবসময় থাকে)
+        // স্পেশাল লিস্ট (এদের নাম সব সময় ম্যাপে বিন্দুর মতো ভাসবে, কখনো গায়েব হবে না)
         const microstates = [
-            { name: "Vatican City", coord: [12.4534, 41.9029] },
+            { name: "Vatican", coord: [12.4534, 41.9029] },
             { name: "Monaco", coord: [7.4246, 43.7384] },
             { name: "San Marino", coord: [12.4578, 43.9424] },
             { name: "Maldives", coord: [73.5093, 4.1755] },
@@ -34,56 +35,100 @@
             { name: "Lebanon", coord: [35.8623, 33.8547] },
             { name: "Fiji", coord: [178.0650, -17.7134] },
             { name: "Bahamas", coord: [-77.3963, 25.0343] },
-            { name: "Cyprus", coord: [33.4299, 35.1264] }
+            { name: "Cyprus", coord: [33.4299, 35.1264] },
+            { name: "Mauritius", coord: [57.5522, -20.3484] }
         ];
 
-        const vectorSource = new ol.source.Vector({ wrapX: false });
+        const borderSource = new ol.source.Vector({ wrapX: false }); 
+        const labelSource = new ol.source.Vector({ wrapX: false });  
 
-        // ডেটা ফেচ করে শুধুমাত্র সবচেয়ে বড় ভূখণ্ডে নাম বসানোর লজিক
         fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson')
             .then(res => res.json())
             .then(data => {
                 const format = new ol.format.GeoJSON();
                 const features = format.readFeatures(data, { featureProjection: 'EPSG:3857' });
 
-                const countryMap = {};
+                borderSource.addFeatures(features);
+
+                const countryMaxPolygon = {};
                 features.forEach(f => {
                     const name = f.get('admin') || f.get('name');
                     if (!name) return;
                     const area = f.getGeometry().getArea();
-                    if (!countryMap[name] || area > countryMap[name].area) {
-                        countryMap[name] = { area: area, feature: f };
+                    if (!countryMaxPolygon[name] || area > countryMaxPolygon[name].area) {
+                        countryMaxPolygon[name] = { area: area, feature: f };
                     }
-                    f.set('showName', false); 
                 });
 
-                Object.values(countryMap).forEach(item => item.feature.set('showName', true));
+                const labelFeatures = [];
 
-                // নিখোঁজ দেশগুলোকে পয়েন্ট হিসেবে যুক্ত করা
+                // ১. মূল ডেটাবেজ থেকে প্রতিটি দেশের সেন্টারে একটি বিন্দু তৈরি করা
+                Object.values(countryMaxPolygon).forEach(item => {
+                    const rawName = item.feature.get('admin') || item.feature.get('name');
+                    
+                    // ডুপ্লিকেট চেকার: যদি নামটি স্পেশাল লিস্টে থাকে, তবে সাধারণ নাম ব্লক করে দেবে
+                    const isAlreadyInSpecialList = microstates.some(ms => 
+                        rawName.toLowerCase().includes(ms.name.toLowerCase())
+                    );
+
+                    if (isAlreadyInSpecialList) return; // ডুপ্লিকেট রোধ করা হলো
+
+                    const geom = item.feature.getGeometry();
+                    let centerPoint;
+
+                    if (geom.getType() === 'MultiPolygon') {
+                        const polygons = geom.getPolygons();
+                        let largest = polygons[0];
+                        for (let i = 1; i < polygons.length; i++) {
+                            if (polygons[i].getArea() > largest.getArea()) {
+                                largest = polygons[i];
+                            }
+                        }
+                        centerPoint = largest.getInteriorPoint(); 
+                    } else {
+                        centerPoint = geom.getInteriorPoint();
+                    }
+
+                    if (centerPoint) {
+                        const labelFeature = new ol.Feature({
+                            geometry: centerPoint,
+                            name: rawName,
+                            area: item.area,
+                            isMicrostate: false
+                        });
+                        labelFeatures.push(labelFeature);
+                    }
+                });
+
+                // ২. স্পেশাল লিস্টের দেশগুলোকে বিন্দু হিসেবে যুক্ত করা
                 microstates.forEach(ms => {
                     const pt = new ol.Feature({
                         geometry: new ol.geom.Point(ol.proj.fromLonLat(ms.coord)),
                         name: ms.name,
+                        area: 1000000, 
                         isMicrostate: true
                     });
-                    features.push(pt);
+                    labelFeatures.push(pt);
                 });
 
-                vectorSource.addFeatures(features);
+                labelSource.addFeatures(labelFeatures);
             });
 
-        const styleFunction = function(feature, resolution) {
-            const isMicro = feature.get('isMicrostate');
-            const showName = feature.get('showName');
-            const rawName = feature.get('admin') || feature.get('name') || "";
+        const borderStyle = new ol.style.Style({
+            stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.2 })
+        });
+
+        const labelStyleFunction = function(feature, resolution) {
+            const rawName = feature.get('name');
             const displayName = shortNames[rawName] || rawName;
+            const isMicro = feature.get('isMicrostate');
+            const area = feature.get('area');
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
 
-            // ছোট দেশগুলোর পয়েন্ট স্টাইল
             if (isMicro) {
-                if (currentZoom < 3) return null; // জুম আউট থাকলে নাম লুকাবে
+                if (currentZoom < 3) return null; 
                 return new ol.style.Style({
-                    image: new ol.style.Circle({ radius: 3, fill: new ol.style.Fill({ color: '#FFCC33' }) }),
+                    image: new ol.style.Circle({ radius: 3.5, fill: new ol.style.Fill({ color: '#FFCC33' }) }),
                     text: new ol.style.Text({
                         text: displayName,
                         font: 'bold 11px "Arial Black", sans-serif',
@@ -94,49 +139,27 @@
                 });
             }
 
-            const baseStyle = new ol.style.Style({
-                stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.4)', width: 1.2 })
-            });
-
-            // যদি সবচেয়ে বড় ভূখণ্ড না হয়, শুধু বর্ডার দেখাবে, নাম নয়
-            if (!showName) return baseStyle;
-
-            const area = feature.getGeometry().getArea();
             let fontSize = Math.min(22, Math.max(10, Math.sqrt(area) / (resolution * 10)));
+            if (area < 5000000000 && currentZoom < 3) return null; 
 
-            if (area < 5000000000 && currentZoom < 3) return baseStyle;
-
-            baseStyle.setText(new ol.style.Text({
-                text: displayName,
-                font: `bold ${fontSize}px "Arial Black", sans-serif`,
-                fill: new ol.style.Fill({ color: '#FFFFFF' }),
-                stroke: new ol.style.Stroke({ color: '#000000', width: 2.5 }),
-                placement: 'point',
-                geometry: function(f) {
-                    const g = f.getGeometry();
-                    if (g.getType() === 'MultiPolygon') {
-                        const polygons = g.getPolygons();
-                        let largest = polygons[0];
-                        for (let i = 1; i < polygons.length; i++) {
-                            if (polygons[i].getArea() > largest.getArea()) {
-                                largest = polygons[i];
-                            }
-                        }
-                        return largest.getInteriorPoint(); 
-                    }
-                    return g.getInteriorPoint(); 
-                },
-                overflow: true 
-            }));
-
-            return baseStyle;
+            return new ol.style.Style({
+                text: new ol.style.Text({
+                    text: displayName,
+                    font: `bold ${fontSize}px "Arial Black", sans-serif`,
+                    fill: new ol.style.Fill({ color: '#FFFFFF' }),
+                    stroke: new ol.style.Stroke({ color: '#000000', width: 2.5 })
+                })
+            });
         };
 
         const map = new ol.Map({
             target: 'map',
             layers: [
-                new ol.layer.Tile({ source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', wrapX: false }) }),
-                new ol.layer.Vector({ source: vectorSource, style: styleFunction, declutter: true }) // declutter ওভারল্যাপ বন্ধ করবে
+                new ol.layer.Tile({ 
+                    source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', wrapX: false }) 
+                }),
+                new ol.layer.Vector({ source: borderSource, style: borderStyle }), 
+                new ol.layer.Vector({ source: labelSource, style: labelStyleFunction, declutter: false }) 
             ],
             view: new ol.View({ center: ol.proj.fromLonLat([20, 15]), zoom: 3, minZoom: 2.5, maxZoom: 8, enableRotation: false })
         });
