@@ -71,7 +71,7 @@
         },
         "Maldives": {
           "locations": [
-            {"name": "Mal\u00e9", "role": "capital", "status": "unlocked"},
+            {"name": "Malé", "role": "capital", "status": "unlocked"},
             {"name": "Addu City", "role": "economic_hub", "status": "unlocked"},
             {"name": "Gan Air Base", "role": "military_hub", "status": "unlocked"},
             {"name": "Indian Ocean Watch Zone", "role": "secret_zone", "status": "locked", "unlock_condition": "AI_LEVEL_3"}
@@ -286,5 +286,4 @@
       }
     }
   }
-            }
-              
+}
