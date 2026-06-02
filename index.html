@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Global Map - V29 Perfect Hierarchy</title>
+    <title>Global Map - V30 Ultimate Player Mechanics</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <style>
@@ -34,13 +34,22 @@
             "Papua New Guinea": "PNG",
             "Solomon Islands": "Solomons",
             "Marshall Islands": "Marshalls",
-            "South Georgia and South Sandwich Islands": "SG & SSI",
-            "Turks and Caicos Islands": "Turks & Caicos",
-            "Northern Mariana Islands": "N. Mariana",
-            "Falkland Islands": "Falklands",
-            "Svalbard and Jan Mayen": "Svalbard"
+            "South Korea": "S. Korea",
+            "North Korea": "N. Korea"
         };
 
+        // ম্যানুয়াল সেন্টার পয়েন্ট (যেসব দেশের নাম ডিফল্টভাবে বিশ্রী জায়গায় বসে, তাদের জোর করে ঠিক জায়গায় বসানোর লজিক)
+        const manualCenters = {
+            "South Korea": [127.90, 36.30],
+            "North Korea": [127.10, 40.20],
+            "Lebanon": [35.86, 33.85],
+            "Vietnam": [108.00, 14.00],
+            "Chile": [-71.50, -35.00],
+            "Israel": [34.85, 31.04],
+            "Croatia": [15.20, 45.10]
+        };
+
+        // খুব ছোট দেশ, যাদের সবুজ বাতি লাগবে (লেবাননকে এখান থেকে বাদ দেওয়া হয়েছে যেন ওটা সাধারণ দেশের মতো কাজ করে)
         const microstates = [
             { name: "Vatican", coord: [12.4534, 41.9029] },
             { name: "Monaco", coord: [7.4246, 43.7384] },
@@ -49,15 +58,11 @@
             { name: "Bahrain", coord: [50.5577, 26.0667] },
             { name: "Singapore", coord: [103.8198, 1.3521] },
             { name: "Malta", coord: [14.3754, 35.9375] },
-            { name: "Lebanon", coord: [35.8623, 33.8547] },
             { name: "Fiji", coord: [178.0650, -17.7134] },
             { name: "Bahamas", coord: [-77.3963, 25.0343] },
             { name: "Cyprus", coord: [33.4299, 35.1264] },
             { name: "Mauritius", coord: [57.5522, -20.3484] }
         ];
-
-        // যে দেশগুলোকে কাত করলে ম্যাপ সুন্দর দেখাবে (বাকি সব সোজা থাকবে)
-        const slantedMicrostates = ["Bahrain", "Maldives", "Lebanon", "Fiji"];
 
         const borderSource = new ol.source.Vector({ wrapX: false }); 
         const labelSource = new ol.source.Vector({ wrapX: false });  
@@ -87,18 +92,26 @@
                     const isAlreadyInSpecialList = microstates.some(ms => rawName.toLowerCase().includes(ms.name.toLowerCase()));
                     if (isAlreadyInSpecialList) return; 
 
-                    const geom = item.feature.getGeometry();
                     let centerPoint;
-
-                    if (geom.getType() === 'MultiPolygon') {
-                        const polygons = geom.getPolygons();
-                        let largest = polygons[0];
-                        for (let i = 1; i < polygons.length; i++) {
-                            if (polygons[i].getArea() > largest.getArea()) { largest = polygons[i]; }
+                    
+                    // ১. যদি ম্যানুয়াল সেন্টার দেওয়া থাকে, তবে সেখানেই নাম বসাবে
+                    if (manualCenters[rawName] || manualCenters[shortNames[rawName]]) {
+                        const coords = manualCenters[rawName] || manualCenters[shortNames[rawName]];
+                        centerPoint = new ol.geom.Point(ol.proj.fromLonLat(coords));
+                    } 
+                    // ২. তা না হলে সবচেয়ে বড় ভূখণ্ডের মাঝখানে বসাবে
+                    else {
+                        const geom = item.feature.getGeometry();
+                        if (geom.getType() === 'MultiPolygon') {
+                            const polygons = geom.getPolygons();
+                            let largest = polygons[0];
+                            for (let i = 1; i < polygons.length; i++) {
+                                if (polygons[i].getArea() > largest.getArea()) largest = polygons[i];
+                            }
+                            centerPoint = largest.getInteriorPoint(); 
+                        } else {
+                            centerPoint = geom.getInteriorPoint();
                         }
-                        centerPoint = largest.getInteriorPoint(); 
-                    } else {
-                        centerPoint = geom.getInteriorPoint();
                     }
 
                     if (centerPoint) {
@@ -127,60 +140,60 @@
             const area = feature.get('area') || 0;
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
 
+            // ছোট দেশের নাম ও বাতি (জুম ইন করলে এদের লেখাও বড় হবে)
             if (isMicro) {
-                if (currentZoom < 3.5) return null; // জুম আউট অবস্থায় ছোট দেশ হাইড থাকবে
-
-                // কাত করার লজিক (শুধু সিলেক্টেড দেশগুলো কাত হবে)
-                let textRotation = 0;
-                let textOffsetX = 8;
-                let textOffsetY = 0;
-                
-                if (slantedMicrostates.includes(displayName)) {
-                    textRotation = -0.6; // ৪৫ ডিগ্রি কাত
-                    textOffsetX = 12;
-                    textOffsetY = -12;
-                }
-
+                if (currentZoom < 4) return null; 
+                let microFontSize = 11 + ((currentZoom - 4) * 1.5); // জুম বাড়লে লেখা বড় হবে
                 return new ol.style.Style({
                     image: new ol.style.Circle({ radius: 4, fill: new ol.style.Fill({ color: '#00FF00' }) }),
                     text: new ol.style.Text({
                         text: displayName,
-                        font: '900 13px "Arial Black", sans-serif', 
+                        font: `900 ${microFontSize}px "Arial Black", sans-serif`, 
                         fill: new ol.style.Fill({ color: '#FFFFFF' }),
                         stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
-                        offsetX: textOffsetX,
-                        offsetY: textOffsetY,
-                        rotation: textRotation, 
+                        offsetX: 10,
+                        offsetY: 0,
                         textAlign: 'left'
                     }),
                     zIndex: 999 
                 });
             }
 
-            // জুম প্রোগ্রেসিভ ভিজিবিলিটি (ক্লিন ম্যাপ লজিক)
-            if (currentZoom <= 3 && area < 80000000000) return null; // জুম ২-৩ এ শুধু বিশাল দেশ দেখাবে
-            if (currentZoom <= 4 && area < 20000000000) return null; // জুম ৪ এ মাঝারি দেশগুলো আসবে
-            if (currentZoom <= 5 && area < 2000000000) return null;  // জুম ৫ এ সব দেশ ফুটে উঠবে
+            // লেভেল অনুযায়ী জুম ভিজিবিলিটি (কোরিয়া বা লেবানন অনেক ওপর থেকে আর দেখা যাবে না)
+            let minZoomToShow = 5; 
+            let baseSize = 12;
 
-            // স্মার্ট ফন্ট সাইজ কন্ট্রোল
-            let maxFontSize = 15; // সাধারণ দেশের জন্য সর্বোচ্চ ফন্ট সাইজ (যাতে বিশ্রী না লাগে)
-            if (displayName === "Russia") maxFontSize = 38;
-            else if (displayName === "China" || displayName === "Greenland") maxFontSize = 32;
-            else if (displayName === "USA" || displayName === "Canada" || displayName === "Brazil" || displayName === "Australia") maxFontSize = 26;
-            else if (displayName === "India" || displayName === "Kazakhstan" || displayName === "Algeria") maxFontSize = 18;
+            if (["Russia", "Canada", "China", "USA", "Brazil", "Australia"].includes(displayName)) {
+                minZoomToShow = 2.5;
+                baseSize = 18;
+            } else if (area > 200000000000) { // ইন্ডিয়া, কাজাখস্তান, আর্জেন্টিনা
+                minZoomToShow = 3;
+                baseSize = 15;
+            } else if (area > 50000000000) {  // মাঝারি দেশ (ইউরোপ, আফ্রিকা)
+                minZoomToShow = 4;
+                baseSize = 13;
+            } else { // সাউথ কোরিয়া, লেবানন ও অন্যান্য ছোট দেশ
+                minZoomToShow = 4.5;
+                baseSize = 11;
+            }
 
-            let fontSize = Math.min(maxFontSize, Math.max(10, Math.sqrt(area) / (resolution * 6)));
-            let strokeWidth = Math.max(2.5, fontSize * 0.12);
+            if (currentZoom < minZoomToShow) return null; // নির্দিষ্ট জুমের আগে নাম হাইড থাকবে
+
+            // জাদুকরী সূত্র: জুম ইন করার সাথে সাথে গাণিতিকভাবে ফন্ট সাইজ বড় হবে, কখনোই ছোট হবে না!
+            let dynamicFontSize = baseSize + ((currentZoom - minZoomToShow) * 2.5);
+            dynamicFontSize = Math.min(dynamicFontSize, baseSize + 12); // ওভারল্যাপ ঠেকাতে সর্বোচ্চ লিমিট
+
+            let strokeWidth = Math.max(2.5, dynamicFontSize * 0.12);
 
             return new ol.style.Style({
                 text: new ol.style.Text({
                     text: displayName,
-                    font: `900 ${fontSize}px "Arial Black", sans-serif`,
+                    font: `900 ${dynamicFontSize}px "Arial Black", sans-serif`,
                     fill: new ol.style.Fill({ color: '#FFFFFF' }),
                     stroke: new ol.style.Stroke({ color: '#000000', width: strokeWidth }),
                     overflow: false
                 }),
-                zIndex: Math.round(100 - fontSize) 
+                zIndex: Math.round(100 - dynamicFontSize) 
             });
         };
 
@@ -195,20 +208,20 @@
             view: new ol.View({ 
                 center: ol.proj.fromLonLat([20, 15]), 
                 zoom: 3, 
-                minZoom: 2.5, // পৃথিবীর ম্যাপ পুরোপুরি দেখাবে, এর নিচে যাবে না
-                maxZoom: 10,  // গেমের জুম ইন লেভেল
+                minZoom: 2.5, 
+                maxZoom: 12, // গেমাররা এখন ছোট দেশের একদম ভেতরে পর্যন্ত জুম করতে পারবে
                 enableRotation: false 
             })
         });
 
-        // কান্ট্রি সিলেক্ট ও টাচ ফিক্স 
+        // কান্ট্রি সিলেক্ট ও টাচ ফিক্স (Touch logic)
         const selectStyle = new ol.style.Style({
             fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.25)' }),
             stroke: new ol.style.Stroke({ color: '#00FFFF', width: 2.5 })
         });
 
         const selectInteraction = new ol.interaction.Select({
-            layers: [borderLayer], style: selectStyle, multi: false, hitTolerance: 15
+            layers: [borderLayer], style: selectStyle, multi: false, hitTolerance: 15 // আঙুলের টাচ মিস হবে না
         });
         map.addInteraction(selectInteraction);
 
