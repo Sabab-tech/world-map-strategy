@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Map - V33 Grand Strategy HOI4 Style</title>
+    <title>Global Map - V35 Precision Text Fit</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
@@ -18,7 +18,7 @@
     <div id="map"></div>
 
     <script>
-        // দীর্ঘ নামগুলোকে স্ট্র্যাটেজি গেমের মতো সংক্ষেপ করার তালিকা
+        // ছোট ও মাঝারি দেশের নাম সীমানার ভেতরে রাখতে আরও সংক্ষিপ্ত রূপ
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -33,10 +33,12 @@
             "South Korea": "S. Korea",
             "North Korea": "N. Korea",
             "Russian Federation": "Russia",
-            "Papua New Guinea": "PNG"
+            "Papua New Guinea": "PNG",
+            "Bosnia and Herzegovina": "Bosnia",
+            "Trinidad and Tobago": "Trinidad"
         };
 
-        // নির্দিষ্ট কিছু বাঁকা ভৌগোলিক দেশের নিখুঁত সেন্টার পয়েন্ট ফিক্স
+        // নির্দিষ্ট কিছু বাঁকা ভৌগোলিক দেশের নিখুঁত সেন্টার পয়েন্ট
         const manualCenters = {
             "South Korea": [127.90, 36.30],
             "North Korea": [127.10, 40.20],
@@ -75,12 +77,11 @@
                     const geom = item.feature.getGeometry();
                     let centerPoint;
                     
-                    // দেশের বাউন্ডারি বক্স মেপে লম্বালম্বি কিনা তা স্বয়ংক্রিয়ভাবে বের করার লজিক
+                    // দেশের বাউন্ডারি বক্স মেপে লম্বালম্বি অনুপাত বের করার লজিক
                     const extent = geom.getExtent();
                     const width = extent[2] - extent[0];
                     const height = extent[3] - extent[1];
-                    // যদি উচ্চতা প্রস্থের চেয়ে ১.২ গুণের বেশি হয়, তবে সেটি লম্বালম্বি দেশ
-                    const isVerticalCountry = (height / width) > 1.2;
+                    const isVerticalCountry = (height / width) > 1.3; 
 
                     if (manualCenters[rawName] || manualCenters[shortNames[rawName]]) {
                         const coords = manualCenters[rawName] || manualCenters[shortNames[rawName]];
@@ -125,42 +126,43 @@
 
             // জুম লেভেল অনুযায়ী প্রোগ্রেসিভ দৃশ্যমানতা
             let minZoomToShow = 5; 
-            let baseSize = 12;
+            let baseSize = 9; 
 
             if (["Russia", "Canada", "China", "USA", "Brazil", "Australia"].includes(displayName)) {
                 minZoomToShow = 2.5;
-                baseSize = 18;
+                baseSize = 14;
             } else if (area > 200000000000) { 
                 minZoomToShow = 3;
-                baseSize = 15;
+                baseSize = 12;
             } else if (area > 50000000000) {  
                 minZoomToShow = 4;
-                baseSize = 13;
+                baseSize = 10;
             } else { 
                 minZoomToShow = 4.5;
-                baseSize = 11;
+                baseSize = 8.5; // ছোট দেশের সাইজ আরও নিখুঁত করা হলো
             }
 
             if (currentZoom < minZoomToShow) return null;
 
-            // জুম ইন মেকানিজম (কাছে গেলে লেখা বড় হবে)
-            let dynamicFontSize = baseSize + ((currentZoom - minZoomToShow) * 2.5);
-            dynamicFontSize = Math.min(dynamicFontSize, baseSize + 13); 
+            // নতুন ম্যাথমেটিক্যাল ফর্মুলা: রেজোলিউশনের সাথে টেক্সট সাইজ লক করা হলো যেন সীমানা না ছড়ায়
+            let dynamicFontSize = baseSize + ((currentZoom - minZoomToShow) * 1.2);
+            dynamicFontSize = Math.min(dynamicFontSize, baseSize + 5); 
 
-            // স্বয়ংক্রিয় রোটেশন লজিক (শুধু লম্বা বা পাশাপাশি ছোট দেশগুলোর নাম কাত হবে)
+            // স্বয়ংক্রিয় রোটেশন লজিক (লম্বা বা ছোট দেশগুলোর জন্য)
             let textRotation = 0;
             if (isVertical) {
-                textRotation = -0.65; // HOI4 গেমের মতো নিখুঁত বাঁকা বা কাত কোণ
+                textRotation = -0.55; // সামান্য কাত কোণ যা বর্ডারে টেক্সট ফিট করতে সাহায্য করবে
             }
 
             return new ol.style.Style({
                 text: new ol.style.Text({
-                    text: displayName.toUpperCase(), // গেমের মতো সবগুলো অক্ষর বড় হাতের (Capital)
-                    font: `900 ${dynamicFontSize}px "Arial Black", "Impact", sans-serif`,
-                    fill: new ol.style.Fill({ color: '#FFFDF0' }), // অফ-হোয়াইট বা ওল্ড পেপার প্রিমিয়াম কালার
-                    stroke: new ol.style.Stroke({ color: '#000000', width: Math.max(3, dynamicFontSize * 0.15) }), // ৩ডি ব্ল্যাক শ্যাডো বর্ডার
+                    text: displayName.toUpperCase(), 
+                    // ইমপ্যাক্ট এবং কনডেন্সড ফন্ট ফ্যামিলি যা নামগুলোকে লম্বা কিন্তু চিপা রাখে
+                    font: `800 ${dynamicFontSize}px "Impact", "Arial Narrow", "Arial Condensed", sans-serif`,
+                    fill: new ol.style.Fill({ color: '#FFFDF0' }), 
+                    stroke: new ol.style.Stroke({ color: '#000000', width: Math.max(2.2, dynamicFontSize * 0.12) }), 
                     rotation: textRotation,
-                    overflow: false
+                    overflow: false // সীমানার বাইরে গেলে নাম হাইড থাকবে, বিশ্রীভাবে ছড়াবে না
                 }),
                 zIndex: Math.round(100 - dynamicFontSize) 
             });
