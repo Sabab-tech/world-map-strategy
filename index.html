@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Map - V45 Ultimate Strategy Masterpiece</title>
+    <title>Global Map - V47 Standalone Capital Masterpiece</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/ol.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/8.2.0/dist/ol.js"></script>
@@ -18,7 +18,7 @@
     <div id="map"></div>
 
     <script>
-        // স্ট্র্যাটেজি গেমের মতো নাম সংক্ষিপ্তকরণের তালিকা
+        // স্ট্র্যাটেজি গেমের মতো দেশের নাম সংক্ষিপ্তকরণের তালিকা
         const shortNames = {
             "Democratic Republic of the Congo": "DR Congo",
             "Central African Republic": "C.A.R.",
@@ -38,9 +38,57 @@
             "Trinidad and Tobago": "Trinidad"
         };
 
-        const vectorSource = new ol.source.Vector({ wrapX: false }); 
+        // 🌍 গ্লোবাল ইন-কোড ক্যাপিটাল ডাটাবেজ (আপনার ফাইলের ফরম্যাট অনুযায়ী নির্মিত)
+        const globalCapitals = {
+            "Bangladesh": [{ "n": "Dhaka", "c": [90.41, 23.81] }],
+            "India": [{ "n": "New Delhi", "c": [77.20, 28.61] }],
+            "Pakistan": [{ "n": "Islamabad", "c": [73.04, 33.68] }],
+            "United States of America": [{ "n": "Washington D.C.", "c": [-77.03, 38.90] }],
+            "Russian Federation": [{ "n": "Moscow", "c": [37.61, 55.75] }],
+            "China": [{ "n": "Beijing", "c": [116.40, 39.90] }],
+            "United Kingdom": [{ "n": "London", "c": [-0.12, 51.50] }],
+            "France": [{ "n": "Paris", "c": [2.35, 48.85] }],
+            "Germany": [{ "n": "Berlin", "c": [13.40, 52.52] }],
+            "Japan": [{ "n": "Tokyo", "c": [139.69, 35.67] }],
+            "Saudi Arabia": [{ "n": "Riyadh", "c": [46.67, 24.71] }],
+            "Egypt": [{ "n": "Cairo", "c": [31.23, 30.04] }],
+            "Brazil": [{ "n": "Brasilia", "c": [-47.88, -15.79] }],
+            "Australia": [{ "n": "Canberra", "c": [149.13, -35.28] }],
+            "Canada": [{ "n": "Ottawa", "c": [-75.69, 45.42] }],
+            "South Africa": [{ "n": "Pretoria", "c": [28.18, -25.74] }],
+            "Argentina": [{ "n": "Buenos Aires", "c": [-58.38, -34.60] }],
+            "Turkey": [{ "n": "Ankara", "c": [32.85, 39.93] }],
+            "Iran": [{ "n": "Tehran", "c": [51.38, 35.68] }],
+            "Iraq": [{ "n": "Baghdad", "c": [44.36, 33.31] }],
+            "Afghanistan": [{ "n": "Kabul", "c": [69.17, 34.53] }],
+            "Indonesia": [{ "n": "Jakarta", "c": [106.82, -6.17] }],
+            "Malaysia": [{ "n": "Kuala Lumpur", "c": [101.68, 3.13] }],
+            "South Korea": [{ "n": "Seoul", "c": [126.97, 37.56] }],
+            "North Korea": [{ "n": "Pyongyang", "c": [125.76, 39.03] }],
+            "Italy": [{ "n": "Rome", "c": [12.49, 41.90] }],
+            "Spain": [{ "n": "Madrid", "c": [-3.70, 40.41] }],
+            "Ukraine": [{ "n": "Kyiv", "c": [30.52, 50.45] }],
+            "Belarus": [{ "n": "Minsk", "c": [27.56, 53.90] }],
+            "Finland": [{ "n": "Helsinki", "c": [24.93, 60.16] }],
+            "Norway": [{ "n": "Oslo", "c": [10.75, 59.91] }],
+            "Sweden": [{ "n": "Stockholm", "c": [18.06, 59.32] }],
+            "Greece": [{ "n": "Athens", "c": [23.72, 37.98] }],
+            "Lebanon": [{ "n": "Beirut", "c": [35.50, 33.89] }],
+            "Israel": [{ "n": "Jerusalem", "c": [35.21, 31.76] }],
+            "Vietnam": [{ "n": "Hanoi", "c": [105.83, 21.02] }],
+            "Chile": [{ "n": "Santiago", "c": [-70.66, -33.44] }],
+            "Algeria": [{ "n": "Algiers", "c": [3.05, 36.75] }],
+            "Ethiopia": [{ "n": "Addis Ababa", "c": [38.74, 9.03] }],
+            "Kenya": [{ "n": "Nairobi", "c": [36.82, -1.29] }]
+        };
 
-        // গ্লোবাল ডেটাবেজ ফেচ 
+        // গ্লোবাল ট্র্যাকিং ভেরিয়েবল (কোন দেশ সিলেক্ট আছে তা মনে রাখবে)
+        let selectedCountryName = null;
+
+        const vectorSource = new ol.source.Vector({ wrapX: false }); 
+        const citySource = new ol.source.Vector({ wrapX: false });
+
+        // দেশের সীমানার ডেটাবেজ ফেচ 
         fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson')
             .then(res => res.json())
             .then(data => {
@@ -49,7 +97,7 @@
                 vectorSource.addFeatures(features);
             });
 
-        // 🟢 মেইন রেন্ডার ইঞ্জিন
+        // 🟢 দেশের নাম ও বর্ডারের রেন্ডার ইঞ্জিন
         const countryStyleFunction = function(feature, resolution) {
             const rawName = feature.get('admin') || feature.get('name') || "";
             const displayName = shortNames[rawName] || rawName;
@@ -57,10 +105,8 @@
             const geom = feature.getGeometry();
             const area = geom.getArea(); 
 
-            // ম্যাপের বর্তমান জুম লেভেল হিসাব
             const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
 
-            // জুম লেভেলের সাথে দেশগুলোর নাম দৃশ্যমান হওয়ার প্রোগ্রেসিভ লজিক
             let minZoomToShow = 7; 
             let baseSize = 8; 
 
@@ -94,10 +140,39 @@
             }
 
             return new ol.style.Style({
-                // ✅ সমাধান ৪: অদৃশ্য ফিল কালার, যা সম্পূর্ণ ভূমিকে ক্লিক ও টাচ করার যোগ্য করে তোলে
-                fill: new ol.style.Fill({ color: 'rgba(0, 0, 0, 0)' }), 
+                fill: new ol.style.Fill({ color: 'rgba(0, 0, 0, 0)' }), // সম্পূর্ণ ভূমি ক্লিকেবল রাখার অদৃশ্য ফিল
                 stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.35)', width: 1.5 }),
                 text: textStyle
+            });
+        };
+
+        // 🟢 রাজধানীর জন্য ডায়নামিক রেন্ডার ইঞ্জিন (সিলেকশন ভিত্তিক)
+        const cityStyleFunction = function(feature, resolution) {
+            const currentZoom = Math.round(Math.log2(40075016.686 / (256 * resolution)));
+            
+            // ⛔ শর্ত: দেশ সিলেক্টেড থাকতে হবে এবং জুম লেভেল ৪ বা তার বেশি হতে হবে
+            if (!selectedCountryName || currentZoom < 4) return null;
+
+            // বর্তমান ফিচারের দেশের নাম এবং ক্যাপিটাল ডেটা মেলানো
+            const featureCountry = feature.get('countryName') || "";
+            if (featureCountry.toLowerCase() !== selectedCountryName.toLowerCase()) return null;
+
+            const cityName = feature.get('name') || "";
+
+            return new ol.style.Style({
+                text: new ol.style.Text({
+                    text: `⭐ ${cityName.toUpperCase()}`,
+                    font: 'bold 11px "Arial", sans-serif',
+                    fill: new ol.style.Fill({ color: '#FFFFE0' }), 
+                    stroke: new ol.style.Stroke({ color: '#000000', width: 3 }),
+                    offsetY: -10,
+                    overflow: false
+                }),
+                image: new ol.style.Circle({
+                    radius: 4,
+                    fill: new ol.style.Fill({ color: '#FF3333' }),
+                    stroke: new ol.style.Stroke({ color: '#FFFFFF', width: 1.5 })
+                })
             });
         };
 
@@ -107,28 +182,34 @@
             declutter: true 
         });
 
+        const cityLayer = new ol.layer.Vector({
+            source: citySource,
+            style: cityStyleFunction,
+            zIndex: 200
+        });
+
         const map = new ol.Map({
             target: 'map',
             layers: [
                 new ol.layer.Tile({ 
                     source: new ol.source.XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', wrapX: false }) 
                 }),
-                countryLayer 
+                countryLayer,
+                cityLayer
             ],
             view: new ol.View({ 
                 center: ol.proj.fromLonLat([20, 15]), 
                 zoom: 3.5,   
-                // ✅ সমাধান ১: ম্যাপ অনেক উপর থেকে দেখা বন্ধ করা হলো (২.৫ থেকে বাড়িয়ে ৩.২ করা হয়েছে)
                 minZoom: 3.2, 
                 maxZoom: 7,   
                 enableRotation: false 
             })
         });
 
-        // ✅ সমাধান ২ ও ৩: অদ্ভুত নীল রং বাদ দিয়ে স্টাইলিশ হালকা সাদা সিলেকশন মেকানিজম
+        // স্টাইলিশ হালকা সাদা সিলেকশন স্টাইল
         const selectStyle = new ol.style.Style({
-            fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.10)' }), // তীব্রতা কমিয়ে একদম হালকা সাদা ফিল
-            stroke: new ol.style.Stroke({ color: '#FFFFFF', width: 2 }) // সাদা বর্ডার
+            fill: new ol.style.Fill({ color: 'rgba(255, 255, 255, 0.10)' }), 
+            stroke: new ol.style.Stroke({ color: '#FFFFFF', width: 2 }) 
         });
 
         const selectInteraction = new ol.interaction.Select({
@@ -136,19 +217,40 @@
         });
         map.addInteraction(selectInteraction);
 
+        // 🟢 সিলেকশন হ্যান্ডলার এবং ক্যাপিটাল ট্রিগার মেকানিজম
         selectInteraction.on('select', function(e) {
-            const selectedFeaturesCollection = selectInteraction.getFeatures();
+            citySource.clear(); // আগের শহরের ফিচার পরিষ্কার করা হচ্ছে
+
             if (e.selected.length > 0) {
                 const clickedFeature = e.selected[0];
-                const countryName = clickedFeature.get('admin') || clickedFeature.get('name');
-                selectedFeaturesCollection.clear(); 
+                // ডেটাবেজের সাথে সামঞ্জস্য রেখে দেশের নাম ট্র্যাকিং
+                let countryName = clickedFeature.get('admin') || clickedFeature.get('name');
+                
+                // রাশিয়ার নাম সিনক্রোনাইজেশন প্রোটেকশন
+                if (countryName === "Russia") countryName = "Russian Federation";
+
                 if (countryName) {
-                    vectorSource.getFeatures().forEach(f => {
-                        const fName = f.get('admin') || f.get('name');
-                        if (fName === countryName) selectedFeaturesCollection.push(f);
-                    });
+                    selectedCountryName = countryName;
+
+                    // গ্লোবাল ডাটাবেজ থেকে সিলেক্টেড দেশের রাজধানী খুঁজে ম্যাপে বসানো হচ্ছে
+                    const capitals = globalCapitals[countryName] || globalCapitals[clickedFeature.get('name')];
+                    if (capitals) {
+                        capitals.forEach(cap => {
+                            const cityFeature = new ol.Feature({
+                                geometry: new ol.geom.Point(ol.proj.fromLonLat(cap.c)),
+                                name: cap.n,
+                                countryName: countryName
+                            });
+                            citySource.addFeature(cityFeature);
+                        });
+                    }
                 }
+            } else {
+                selectedCountryName = null;
             }
+
+            cityLayer.changed();
+            countryLayer.changed();
         });
     </script>
 </body>
