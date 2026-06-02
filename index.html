@@ -107,6 +107,24 @@
         }
         .status-unlocked { background: #238636; color: white; }
         .status-locked { background: #da3633; color: white; }
+        
+        /* Debug Panel */
+        #debug-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(13, 17, 23, 0.95);
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 10px;
+            z-index: 999;
+            color: #c9d1d9;
+            font-size: 12px;
+            max-width: 300px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
@@ -119,12 +137,23 @@
         <button class="layer-btn" onclick="filterLayer('military_hub', this)"><span>🪖</span> Military Command</button>
         <button class="layer-btn" onclick="filterLayer('secret_zone', this)"><span>🔒</span> Intel / Secret Zones</button>
     </div>
+    
+    <div id="debug-panel"></div>
 
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // পুরনো সার্ভিস ওয়ার্কার এবং ক্যাশ ধ্বংস করার মাস্টার লজিক
+        // Debug function
+        function debug(message) {
+            console.log(message);
+            const panel = document.getElementById('debug-panel');
+            panel.innerHTML += '<div>' + message + '</div>';
+        }
+        
+        debug('Script initialized...');
+        
+        // পুরনো সার্ভিস ওয়ার্কার এবং ক্যাশ ধ্বংস করার মাস্টার লজিক
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 for(let registration of registrations) {
@@ -138,7 +167,7 @@
             });
         }
 
-        // ম্যাপ ইনিশিয়ালাইজেশন
+        // ম্যাপ ইনিশিয়ালাইজেশন
         const map = L.map('map', {
             center: [22.0, 90.0], 
             zoom: 4,
@@ -188,11 +217,24 @@
         };
 
         // ক্যাশ বাইপাস করতে টাইমস্ট্যাম্পসহ ডাইনামিক পাথ রিড
-        fetch('./cities.json?cache_bypass=' + new Date().getTime())
-            .then(response => response.json())
+        const fetchUrl = './cities.json?cache_bypass=' + new Date().getTime();
+        debug('Fetching from: ' + fetchUrl);
+        
+        fetch(fetchUrl)
+            .then(response => {
+                debug('Response status: ' + response.status);
+                if (!response.ok) throw new Error('HTTP error, status=' + response.status);
+                return response.json();
+            })
             .then(data => {
+                debug('Data loaded successfully');
+                debug('Regions found: ' + Object.keys(data.regions).length);
+                
                 const regions = data.regions;
+                let markerCount = 0;
+                
                 for (let region in regions) {
+                    debug('Region: ' + region);
                     const countries = regions[region].countries;
                     for (let countryName in countries) {
                         const locations = countries[countryName].locations;
@@ -232,12 +274,17 @@
                             marker.gameData = { role: loc.role, status: loc.status };
                             marker.addTo(map);
                             allMarkers.push(marker);
+                            markerCount++;
                         });
                     }
                 }
+                debug('✓ Total markers: ' + markerCount);
                 updateZoomVisibility();
             })
-            .catch(error => console.error('Error loading data:', error));
+            .catch(error => {
+                debug('✗ ERROR: ' + error.message);
+                console.error('Error loading data:', error);
+            });
 
         function filterLayer(role, btn) {
             currentFilter = role;
@@ -274,5 +321,4 @@
         map.on('zoomend', updateZoomVisibility);
     </script>
 </body>
-    </html>
-    
+</html>
