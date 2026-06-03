@@ -1,58 +1,34 @@
-// ===============================
-// WORLD MAP CORE ENGINE
-// ===============================
+// ==========================
+// WORLD MAP ENGINE (STABLE)
+// ==========================
 
-// 1. Initialize map
-const map = L.map('map', {
-  center: [20, 0],
-  zoom: 2,
-  zoomControl: true
-});
+// 1. Create map
+const map = L.map('map').setView([20, 0], 2);
 
-// 2. Base layer (simple, clean)
+// 2. Base tile layer (stable + lightweight)
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 18,
   attribution: '© OpenStreetMap'
 }).addTo(map);
 
-// 3. Country style
-function countryStyle() {
+// 3. Style (optimized)
+function style() {
   return {
-    color: "black",
-    weight: 1,
+    color: "#222",
+    weight: 0.5,
     fillColor: "#4caf50",
-    fillOpacity: 0.4
+    fillOpacity: 0.3
   };
 }
 
-// 4. Highlight interaction
-function onEachCountry(feature, layer) {
-  if (feature.properties && feature.properties.ADMIN) {
-    layer.bindPopup("Country: " + feature.properties.ADMIN);
-
-    layer.on({
-      mouseover: function (e) {
-        e.target.setStyle({
-          fillColor: "#ffcc00",
-          fillOpacity: 0.6
-        });
-      },
-      mouseout: function (e) {
-        e.target.setStyle(countryStyle());
-      }
-    });
-  }
-}
-
-// 5. Load GeoJSON (OFFLINE READY)
-fetch("./data/countries.geojson")
+// 4. Load countries
+fetch("data/countries.geojson")
   .then(res => res.json())
   .then(data => {
     L.geoJSON(data, {
-      style: countryStyle,
-      onEachFeature: onEachCountry
+      style: style
     }).addTo(map);
   })
   .catch(err => {
-    console.error("GeoJSON load failed:", err);
+    console.log("GeoJSON load error:", err);
   });
