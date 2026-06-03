@@ -13,26 +13,32 @@
             color: #f1f5f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             font-weight: 900; letter-spacing: 1px;
             white-space: nowrap; pointer-events: none; display: block; text-align: center;
-            transition: font-size 0.1s ease-out, transform 0.1s ease-out; /* স্মুথ জুম স্কেলিং */
             text-shadow: 
                 1px 1px 0px #334155,
                 2px 2px 0px #1e293b,
                 3px 3px 6px rgba(0, 0, 0, 0.95);
         }
 
-        /* স্ট্র্যাটেজি গেম থিম পপআপ */
+        /* স্ট্র্যাটেজি গেম থিম পপআপ (১০০% স্পষ্ট ও বড় টেক্সট) */
         .game-popup .leaflet-popup-content-wrapper {
-            background: #0f172a; color: #f8fafc;
-            border: 1px solid #38bdf8; border-radius: 4px;
-            font-family: monospace; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            padding: 6px;
+            background: #0f172a !important; color: #f8fafc !important;
+            border: 2px solid #38bdf8 !important; border-radius: 8px !important;
+            font-family: 'Segoe UI', Roboto, sans-serif !important; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.7) !important;
+            padding: 12px 16px !important;
         }
-        .game-popup .leaflet-popup-tip { background: #0f172a; border: 1px solid #38bdf8; }
-        .role-capital { color: #38bdf8; font-weight: bold; }
-        .role-economic { color: #eab308; font-weight: bold; }
-        .role-military { color: #ef4444; font-weight: bold; }
-        .role-secret { color: #a855f7; font-weight: bold; }
+        .game-popup .leaflet-popup-tip { background: #0f172a !important; border: 2px solid #38bdf8 !important; }
+        
+        /* পপআপ ইন্টারনাল টেক্সট কন্ট্রোল */
+        .game-popup-title { font-size: 19px; font-weight: bold; color: #ffffff; display: block; margin-bottom: 4px; }
+        .role-capital { color: #38bdf8; font-weight: bold; font-size: 14px; text-transform: uppercase; }
+        .role-economic { color: #eab308; font-weight: bold; font-size: 14px; text-transform: uppercase; }
+        .role-military { color: #ef4444; font-weight: bold; font-size: 14px; text-transform: uppercase; }
+        .role-secret { color: #a855f7; font-weight: bold; font-size: 14px; text-transform: uppercase; }
+        .game-popup-desc { font-size: 14px; color: #cbd5e1; display: block; margin-top: 6px; line-height: 1.4; }
+        .game-popup-status { color: #f87171; font-size: 12px; font-weight: bold; display: block; margin-top: 4px; }
 
+        /* জিপিইউ লকিং */
         .leaflet-zoom-animated, .leaflet-pane {
             will-change: transform, opacity; transform-style: preserve-3d; backface-visibility: hidden;
         }
@@ -43,7 +49,7 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // এশিয়ার গেম গ্রিডের দেশ
+        // গেম গ্রিডের সম্পূর্ণ এশিয়ান দেশের তালিকা
         const gameCountries = [
             "Bangladesh", "India", "Pakistan", "Nepal", "Sri Lanka", "Bhutan", "Maldives", "Afghanistan",
             "Indonesia", "Vietnam", "Thailand", "Malaysia", "Singapore", "Philippines", "Myanmar", "Cambodia", "Laos", "Brunei", "Timor-Leste",
@@ -51,42 +57,50 @@
         ];
 
         var locationsRegistry = {}; 
-        var labelMarkersArray = []; // জুমের সাথে নাম বড়/ছোট করার ট্র্যাকার
-        var ultimateRenderer = L.canvas({ padding: 0.1, tolerance: 5 });
+        var labelMarkersList = []; // দেশের নামগুলোর ডাইনামিক ট্র্যাকার
+        var currentActiveCountry = null; 
+        
         var bounds = L.latLngBounds(L.latLng(-60, -180), L.latLng(85, 180));
-
         var map = L.map('map', { 
             zoomControl: false, minZoom: 3.8, maxZoom: 9, zoomSnap: 0.1, zoomDelta: 1,
-            maxBounds: bounds, maxBoundsViscosity: 1.0, inertia: false, renderer: ultimateRenderer
+            maxBounds: bounds, maxBoundsViscosity: 1.0, inertia: false
         }).setView([22, 80], 3.8);
 
+        // স্যাটেলাইট লেয়ার
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Strategy Map Engine', maxNativeZoom: 19, keepBuffer: 4, updateWhenIdle: true
         }).addTo(map);
 
+        // শহর বা পয়েন্টের জন্য ডেডিকেটেড গ্রুপ লেয়ার (বর্ডারের ওপরে রাখার জন্য)
+        var hubsGroupLayer = L.layerGroup().addTo(map);
         var geojsonLayer, selectedLayer = null;
         var renderedCountries = new Set();
-        var activeGameMarkers = []; 
 
-        // ১. জুম লেভেল অনুযায়ী ফন্ট সাইজ স্বয়ংক্রিয়ভাবে বড় করার ফাংশন (ফিক্সড!)
+        // ১. জুম লেভেল অনুযায়ী দেশের নামের ফন্ট সাইজ ডাইনামিক পরিবর্তন ফাংশন
         function getFontSizeForZoom(zoom, isSmall) {
             let baseSize = isSmall ? 9 : 12;
-            if (zoom > 4) baseSize += (zoom - 4) * 3.5; // প্রতি জুম লেভেলে নাম ৩.৫ পিক্সেল করে বড় হবে
-            return `${baseSize}px`;
+            if (zoom > 3.8) baseSize += (zoom - 3.8) * 4.5; 
+            return baseSize;
         }
 
-        // ২. লম্বা ও বাঁকা দেশের বর্ডার বাঁচিয়ে নাম ঘুরিয়ে দেওয়ার ক্যালকুলেটর
+        // ২. জুম লেভেল অনুযায়ী শহরের ডট বা মার্কারের ব্যাসার্ধ নির্ধারণ ফাংশন
+        function getMarkerRadiusForZoom(zoom) {
+            if (zoom <= 4.2) return 5;
+            if (zoom <= 5.5) return 7;
+            if (zoom <= 7.0) return 10;
+            return 13; 
+        }
+
+        // লম্বা দেশের বর্ডার বাঁচিয়ে নাম ঘুরিয়ে দেওয়ার ক্যালকুলেটর
         function calculateTextRotation(layerBounds) {
             var northEast = layerBounds.getNorthEast(), southWest = layerBounds.getSouthWest();
             var latDiff = northEast.lat - southWest.lat;
             var lngDiff = northEast.lng - southWest.lng;
-            // দেশ যদি লম্বালম্বি বেশি বড় হয় (যেমন ভিয়েতনাম) তবে নাম বাঁকিয়ে দেওয়া হবে
-            if (latDiff > lngDiff * 1.3) {
-                return 45; // বর্ডার টাচ না করতে নাম ৪৫ ডিগ্রি অ্যাঙ্গেলে থাকবে
-            }
+            if (latDiff > lngDiff * 1.3) { return 45; }
             return 0;
         }
 
+        // `cities.json` থেকে ডাটা রিড করা
         function loadGameCities() {
             fetch('cities.json')
                 .then(res => res.json())
@@ -98,15 +112,17 @@
                         locationsRegistry = {};
                         data.countries.forEach(c => { locationsRegistry[c.name] = c; });
                     } else { locationsRegistry = data; }
-                    console.log("Cities loaded!");
+                    console.log("Cities engine successfully linked.");
                 })
-                .catch(err => console.log("Waiting for cities.json..."));
+                .catch(err => console.log("Waiting for database sync..."));
         }
 
-        function showCountryHubs(countryName) {
-            activeGameMarkers.forEach(m => map.removeLayer(m));
-            activeGameMarkers = [];
-            const countryData = locationsRegistry[countryName];
+        // শহরের পয়েন্ট বা ডট রেন্ডারিং ইঞ্জিন
+        function renderCountryHubs() {
+            hubsGroupLayer.clearLayers(); 
+            if (!currentActiveCountry) return;
+
+            const countryData = locationsRegistry[currentActiveCountry];
             if (!countryData) return;
 
             let hubs = [];
@@ -114,6 +130,8 @@
             if (countryData.economic) countryData.economic.forEach(h => hubs.push({ ...h, role: 'economic' }));
             if (countryData.military) countryData.military.forEach(h => hubs.push({ ...h, role: 'military' }));
             if (countryData.secret) countryData.secret.forEach(h => hubs.push({ ...h, role: 'secret' }));
+
+            var currentRadius = getMarkerRadiusForZoom(map.getZoom());
 
             hubs.forEach(hub => {
                 var latitude = hub.lat, longitude = hub.lon || hub.lng;
@@ -125,22 +143,25 @@
                 if (hub.role === 'secret') color = '#a855f7';
 
                 var hubMarker = L.circleMarker([latitude, longitude], {
-                    radius: map.getZoom() > 5.5 ? 7 : 5, 
-                    fillColor: color, color: '#fff', weight: 1.5, fillOpacity: 0.95
-                }).addTo(map);
+                    radius: currentRadius, 
+                    fillColor: color, color: '#ffffff', weight: 2.5, fillOpacity: 0.95
+                });
 
                 var popupContent = `
                     <div class="game-popup">
-                        <strong>${hub.name}</strong><br/>
-                        <span class="role-${hub.role || 'economic'}">${(hub.role || 'HUB').toUpperCase()}</span><br/>
-                        <span style="font-size:11px;color:#94a3b8;">${hub.description || ''}</span>
+                        <span class="game-popup-title">${hub.name}</span>
+                        <span class="role-${hub.role || 'economic'}">${hub.role}</span>
+                        <span class="game-popup-desc">${hub.description || ''}</span>
+                        ${hub.status ? `<span class="game-popup-status">STATUS: ${hub.status.toUpperCase()}</span>` : ''}
                     </div>
                 `;
-                hubMarker.bindPopup(popupContent);
-                activeGameMarkers.push(hubMarker);
+                
+                hubMarker.bindPopup(popupContent, { maxWidth: 350, className: 'game-popup' });
+                hubsGroupLayer.addLayer(hubMarker);
             });
         }
 
+        // জিও-জেসন বর্ডার ও দেশের নাম লকার মেকানিজম
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
             .then(data => {
@@ -157,47 +178,46 @@
                         
                         if (layer.getBounds) {
                             var countryBounds = layer.getBounds();
-                            
-                            // ৩. দেশের জ্যামিতিক আসল মাঝখানের বিন্দু (Centroid) বের করার ইঞ্জিন
-                            var centerLatLng = countryBounds.getCenter();
-                            if (layer.getLatLng) {
-                                centerLatLng = layer.getLatLng();
-                            } else if (layer.getBounds) {
-                                centerLatLng = countryBounds.getCenter();
-                            }
+                            var centerLatLng = countryBounds.getCenter(); // পারফেক্ট জ্যামিতিক মাঝখান
 
                             if (!renderedCountries.has(countryName)) {
                                 renderedCountries.add(countryName);
                                 
                                 var rotationAngle = calculateTextRotation(countryBounds);
                                 var isSmallCountry = (countryBounds.getNorthEast().lat - countryBounds.getSouthWest().lat < 4.5);
-                                var startFont = getFontSizeForZoom(map.getZoom(), isSmallCountry);
+                                var fontSizeNum = getFontSizeForZoom(map.getZoom(), isSmallCountry);
 
-                                // ডাইনামিক আইডি দিয়ে টেক্সট তৈরি করা হচ্ছে যেন পরে জাভাস্ক্রিপ্ট দিয়ে বড় করা যায়
-                                var cleanId = countryName.replace(/\s+/g, '-');
+                                // ডম থেকে আইডি উধাও হয়ে যাওয়া রুখতে মার্কার অবজেক্টের ভেতরেই ডাইনামিক স্টাইল রেন্ডার
                                 var labelMarker = L.marker(centerLatLng, {
                                     icon: L.divIcon({
                                         className: 'game-country-label',
-                                        html: `<div id="game-txt-${cleanId}" style="transform: rotate(${rotationAngle}deg); font-size: ${startFont};">${countryName}</div>`,
+                                        html: `<div class="txt-render" style="transform: rotate(${rotationAngle}deg); font-size: ${fontSizeNum}px;">${countryName}</div>`,
                                         iconSize: [160, 30], iconAnchor: [80, 15]
                                     }),
                                     interactive: false 
                                 });
 
-                                // ছোট ও বড় দেশের ব্যালেন্স লকিং
                                 if (!isSmallCountry || map.getZoom() > 5.2) {
                                     labelMarker.addTo(map);
                                 }
                                 
-                                labelMarkersArray.push({ id: cleanId, marker: labelMarker, isSmall: isSmallCountry });
+                                labelMarkersList.push({ country: countryName, marker: labelMarker, isSmall: isSmallCountry, angle: rotationAngle });
                             }
 
+                            // দেশের সীমানায় টাচ/ক্লিক ইভেন্ট লকিং
                             layer.on({
                                 click: function(e) {
+                                    L.DomEvent.stopPropagation(e); // ইভেন্ট ব্লকার জ্যামিং প্রতিরোধ
+                                    
                                     if (selectedLayer) geojsonLayer.resetStyle(selectedLayer);
                                     selectedLayer = e.target;
-                                    selectedLayer.setStyle({ color: "#e6fffa", weight: map.getZoom() > 5.5 ? 3.5 : 2.5, opacity: 0.9, fillColor: "#e6fffa", fillOpacity: 0.1 });
-                                    showCountryHubs(countryName);
+                                    
+                                    selectedLayer.setStyle({ 
+                                        color: "#e6fffa", weight: map.getZoom() > 5.5 ? 3.5 : 2.5, opacity: 0.9, fillColor: "#e6fffa", fillOpacity: 0.1 
+                                    });
+                                    
+                                    currentActiveCountry = countryName;
+                                    renderCountryHubs(); // শহর লোড করা
                                 }
                             });
                         }
@@ -207,35 +227,52 @@
                 loadGameCities();
             });
 
-        // ৪. রিয়েল-টাইম জুম লিসেনার (এটি জুম করার সাথে সাথে নামকে বড় করবে এবং ছোট দেশ দেখাবে/লুকাবে)
+        // গলোবাল জুম পরিবর্তন হ্যান্ডলার (নামের ফন্ট ও শহর একসাথে লাইভ স্কেল করার লুপ)
         map.on('zoomend', function() {
             var currentZoom = map.getZoom();
             
-            // বর্ডার সাইজ জুম অনুযায়ী রি-অ্যাডজাস্ট
+            // ১. বর্ডার উইথ আপডেট
             if (geojsonLayer) {
                 geojsonLayer.eachLayer(function(layer) {
                     layer.setStyle({ weight: layer === selectedLayer ? (currentZoom > 5.5 ? 3.5 : 2.5) : (currentZoom > 5.5 ? 2.3 : 0.9) });
                 });
             }
 
-            // নামের সাইজ জুমের সাথে রিয়েলটাইম বড় করার লুপ
-            labelMarkersArray.forEach(function(item) {
-                // ক) ছোট দেশ জুম লেভেল ৫.২ এর পর শো হবে, আগে হাইড থাকবে
+            // ২. দেশের নামের টেক্সট রিয়েল-টাইম রেন্ডারিং (শতভাগ ফিক্সড!)
+            labelMarkersList.forEach(function(item) {
                 if (item.isSmall) {
                     if (currentZoom > 5.2) {
-                        if (!map.hasLayer(item.marker)) map.addTo(item.marker);
+                        if (!map.hasLayer(item.marker)) item.marker.addTo(map);
                     } else {
                         if (map.hasLayer(item.marker)) map.removeLayer(item.marker);
                     }
                 }
-
-                // খ) ফন্ট সাইজ বড় করার ডাইনামিক রেন্ডারিং
-                var textElement = document.getElementById(`game-txt-${item.id}`);
-                if (textElement) {
-                    textElement.style.fontSize = getFontSizeForZoom(currentZoom, item.isSmall);
-                }
+                
+                var size = getFontSizeForZoom(currentZoom, item.isSmall);
+                // লিফলেটের মার্কার আইকনকে সরাসরি ইন্টারনাল কোড দিয়ে রি-রাইট করা হচ্ছে যেন আইডি ক্র্যাশ না করে
+                item.marker.setIcon(L.divIcon({
+                    className: 'game-country-label',
+                    html: `<div style="transform: rotate(${item.angle}deg); font-size: ${size}px;">${item.country}</div>`,
+                    iconSize: [160, 30], iconAnchor: [80, 15]
+                }));
             });
+
+            // ৩. শহরগুলোকে নতুন ব্যাসার্ধের সাথে সাথে ইনস্ট্যান্ট রি-রেন্ডার
+            if (currentActiveCountry) {
+                renderCountryHubs();
+            }
+        });
+
+        // ম্যাপের ফাঁকা জায়গায় ক্লিক করলে রিসেট করার ব্যাকগ্রাউন্ড লুপ
+        map.on('click', function() {
+            if (selectedLayer) {
+                geojsonLayer.resetStyle(selectedLayer);
+                selectedLayer = null;
+            }
+            currentActiveCountry = null;
+            hubsGroupLayer.clearLayers();
         });
     </script>
 </body>
-</html>
+    </html>
+    
