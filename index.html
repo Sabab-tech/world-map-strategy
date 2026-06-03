@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>এশিয়ান জিওপলিটিক্যাল স্ট্র্যাটেজি ম্যাপ</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -144,6 +147,9 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // Version control for cache busting
+        const APP_VERSION = 'v48_' + new Date().getTime();
+        
         // Debug function
         function debug(message) {
             console.log(message);
@@ -151,20 +157,24 @@
             panel.innerHTML += '<div>' + message + '</div>';
         }
         
-        debug('Script initialized...');
+        debug('Script initialized... Version: ' + APP_VERSION);
         
         // পুরনো সার্ভিস ওয়ার্কার এবং ক্যাশ ধ্বংস করার মাস্টার লজিক
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 for(let registration of registrations) {
                     registration.unregister();
+                    debug('ServiceWorker unregistered');
                 }
-            });
+            }).catch(err => debug('SW Error: ' + err));
         }
         if ('caches' in window) {
             caches.keys().then(function(names) {
-                for (let name of names) caches.delete(name);
-            });
+                for (let name of names) {
+                    caches.delete(name);
+                    debug('Cache deleted: ' + name);
+                }
+            }).catch(err => debug('Cache Error: ' + err));
         }
 
         // ম্যাপ ইনিশিয়ালাইজেশন
@@ -217,10 +227,16 @@
         };
 
         // ক্যাশ বাইপাস করতে টাইমস্ট্যাম্পসহ ডাইনামিক পাথ রিড
-        const fetchUrl = './cities.json?cache_bypass=' + new Date().getTime();
+        const timestamp = new Date().getTime();
+        const fetchUrl = './cities.json?v=' + APP_VERSION + '&t=' + timestamp;
         debug('Fetching from: ' + fetchUrl);
         
-        fetch(fetchUrl)
+        fetch(fetchUrl, {
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+            }
+        })
             .then(response => {
                 debug('Response status: ' + response.status);
                 if (!response.ok) throw new Error('HTTP error, status=' + response.status);
