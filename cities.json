@@ -1,5 +1,5 @@
 {
-  "region": "South Asia",
+  "region": "Global Strategy Grid",
   "countries": [
     {
       "name": "Bangladesh",
@@ -410,7 +410,354 @@
           "status": "locked"
         }
       ]
+    },
+    {
+      "name": "Indonesia",
+      "capital": {
+        "name": "Jakarta",
+        "type": "political",
+        "description": "National capital",
+        "lat": -6.2088,
+        "lon": 106.8456
+      },
+      "economic": [
+        {
+          "name": "Surabaya",
+          "description": "Major port and industry center",
+          "lat": -7.2575,
+          "lon": 112.7521
+        },
+        {
+          "name": "Medan",
+          "description": "Western trade hub",
+          "lat": 3.5952,
+          "lon": 98.6722
+        },
+        {
+          "name": "Makassar",
+          "description": "Eastern logistics center",
+          "lat": -5.1477,
+          "lon": 119.4327
+        }
+      ],
+      "military": [
+        {
+          "name": "Natuna",
+          "description": "South China Sea defense zone",
+          "lat": 3.9450,
+          "lon": 108.1429
+        }
+      ],
+      "secret": [
+        {
+          "name": "Papua Strategic Zone",
+          "description": "Remote strategic region",
+          "lat": -4.2699,
+          "lon": 138.0804,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Vietnam",
+      "capital": {
+        "name": "Hanoi",
+        "type": "political",
+        "description": "National capital",
+        "lat": 21.0278,
+        "lon": 105.8342
+      },
+      "economic": [
+        {
+          "name": "Ho Chi Minh City",
+          "description": "Economic center",
+          "lat": 10.8231,
+          "lon": 106.6297
+        },
+        {
+          "name": "Hai Phong",
+          "description": "Major seaport",
+          "lat": 20.8449,
+          "lon": 106.6881
+        }
+      ],
+      "military": [
+        {
+          "name": "Cam Ranh",
+          "description": "Strategic naval base",
+          "lat": 11.9214,
+          "lon": 109.1591
+        }
+      ],
+      "secret": [
+        {
+          "name": "Spratly Operations Zone",
+          "description": "South China Sea command",
+          "lat": 9.8500,
+          "lon": 114.2000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Thailand",
+      "capital": {
+        "name": "Bangkok",
+        "type": "political",
+        "description": "National capital",
+        "lat": 13.7563,
+        "lon": 100.5018
+      },
+      "economic": [
+        {
+          "name": "Chiang Mai",
+          "description": "Northern commerce center",
+          "lat": 18.7883,
+          "lon": 98.9853
+        },
+        {
+          "name": "Phuket",
+          "description": "Tourism hub",
+          "lat": 7.8804,
+          "lon": 98.3923
+        }
+      ],
+      "military": [
+        {
+          "name": "Sattahip",
+          "description": "Royal Thai Navy base",
+          "lat": 12.6667,
+          "lon": 100.9000
+        }
+      ],
+      "secret": [
+        {
+          "name": "Gulf Strategic Zone",
+          "description": "Naval operations sector",
+          "lat": 10.5000,
+          "lon": 101.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Malaysia",
+      "capital": {
+        "name": "Kuala Lumpur",
+        "type": "political",
+        "description": "National capital",
+        "lat": 3.1390,
+        "lon": 101.6869
+      },
+      "economic": [
+        {
+          "name": "Johor Bahru",
+          "description": "Singapore trade gateway",
+          "lat": 1.4927,
+          "lon": 103.7414
+        },
+        {
+          "name": "Penang",
+          "description": "Industrial and technology hub",
+          "lat": 5.4164,
+          "lon": 100.3327
+        }
+      ],
+      "military": [
+        {
+          "name": "Lumut",
+          "description": "Main naval base",
+          "lat": 4.2323,
+          "lon": 100.6292
+        }
+      ],
+      "secret": [
+        {
+          "name": "Sabah Strategic Zone",
+          "description": "Borneo defense region",
+          "lat": 5.9804,
+          "lon": 116.0735,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Singapore",
+      "capital": {
+        "name": "Singapore",
+        "type": "political",
+        "description": "National capital",
+        "lat": 1.3521,
+        "lon": 103.8198
+      },
+      "economic": [
+        {
+          "name": "Jurong",
+          "description": "Industrial and shipping hub",
+          "lat": 1.3329,
+          "lon": 103.7436
+        }
+      ],
+      "military": [
+        {
+          "name": "Changi",
+          "description": "Naval and air base",
+          "lat": 1.3644,
+          "lon": 103.9915
+        }
+      ],
+      "secret": [
+        {
+          "name": "Strait Control Network",
+          "description": "Maritime monitoring system",
+          "lat": 1.2500,
+          "lon": 103.8000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Philippines",
+      "capital": {
+        "name": "Manila",
+        "type": "political",
+        "description": "National capital",
+        "lat": 14.5995,
+        "lon": 120.9842
+      },
+      "economic": [
+        {
+          "name": "Cebu",
+          "description": "Central trade hub",
+          "lat": 10.3157,
+          "lon": 123.8854
+        },
+        {
+          "name": "Davao",
+          "description": "Southern economic center",
+          "lat": 7.1907,
+          "lon": 125.4553
+        }
+      ],
+      "military": [
+        {
+          "name": "Subic Bay",
+          "description": "Strategic naval facility",
+          "lat": 14.8220,
+          "lon": 120.2820
+        }
+      ],
+      "secret": [
+        {
+          "name": "Palawan Maritime Zone",
+          "description": "West Philippine Sea command",
+          "lat": 9.8349,
+          "lon": 118.7384,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "China",
+      "capital": {
+        "name": "Beijing",
+        "type": "political",
+        "description": "National capital",
+        "lat": 39.9042,
+        "lon": 116.4074
+      },
+      "economic": [
+        {
+          "name": "Shanghai",
+          "description": "Financial center",
+          "lat": 31.2304,
+          "lon": 121.4737
+        },
+        {
+          "name": "Shenzhen",
+          "description": "Technology hub",
+          "lat": 22.5431,
+          "lon": 114.0579
+        },
+        {
+          "name": "Guangzhou",
+          "description": "Trade center",
+          "lat": 23.1291,
+          "lon": 113.2644
+        }
+      ],
+      "military": [
+        {
+          "name": "Qingdao",
+          "description": "Major naval base",
+          "lat": 36.0671,
+          "lon": 120.3826
+        },
+        {
+          "name": "Chengdu",
+          "description": "Western military command",
+          "lat": 30.5728,
+          "lon": 104.0668
+        }
+      ],
+      "secret": [
+        {
+          "name": "South China Sea HQ",
+          "description": "Strategic maritime network",
+          "lat": 16.0000,
+          "lon": 112.0000,
+          "status": "locked"
+        },
+        {
+          "name": "Xinjiang Defense Grid",
+          "description": "Western security network",
+          "lat": 43.7928,
+          "lon": 87.6177,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Japan",
+      "capital": {
+        "name": "Tokyo",
+        "type": "political",
+        "description": "National capital",
+        "lat": 35.6762,
+        "lon": 139.6503
+      },
+      "economic": [
+        {
+          "name": "Osaka",
+          "description": "Commercial center",
+          "lat": 34.6937,
+          "lon": 135.5023
+        },
+        {
+          "name": "Nagoya",
+          "description": "Industrial hub",
+          "lat": 35.1815,
+          "lon": 136.9066
+        }
+      ],
+      "military": [
+        {
+          "name": "Yokosuka",
+          "description": "Major naval base",
+          "lat": 35.2810,
+          "lon": 139.6722
+        }
+      ],
+      "secret": [
+        {
+          "name": "Ryukyu Strategic Zone",
+          "description": "Island defense chain",
+          "lat": 26.2124,
+          "lon": 127.6809,
+          "status": "locked"
+        }
+      ]
     }
   ]
-        }
-      
+    }
+          
