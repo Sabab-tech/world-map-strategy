@@ -499,7 +499,62 @@
       "secret": [
         { "name": "Fao Peninsula Grid", "description": "Strategic gulf security sector", "lat": 29.9764, "lon": 48.4731, "status": "locked" }
       ]
-        }
+    },
+    {
+      "name": "Egypt",
+      "capital": { "name": "Cairo", "type": "political", "description": "National capital and major cultural hub", "lat": 30.0444, "lon": 31.2357 },
+      "economic": [
+        { "name": "Alexandria", "description": "Primary Mediterranean seaport", "lat": 31.2001, "lon": 29.9187 },
+        { "name": "Port Said", "description": "Suez Canal northern gateway", "lat": 31.2653, "lon": 32.3019 }
+      ],
+      "military": [
+        { "name": "Sidi Barrani", "description": "Western border strategic air base", "lat": 31.6111, "lon": 25.9258 }
+      ],
+      "secret": [
+        { "name": "Suez Canal Security Zone", "description": "Global maritime chokepoint defense", "lat": 30.5852, "lon": 32.2655, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Syria",
+      "capital": { "name": "Damascus", "type": "political", "description": "National capital and administrative hub", "lat": 33.5138, "lon": 36.2765 },
+      "economic": [
+        { "name": "Aleppo", "description": "Northern industrial and trade center", "lat": 36.2021, "lon": 37.1343 },
+        { "name": "Latakia", "description": "Main Mediterranean port city", "lat": 35.5312, "lon": 35.7921 }
+      ],
+      "military": [
+        { "name": "Hmeymim", "description": "Strategic air base command", "lat": 35.4021, "lon": 35.9461 }
+      ],
+      "secret": [
+        { "name": "Tartus Naval Network", "description": "Strategic maritime surveillance zone", "lat": 34.8888, "lon": 35.8864, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Lebanon",
+      "capital": { "name": "Beirut", "type": "political", "description": "National capital and commercial port", "lat": 33.8938, "lon": 35.5018 },
+      "economic": [
+        { "name": "Tripoli", "description": "Northern economic trade gateway", "lat": 34.4346, "lon": 35.8497 }
+      ],
+      "military": [
+        { "name": "Rayak Air Base", "description": "Eastern valley defense sector", "lat": 33.8522, "lon": 35.9914 }
+      ],
+      "secret": [
+        { "name": "Southern Border Watch", "description": "Strategic frontier monitoring network", "lat": 33.2700, "lon": 35.2000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Jordan",
+      "capital": { "name": "Amman", "type": "political", "description": "National capital", "lat": 31.9539, "lon": 35.9106 },
+      "economic": [
+        { "name": "Aqaba", "description": "Strategic Red Sea port and trade zone", "lat": 29.5321, "lon": 35.0063 }
+      ],
+      "military": [
+        { "name": "Muaffaq Salti", "description": "Major air defense command base", "lat": 31.8358, "lon": 36.7878 }
+      ],
+      "secret": [
+        { "name": "Eastern Desert Perimeter", "description": "Tri-border strategic security zone", "lat": 32.0000, "lon": 37.5000, "status": "locked" }
+      ]
+      }
+        
     
     
         
