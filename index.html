@@ -122,11 +122,17 @@
             padding: 10px;
             z-index: 999;
             color: #c9d1d9;
-            font-size: 12px;
-            max-width: 300px;
-            max-height: 150px;
+            font-size: 11px;
+            max-width: 350px;
+            max-height: 200px;
             overflow-y: auto;
             font-family: monospace;
+        }
+        .debug-success {
+            color: #3fb950;
+        }
+        .debug-error {
+            color: #f85149;
         }
     </style>
 </head>
@@ -147,35 +153,55 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Version control for cache busting
-        const APP_VERSION = 'v48_' + new Date().getTime();
+        // ===== AGGRESSIVE CACHE BUSTING =====
+        // Clear ALL browser caches immediately on page load
+        (async function clearAllCaches() {
+            try {
+                // Clear service workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let reg of registrations) {
+                        await reg.unregister();
+                    }
+                }
+                
+                // Clear all named caches
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                }
+                
+                debug('✓ All caches cleared');
+            } catch(e) {
+                debug('Cache clear (non-critical): ' + e.message);
+            }
+        })();
+
+        // Generate unique token for each page load (prevents browser cache)
+        const pageLoadTime = new Date().getTime();
+        const randomToken = Math.random().toString(36).substring(2, 15);
+        const CACHE_BUSTER = pageLoadTime + '_' + randomToken;
         
-        // Debug function
+        debug('🔄 Cache Buster: ' + CACHE_BUSTER);
+        
+        // Debug function with styled output
         function debug(message) {
             console.log(message);
             const panel = document.getElementById('debug-panel');
-            panel.innerHTML += '<div>' + message + '</div>';
+            const div = document.createElement('div');
+            div.textContent = message;
+            
+            if (message.includes('✓') || message.includes('SUCCESS') || message.includes('loaded')) {
+                div.className = 'debug-success';
+            } else if (message.includes('✗') || message.includes('ERROR') || message.includes('error')) {
+                div.className = 'debug-error';
+            }
+            
+            panel.appendChild(div);
+            panel.scrollTop = panel.scrollHeight;
         }
         
-        debug('Script initialized... Version: ' + APP_VERSION);
-        
-        // পুরনো সার্ভিস ওয়ার্কার এবং ক্যাশ ধ্বংস করার মাস্টার লজিক
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    registration.unregister();
-                    debug('ServiceWorker unregistered');
-                }
-            }).catch(err => debug('SW Error: ' + err));
-        }
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                for (let name of names) {
-                    caches.delete(name);
-                    debug('Cache deleted: ' + name);
-                }
-            }).catch(err => debug('Cache Error: ' + err));
-        }
+        debug('📡 Script initialized');
 
         // ম্যাপ ইনিশিয়ালাইজেশন
         const map = L.map('map', {
@@ -188,6 +214,8 @@
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap &copy; CARTO'
         }).addTo(map);
+        
+        debug('✓ Map initialized');
 
         let allMarkers = [];
         let currentFilter = 'all';
@@ -226,81 +254,101 @@
             "Turkey": [38.9637, 35.2433]
         };
 
-        // ক্যাশ বাইপাস করতে টাইমস্ট্যাম্পসহ ডাইনামিক পাথ রিড
-        const timestamp = new Date().getTime();
-        const fetchUrl = './cities.json?v=' + APP_VERSION + '&t=' + timestamp;
-        debug('Fetching from: ' + fetchUrl);
-        
-        fetch(fetchUrl, {
-            headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache'
-            }
-        })
-            .then(response => {
-                debug('Response status: ' + response.status);
-                if (!response.ok) throw new Error('HTTP error, status=' + response.status);
-                return response.json();
-            })
-            .then(data => {
-                debug('Data loaded successfully');
-                debug('Regions found: ' + Object.keys(data.regions).length);
-                
-                const regions = data.regions;
-                let markerCount = 0;
-                
-                for (let region in regions) {
-                    debug('Region: ' + region);
-                    const countries = regions[region].countries;
-                    for (let countryName in countries) {
-                        const locations = countries[countryName].locations;
-                        const baseCoord = countryCoords[countryName] || [20, 77];
+        // ===== FETCH DATA WITH MULTIPLE CACHE BYPASS STRATEGIES =====
+        async function loadCitiesData() {
+            const strategies = [
+                // Strategy 1: Query parameter with timestamp
+                `./cities.json?nocache=${CACHE_BUSTER}`,
+                // Strategy 2: Direct path with hard refresh headers
+                `./cities.json`,
+            ];
 
-                        locations.forEach((loc, index) => {
-                            const latOffset = (index % 3 - 1) * 1.2;
-                            const lngOffset = (Math.floor(index / 3) - 1) * 1.2;
-                            const finalCoord = [baseCoord[0] + latOffset, baseCoord[1] + lngOffset];
+            for (let fetchUrl of strategies) {
+                try {
+                    debug(`📥 Attempting: ${fetchUrl.split('?')[0]}`);
+                    
+                    const response = await fetch(fetchUrl, {
+                        method: 'GET',
+                        cache: 'no-store',
+                        headers: {
+                            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+                            'Pragma': 'no-cache',
+                            'Expires': '0',
+                            'If-Modified-Since': 'Thu, 01 Jan 1970 00:00:00 GMT'
+                        }
+                    });
 
-                            const style = getMarkerStyle(loc.role, loc.status);
-                            const marker = L.circleMarker(finalCoord, {
-                                radius: style.radius,
-                                fillColor: style.fillColor,
-                                color: style.color,
-                                weight: 2,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            });
-
-                            let popupContent = `
-                                <div class="popup-title">${getEmoji(loc.role)} ${loc.name}</div>
-                                <div class="popup-meta">দেশ: ${countryName}</div>
-                                <div class="popup-meta">ক্যাটাগরি: ${loc.role.replace('_', ' ')}</div>
-                            `;
-
-                            if(loc.status === 'locked') {
-                                popupContent += `
-                                    <div class="popup-status status-locked">🔒 LOCKED</div>
-                                    <div class="popup-meta" style="margin-top:5px; color:#ff7b72;">Unlock: ${loc.unlock_condition}</div>
-                                `;
-                            } else {
-                                popupContent += `<div class="popup-status status-unlocked">🟢 ACTIVE NODE</div>`;
-                            }
-
-                            marker.bindPopup(popupContent);
-                            marker.gameData = { role: loc.role, status: loc.status };
-                            marker.addTo(map);
-                            allMarkers.push(marker);
-                            markerCount++;
-                        });
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
                     }
+
+                    const data = await response.json();
+                    debug(`✓ Data loaded (${response.status})`);
+                    debug(`✓ Regions: ${Object.keys(data.regions).length}`);
+                    
+                    renderMarkers(data);
+                    return;
+
+                } catch(error) {
+                    debug(`✗ Attempt failed: ${error.message}`);
                 }
-                debug('✓ Total markers: ' + markerCount);
-                updateZoomVisibility();
-            })
-            .catch(error => {
-                debug('✗ ERROR: ' + error.message);
-                console.error('Error loading data:', error);
-            });
+            }
+
+            debug('✗ All fetch strategies failed');
+        }
+
+        function renderMarkers(data) {
+            const regions = data.regions;
+            let markerCount = 0;
+            
+            for (let region in regions) {
+                const countries = regions[region].countries;
+                for (let countryName in countries) {
+                    const locations = countries[countryName].locations;
+                    const baseCoord = countryCoords[countryName] || [20, 77];
+
+                    locations.forEach((loc, index) => {
+                        const latOffset = (index % 3 - 1) * 1.2;
+                        const lngOffset = (Math.floor(index / 3) - 1) * 1.2;
+                        const finalCoord = [baseCoord[0] + latOffset, baseCoord[1] + lngOffset];
+
+                        const style = getMarkerStyle(loc.role, loc.status);
+                        const marker = L.circleMarker(finalCoord, {
+                            radius: style.radius,
+                            fillColor: style.fillColor,
+                            color: style.color,
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        });
+
+                        let popupContent = `
+                            <div class="popup-title">${getEmoji(loc.role)} ${loc.name}</div>
+                            <div class="popup-meta">দেশ: ${countryName}</div>
+                            <div class="popup-meta">ক্যাটাগরি: ${loc.role.replace('_', ' ')}</div>
+                        `;
+
+                        if(loc.status === 'locked') {
+                            popupContent += `
+                                <div class="popup-status status-locked">🔒 LOCKED</div>
+                                <div class="popup-meta" style="margin-top:5px; color:#ff7b72;">Unlock: ${loc.unlock_condition}</div>
+                            `;
+                        } else {
+                            popupContent += `<div class="popup-status status-unlocked">🟢 ACTIVE NODE</div>`;
+                        }
+
+                        marker.bindPopup(popupContent);
+                        marker.gameData = { role: loc.role, status: loc.status };
+                        marker.addTo(map);
+                        allMarkers.push(marker);
+                        markerCount++;
+                    });
+                }
+            }
+            
+            debug(`✓ Total markers: ${markerCount}`);
+            updateZoomVisibility();
+        }
 
         function filterLayer(role, btn) {
             currentFilter = role;
@@ -335,6 +383,20 @@
         }
 
         map.on('zoomend', updateZoomVisibility);
+
+        // ===== LOAD DATA ON PAGE READY =====
+        document.addEventListener('DOMContentLoaded', loadCitiesData);
+        
+        // Fallback: Load immediately if DOM is already ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadCitiesData);
+        } else {
+            loadCitiesData();
+        }
+
+        // Auto-refresh data every 30 seconds (optional)
+        // Uncomment to enable auto-refresh
+        // setInterval(loadCitiesData, 30000);
     </script>
 </body>
 </html>
