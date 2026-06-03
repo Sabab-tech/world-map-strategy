@@ -205,212 +205,212 @@
           "status": "locked"
         }
       ]
-    }
-  ]
+    },
+    {
+      "name": "Sri Lanka",
+      "capital": {
+        "name": "Sri Jayawardenepura Kotte",
+        "type": "political",
+        "description": "Legislative capital",
+        "lat": 6.8941,
+        "lon": 79.9025
+      },
+      "economic": [
+        {
+          "name": "Colombo",
+          "description": "Main financial and trade center",
+          "lat": 6.9271,
+          "lon": 79.8612
         },
-{
-  "name": "Sri Lanka",
-  "capital": {
-    "name": "Sri Jayawardenepura Kotte",
-    "type": "political",
-    "description": "Legislative capital",
-    "lat": 6.8941,
-    "lon": 79.9025
-  },
-  "economic": [
-    {
-      "name": "Colombo",
-      "description": "Main financial and trade center",
-      "lat": 6.9271,
-      "lon": 79.8612
+        {
+          "name": "Galle",
+          "description": "Southern trade hub",
+          "lat": 6.0535,
+          "lon": 80.2210
+        }
+      ],
+      "military": [
+        {
+          "name": "Trincomalee",
+          "description": "Strategic naval base",
+          "lat": 8.5874,
+          "lon": 81.2152
+        }
+      ],
+      "secret": [
+        {
+          "name": "Hambantota Strategic Zone",
+          "description": "Deep sea logistics hub",
+          "lat": 6.1241,
+          "lon": 81.1185,
+          "status": "locked"
+        }
+      ]
     },
     {
-      "name": "Galle",
-      "description": "Southern trade hub",
-      "lat": 6.0535,
-      "lon": 80.2210
-    }
-  ],
-  "military": [
-    {
-      "name": "Trincomalee",
-      "description": "Strategic naval base",
-      "lat": 8.5874,
-      "lon": 81.2152
-    }
-  ],
-  "secret": [
-    {
-      "name": "Hambantota Strategic Zone",
-      "description": "Deep sea logistics hub",
-      "lat": 6.1241,
-      "lon": 81.1185,
-      "status": "locked"
-    }
-  ]
+      "name": "Nepal",
+      "capital": {
+        "name": "Kathmandu",
+        "type": "political",
+        "description": "National capital",
+        "lat": 27.7172,
+        "lon": 85.3240
+      },
+      "economic": [
+        {
+          "name": "Pokhara",
+          "description": "Tourism and commerce hub",
+          "lat": 28.2096,
+          "lon": 83.9856
         },
-{
-  "name": "Nepal",
-  "capital": {
-    "name": "Kathmandu",
-    "type": "political",
-    "description": "National capital",
-    "lat": 27.7172,
-    "lon": 85.3240
-  },
-  "economic": [
-    {
-      "name": "Pokhara",
-      "description": "Tourism and commerce hub",
-      "lat": 28.2096,
-      "lon": 83.9856
+        {
+          "name": "Birgunj",
+          "description": "Trade gateway with India",
+          "lat": 27.0104,
+          "lon": 84.8774
+        }
+      ],
+      "military": [
+        {
+          "name": "Dharan",
+          "description": "Eastern military center",
+          "lat": 26.8142,
+          "lon": 87.2797
+        }
+      ],
+      "secret": [
+        {
+          "name": "Lumbini Strategic Corridor",
+          "description": "Strategic transport corridor",
+          "lat": 27.4833,
+          "lon": 83.2767,
+          "status": "locked"
+        }
+      ]
     },
     {
-      "name": "Birgunj",
-      "description": "Trade gateway with India",
-      "lat": 27.0104,
-      "lon": 84.8774
-    }
-  ],
-  "military": [
+      "name": "Bhutan",
+      "capital": {
+        "name": "Thimphu",
+        "type": "political",
+        "description": "National capital",
+        "lat": 27.4728,
+        "lon": 89.6390
+      },
+      "economic": [
+        {
+          "name": "Phuentsholing",
+          "description": "Trade gateway",
+          "lat": 26.8516,
+          "lon": 89.3886
+        },
+        {
+          "name": "Paro",
+          "description": "Tourism center",
+          "lat": 27.4286,
+          "lon": 89.4167
+        }
+      ],
+      "military": [
+        {
+          "name": "Haa Valley",
+          "description": "Mountain defense region",
+          "lat": 27.3875,
+          "lon": 89.2800
+        }
+      ],
+      "secret": [
+        {
+          "name": "Doklam Region",
+          "description": "Strategic border zone",
+          "lat": 27.3030,
+          "lon": 88.9230,
+          "status": "locked"
+        }
+      ]
+    },
     {
-      "name": "Dharan",
-      "description": "Eastern military center",
-      "lat": 26.8142,
-      "lon": 87.2797
-    }
-  ],
-  "secret": [
+      "name": "Maldives",
+      "capital": {
+        "name": "Male",
+        "type": "political",
+        "description": "National capital",
+        "lat": 4.1755,
+        "lon": 73.5093
+      },
+      "economic": [
+        {
+          "name": "Addu City",
+          "description": "Southern economic center",
+          "lat": -0.6293,
+          "lon": 73.1570
+        }
+      ],
+      "military": [
+        {
+          "name": "Gan",
+          "description": "Air and maritime facility",
+          "lat": -0.6933,
+          "lon": 73.1556
+        }
+      ],
+      "secret": [
+        {
+          "name": "Southern Atoll Surveillance Zone",
+          "description": "Strategic maritime monitoring area",
+          "lat": -0.7500,
+          "lon": 73.2000,
+          "status": "locked"
+        }
+      ]
+    },
     {
-      "name": "Lumbini Strategic Corridor",
-      "description": "Strategic transport corridor",
-      "lat": 27.4833,
-      "lon": 83.2767,
-      "status": "locked"
+      "name": "Afghanistan",
+      "capital": {
+        "name": "Kabul",
+        "type": "political",
+        "description": "National capital",
+        "lat": 34.5553,
+        "lon": 69.2075
+      },
+      "economic": [
+        {
+          "name": "Herat",
+          "description": "Western trade hub",
+          "lat": 34.3529,
+          "lon": 62.2040
+        },
+        {
+          "name": "Kandahar",
+          "description": "Southern commercial center",
+          "lat": 31.6289,
+          "lon": 65.7372
+        },
+        {
+          "name": "Mazar-i-Sharif",
+          "description": "Northern trade hub",
+          "lat": 36.7090,
+          "lon": 67.1109
+        }
+      ],
+      "military": [
+        {
+          "name": "Bagram",
+          "description": "Major military airfield",
+          "lat": 34.9461,
+          "lon": 69.2647
+        }
+      ],
+      "secret": [
+        {
+          "name": "Wakhan Corridor",
+          "description": "Strategic mountain corridor",
+          "lat": 36.8500,
+          "lon": 73.5000,
+          "status": "locked"
+        }
+      ]
     }
   ]
-},
-{
-  "name": "Bhutan",
-  "capital": {
-    "name": "Thimphu",
-    "type": "political",
-    "description": "National capital",
-    "lat": 27.4728,
-    "lon": 89.6390
-  },
-  "economic": [
-    {
-      "name": "Phuentsholing",
-      "description": "Trade gateway",
-      "lat": 26.8516,
-      "lon": 89.3886
-    },
-    {
-      "name": "Paro",
-      "description": "Tourism center",
-      "lat": 27.4286,
-      "lon": 89.4167
-    }
-  ],
-  "military": [
-    {
-      "name": "Haa Valley",
-      "description": "Mountain defense region",
-      "lat": 27.3875,
-      "lon": 89.2800
-    }
-  ],
-  "secret": [
-    {
-      "name": "Doklam Region",
-      "description": "Strategic border zone",
-      "lat": 27.3030,
-      "lon": 88.9230,
-      "status": "locked"
-    }
-  ]
-},
-{
-  "name": "Maldives",
-  "capital": {
-    "name": "Male",
-    "type": "political",
-    "description": "National capital",
-    "lat": 4.1755,
-    "lon": 73.5093
-  },
-  "economic": [
-    {
-      "name": "Addu City",
-      "description": "Southern economic center",
-      "lat": -0.6293,
-      "lon": 73.1570
-    }
-  ],
-  "military": [
-    {
-      "name": "Gan",
-      "description": "Air and maritime facility",
-      "lat": -0.6933,
-      "lon": 73.1556
-    }
-  ],
-  "secret": [
-    {
-      "name": "Southern Atoll Surveillance Zone",
-      "description": "Strategic maritime monitoring area",
-      "lat": -0.7500,
-      "lon": 73.2000,
-      "status": "locked"
-    }
-  ]
-    },
-{
-  "name": "Afghanistan",
-  "capital": {
-    "name": "Kabul",
-    "type": "political",
-    "description": "National capital",
-    "lat": 34.5553,
-    "lon": 69.2075
-  },
-  "economic": [
-    {
-      "name": "Herat",
-      "description": "Western trade hub",
-      "lat": 34.3529,
-      "lon": 62.2040
-    },
-    {
-      "name": "Kandahar",
-      "description": "Southern commercial center",
-      "lat": 31.6289,
-      "lon": 65.7372
-    },
-    {
-      "name": "Mazar-i-Sharif",
-      "description": "Northern trade hub",
-      "lat": 36.7090,
-      "lon": 67.1109
-    }
-  ],
-  "military": [
-    {
-      "name": "Bagram",
-      "description": "Major military airfield",
-      "lat": 34.9461,
-      "lon": 69.2647
-    }
-  ],
-  "secret": [
-    {
-      "name": "Wakhan Corridor",
-      "description": "Strategic mountain corridor",
-      "lat": 36.8500,
-      "lon": 73.5000,
-      "status": "locked"
-    }
-  ]
-    },
-        
+        }
+      
