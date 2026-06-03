@@ -728,7 +728,77 @@
       "secret": [
         { "name": "Levantine Basin Monitor", "description": "Offshore energy and maritime electronic surveillance grid", "lat": 34.5000, "lon": 34.0000, "status": "locked" }
       ]
-        }
+    },
+    {
+      "name": "Maldives",
+      "capital": { "name": "Malé", "type": "political", "description": "National capital and economic hub", "lat": 4.1755, "lon": 73.5093 },
+      "economic": [
+        { "name": "Hulhumalé", "description": "Reclaimed industrial and commercial zone", "lat": 4.2124, "lon": 73.5422 }
+      ],
+      "military": [
+        { "name": "Gan Island Base", "description": "Strategic southern maritime defense post", "lat": -0.6934, "lon": 73.1554 }
+      ],
+      "secret": [
+        { "name": "Indian Ocean Watch Grid", "description": "Exclusive economic zone surveillance network", "lat": 3.0000, "lon": 73.0000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Sri Lanka",
+      "capital": { "name": "Sri Jayawardenepura Kotte", "type": "political", "description": "Administrative capital", "lat": 6.9110, "lon": 79.9213 },
+      "economic": [
+        { "name": "Colombo", "description": "Commercial capital and major South Asian port", "lat": 6.9271, "lon": 79.8612 },
+        { "name": "Hambantota", "description": "Strategic southern deep-water port", "lat": 6.1246, "lon": 81.1185 }
+      ],
+      "military": [
+        { "name": "Trincomalee", "description": "Strategic eastern naval base command", "lat": 8.5711, "lon": 81.2335 }
+      ],
+      "secret": [
+        { "name": "Mannar Basin Grid", "description": "Maritime energy and security tracking sector", "lat": 9.0000, "lon": 79.8000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Bhutan",
+      "capital": { "name": "Thimphu", "type": "political", "description": "National capital", "lat": 27.4712, "lon": 89.6356 },
+      "economic": [
+        { "name": "Phuntsholing", "description": "Primary southern trade gateway with India", "lat": 26.8620, "lon": 89.3831 }
+      ],
+      "military": [
+        { "name": "Haa Command Zone", "description": "Strategic western border defense hub", "lat": 27.3871, "lon": 89.2811 }
+      ],
+      "secret": [
+        { "name": "Himalayan Ridge Watch", "description": "High-altitude northern frontier radar grid", "lat": 28.0000, "lon": 89.8000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Nepal",
+      "capital": { "name": "Kathmandu", "type": "political", "description": "National capital and historic core", "lat": 27.7172, "lon": 85.3240 },
+      "economic": [
+        { "name": "Birgunj", "description": "Primary commercial logistics and trade gateway", "lat": 27.0126, "lon": 84.8776 }
+      ],
+      "military": [
+        { "name": "Pokhara Command", "description": "Central regional defense and air base", "lat": 28.2096, "lon": 83.9856 }
+      ],
+      "secret": [
+        { "name": "Everest Surveillance Sector", "description": "Strategic mountain pass intercept network", "lat": 27.9881, "lon": 86.9250, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Afghanistan",
+      "capital": { "name": "Kabul", "type": "political", "description": "National capital and central command", "lat": 34.5553, "lon": 69.2075 },
+      "economic": [
+        { "name": "Herat", "description": "Western trade hub near the Iranian border", "lat": 34.3526, "lon": 62.2040 },
+        { "name": "Mazar-i-Sharif", "description": "Northern logistics and commercial hub", "lat": 36.7080, "lon": 67.1108 }
+      ],
+      "military": [
+        { "name": "Bagram Tactical Zone", "description": "Major strategic airforce and land defense center", "lat": 34.9462, "lon": 69.2650 }
+      ],
+      "secret": [
+        { "name": "Wakhan Corridor Grid", "description": "Strategic choke-border isolation watch", "lat": 37.0000, "lon": 73.5000, "status": "locked" }
+      ]
+    }
+  ]
+      }
+        
     
         
       
