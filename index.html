@@ -110,6 +110,22 @@
         }
         .status-unlocked { background: #238636; color: white; }
         .status-locked { background: #da3633; color: white; }
+        
+        /* Cache Status Indicator */
+        .cache-indicator {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(13, 17, 23, 0.95);
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #c9d1d9;
+            font-size: 11px;
+            z-index: 1000;
+        }
+        .cache-indicator.fresh { border-color: #238636; }
+        .cache-indicator.loading { border-color: #d29922; }
     </style>
 </head>
 <body>
@@ -123,25 +139,32 @@
         <button class="layer-btn" onclick="filterLayer('secret_zone', this)"><span>🔒</span> Intel / Secret Zones</button>
     </div>
 
+    <div class="cache-indicator loading" id="cacheStatus">⟳ Loading fresh data...</div>
+
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ===== FORCE CACHE BREAKING LOGIC =====
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                for(let registration of registrations) {
-                    registration.unregister();
-                }
-            });
-        }
-        if ('caches' in window) {
-            caches.keys().then(names => {
-                for (let name of names) caches.delete(name);
-            });
-        }
+        // ===== ব্রাউজার ক্যাশ মুছে ফেলা =====
+        window.addEventListener('load', function() {
+            // Service Worker রিজিস্ট্রেশন মুছে ফেলা
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                    }
+                });
+            }
+            
+            // সমস্ত ক্যাশ স্টোরেজ মুছে ফেলা
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                });
+            }
+        });
 
-        // ম্যাপ ইনিশিয়ালাইজেশন (ডার্ক থিম)
+        // ম্যাপ ইনিশিয়ালাইজেশন
         const map = L.map('map', {
             center: [22.0, 90.0], 
             zoom: 4,
@@ -190,12 +213,36 @@
             "Turkey": [38.9637, 35.2433]
         };
 
-        // ডাইনামিক লাইভ ডাটা ফেচিং এবং রেন্ডারিং লজিক
-        fetch('./cities.json?cb=' + new Date().getTime())
-            .then(response => response.json())
+        // ===== ডায়নামিক ডাটা লোডিং (মিনিট এবং সেকেন্ড সহ ইউনিক কোয়েরি প্যারামিটার) =====
+        function loadCitiesData() {
+            const cacheStatus = document.getElementById('cacheStatus');
+            cacheStatus.textContent = '⟳ Loading fresh data...';
+            cacheStatus.className = 'cache-indicator loading';
+
+            // সর্বদা ফ্রেশ ডেটা নিশ্চিত করতে টাইমস্ট্যাম্প যোগ করা
+            const timestamp = new Date().getTime();
+            const url = `./cities.json?cb=${timestamp}&t=${Math.random()}`;
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
             .then(data => {
+                console.log('✓ Fresh data loaded at:', new Date().toLocaleTimeString());
                 const rootData = data.regions ? data.regions : data;
                 
+                // পুরানো মার্কার সরিয়ে ফেলা
+                allMarkers.forEach(marker => map.removeLayer(marker));
+                allMarkers = [];
+
                 for (let region in rootData) {
                     if (region === 'game_world') continue; 
                     const countries = rootData[region].countries;
@@ -243,8 +290,29 @@
                     }
                 }
                 updateZoomVisibility();
+                
+                // সফলতার স্ট্যাটাস দেখানো
+                cacheStatus.textContent = '✓ Data fresh (Last: ' + new Date().toLocaleTimeString() + ')';
+                cacheStatus.className = 'cache-indicator fresh';
             })
-            .catch(error => console.error('Error loading data:', error));
+            .catch(error => {
+                console.error('✗ Error loading data:', error);
+                cacheStatus.textContent = '✗ Error loading data';
+                cacheStatus.className = 'cache-indicator';
+            });
+        }
+
+        // প্রথমবার ডেটা লোড করা
+        loadCitiesData();
+
+        // প্রতি ৫ মিনিটে স্বয়ংক্রিয়ভাবে ডেটা রিফ্রেশ করা
+        setInterval(loadCitiesData, 5 * 60 * 1000);
+
+        // প্রতি ২ ঘন্টায় পেজ রিলোড করা (সম্পূর্ণ ব্রাউজার ক্যাশ পরিষ্কার করতে)
+        setInterval(() => {
+            console.log('⟳ Full page refresh to clear all cache');
+            location.reload(true);
+        }, 2 * 60 * 60 * 1000);
 
         function filterLayer(role, btn) {
             currentFilter = role;
@@ -281,5 +349,4 @@
         map.on('zoomend', updateZoomVisibility);
     </script>
 </body>
-    </html>
-    
+</html>
