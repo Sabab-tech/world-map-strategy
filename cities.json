@@ -553,7 +553,144 @@
       "secret": [
         { "name": "Eastern Desert Perimeter", "description": "Tri-border strategic security zone", "lat": 32.0000, "lon": 37.5000, "status": "locked" }
       ]
-      }
+  
+    },
+    {
+      "name": "Yemen",
+      "capital": { "name": "Sanaa", "type": "political", "description": "National capital and historic center", "lat": 15.3694, "lon": 44.1910 },
+      "economic": [
+        { "name": "Aden", "description": "Strategic southern port and economic hub", "lat": 12.7855, "lon": 45.0186 },
+        { "name": "Al Hudaydah", "description": "Major Red Sea shipping port", "lat": 14.8014, "lon": 42.9511 }
+      ],
+      "military": [
+        { "name": "Al Anad Air Base", "description": "Strategic southern military airfield", "lat": 13.1764, "lon": 44.8236 }
+      ],
+      "secret": [
+        { "name": "Bab-el-Mandeb Strait Zone", "description": "Global maritime chokepoint surveillance", "lat": 12.6000, "lon": 43.4000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Oman",
+      "capital": { "name": "Muscat", "type": "political", "description": "National capital and commercial port", "lat": 23.5859, "lon": 58.4059 },
+      "economic": [
+        { "name": "Salalah", "description": "Southern logistics and free zone hub", "lat": 17.0151, "lon": 54.0924 },
+        { "name": "Duqm", "description": "Mega industrial port development zone", "lat": 19.6739, "lon": 57.7022 }
+      ],
+      "military": [
+        { "name": "Thumrait Air Base", "description": "Strategic southern defense airfield", "lat": 17.6592, "lon": 54.0244 }
+      ],
+      "secret": [
+        { "name": "Musandam Strait Network", "description": "Hormuz Strait northern surveillance command", "lat": 26.1500, "lon": 56.2500, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Kuwait",
+      "capital": { "name": "Kuwait City", "type": "political", "description": "National capital and financial center", "lat": 29.3759, "lon": 47.9774 },
+      "economic": [
+        { "name": "Shuwaikh Port", "description": "Primary industrial and commercial port", "lat": 29.3550, "lon": 47.9250 }
+      ],
+      "military": [
+        { "name": "Ali Al Salem Air Base", "description": "Strategic northern air defense command", "lat": 29.3444, "lon": 47.5203 }
+      ],
+      "secret": [
+        { "name": "Bubiyan Island Strategic Grid", "description": "Northern gulf maritime security network", "lat": 29.7833, "lon": 48.2500, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Bahrain",
+      "capital": { "name": "Manama", "type": "political", "description": "National capital and financial center", "lat": 26.2285, "lon": 50.5860 },
+      "economic": [
+        { "name": "Mina Salman", "description": "Primary commercial cargo port", "lat": 26.2050, "lon": 50.6120 }
+      ],
+      "military": [
+        { "name": "Isa Air Base", "description": "National tactical air force base", "lat": 25.9184, "lon": 50.5905 }
+      ],
+      "secret": [
+        { "name": "Naval Support Activity Area", "description": "Strategic maritime coalition hub", "lat": 26.2110, "lon": 50.6050, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Kyrgyzstan",
+      "capital": { "name": "Bishkek", "type": "political", "description": "National capital and economic hub", "lat": 42.8746, "lon": 74.5698 },
+      "economic": [
+        { "name": "Osh", "description": "Southern trade gateway and historic center", "lat": 40.5140, "lon": 72.8161 }
+      ],
+      "military": [
+        { "name": "Kant Air Base", "description": "Strategic regional defense airfield", "lat": 42.8525, "lon": 74.8475 }
+      ],
+      "secret": [
+        { "name": "Tian Shan Border Grid", "description": "High-altitude mountain surveillance zone", "lat": 42.0000, "lon": 77.5000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Kazakhstan",
+      "capital": { "name": "Astana", "type": "political", "description": "National capital and administrative center", "lat": 51.1605, "lon": 71.4704 },
+      "economic": [
+        { "name": "Almaty", "description": "Largest financial and commercial hub", "lat": 43.2220, "lon": 76.8512 },
+        { "name": "Atyrau", "description": "Major oil and gas industry hub on the Caspian Sea", "lat": 47.0945, "lon": 51.9149 }
+      ],
+      "military": [
+        { "name": "Karaganda Base", "description": "Central strategic air and land defense command", "lat": 49.8047, "lon": 73.0862 }
+      ],
+      "secret": [
+        { "name": "Baikonur Cosmodrome Grid", "description": "Strategic space and missile launch perimeter", "lat": 45.9650, "lon": 63.3050, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Uzbekistan",
+      "capital": { "name": "Tashkent", "type": "political", "description": "National capital and industrial hub", "lat": 41.2995, "lon": 69.2401 },
+      "economic": [
+        { "name": "Samarkand", "description": "Historic trade center and tourism hub", "lat": 39.6542, "lon": 66.9597 },
+        { "name": "Navoiy", "description": "Free economic zone and mining hub", "lat": 40.0844, "lon": 65.3792 }
+      ],
+      "military": [
+        { "name": "Termez Command", "description": "Southern border strategic military sector", "lat": 37.2242, "lon": 67.2783 }
+      ],
+      "secret": [
+        { "name": "Fergana Valley Grid", "description": "Tri-border strategic surveillance network", "lat": 40.3842, "lon": 71.7842, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Tajikistan",
+      "capital": { "name": "Dushanbe", "type": "political", "description": "National capital", "lat": 38.5598, "lon": 68.7870 },
+      "economic": [
+        { "name": "Khujand", "description": "Northern trade gateway and industrial city", "lat": 40.2826, "lon": 69.6222 }
+      ],
+      "military": [
+        { "name": "Ayni Air Base", "description": "Strategic military airfield and defense zone", "lat": 38.5134, "lon": 68.6750 }
+      ],
+      "secret": [
+        { "name": "Pamir Highway Watch", "description": "High-altitude mountain border surveillance grid", "lat": 37.5000, "lon": 72.5000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Turkmenistan",
+      "capital": { "name": "Ashgabat", "type": "political", "description": "National capital and administrative hub", "lat": 37.9601, "lon": 58.3261 },
+      "economic": [
+        { "name": "Turkmenbashi", "description": "Primary Caspian Sea port and refinery center", "lat": 40.0232, "lon": 52.9642 }
+      ],
+      "military": [
+        { "name": "Mary-2 Air Base", "description": "Strategic southern military airfield command", "lat": 37.6042, "lon": 61.8124 }
+      ],
+      "secret": [
+        { "name": "Galkynysh Strategic Gas Grid", "description": "Massive onshore energy reserve infrastructure", "lat": 37.4500, "lon": 62.1500, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Azerbaijan",
+      "capital": { "name": "Baku", "type": "political", "description": "National capital and Caspian Sea mega port", "lat": 40.4093, "lon": 49.8671 },
+      "economic": [
+        { "name": "Ganja", "description": "Western industrial and agricultural hub", "lat": 40.6828, "lon": 46.3606 }
+      ],
+      "military": [
+        { "name": "Nakhchivan Command", "description": "Strategic exclave defense defense grid", "lat": 39.2089, "lon": 45.4122 }
+      ],
+      "secret": [
+        { "name": "Caspian Maritime Surveillance", "description": "Offshore energy and naval monitoring network", "lat": 40.1000, "lon": 51.0000, "status": "locked" }
+      ]
+        }
+        
+      
         
     
     
