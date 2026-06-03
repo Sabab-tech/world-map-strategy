@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Advanced World Map</title>
+    <title>Fixed World Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; }
         #map { height: 100vh; width: 100%; background: #000; }
-        /* বর্ডার লকিং এবং পারফরম্যান্স অপ্টিমাইজেশন */
-        .leaflet-tile-pane { z-index: 2; }
-        .leaflet-overlay-pane { z-index: 3; }
     </style>
 </head>
 <body>
@@ -16,20 +13,23 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // ম্যাপ সেটিংস: জুম কন্ট্রোল এবং লেভেল লিমিট
         var map = L.map('map', { 
             zoomControl: false,
             minZoom: 2,  
-            maxZoom: 10,
-            zoomAnimation: false, 
-            fadeAnimation: false 
+            maxZoom: 9, // জুম লিমিট কমিয়ে ৯ করা হলো
+            zoomSnap: 1, // প্রতিটি জুম লেভেলে আটকে থাকবে, ইচ্ছামতো জুম হবে না
+            zoomDelta: 1 // প্রতি ক্লিকে এক লেভেল জুম হবে
         }).setView([20, 0], 2);
 
-        // স্যাটেলাইট বেস লেয়ার (ESRI)
+        // স্যাটেলাইট লেয়ার লোডিং পারফরম্যান্স ঠিক করা
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Satellite Map'
+            attribution: 'Satellite Map',
+            keepBuffer: 3, // ম্যাপ লোড হওয়ার সময় বাফার বাড়াবে
+            updateWhenIdle: true // স্থির থাকলেই লোড হবে, জুম করার সময় লোড কম নেবে
         }).addTo(map);
 
-        // ডিটেইলড GeoJSON ফাইল (বাহারাইন, পানামা, মালদ্বীপ সহ)
+        // জিও-জেসন বর্ডার লেয়ার
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
             .then(data => {
@@ -39,8 +39,7 @@
                         weight: 1.2,
                         opacity: 0.7,
                         fillOpacity: 0
-                    },
-                    pane: 'overlayPane'
+                    }
                 }).addTo(map);
             });
     </script>
