@@ -757,7 +757,91 @@
           "status": "locked"
         }
       ]
-    }
-  ]
-    }
-          
+    },
+    {
+      "name": "South Korea",
+      "capital": {
+        "name": "Seoul",
+        "type": "political",
+        "description": "National capital and economic powerhouse",
+        "lat": 37.5665,
+        "lon": 126.9780
+      },
+      "economic": [
+        {
+          "name": "Busan",
+          "description": "Major port city",
+          "lat": 35.1796,
+          "lon": 129.0756
+        },
+        {
+          "name": "Incheon",
+          "description": "Trade and logistics hub",
+          "lat": 37.4563,
+          "lon": 126.7052
+        }
+      ],
+      "military": [
+        {
+          "name": "Pyeongtaek",
+          "description": "Major military base",
+          "lat": 36.9921,
+          "lon": 127.1127
+        }
+      ],
+      "secret": [
+        {
+          "name": "DMZ Command Zone",
+          "description": "Strategic border command",
+          "lat": 38.2000,
+          "lon": 127.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "North Korea",
+      "capital": {
+        "name": "Pyongyang",
+        "type": "political",
+        "description": "National capital and command hub",
+        "lat": 39.0392,
+        "lon": 125.7625
+      },
+      "economic": [
+        {
+          "name": "Hamhung",
+          "description": "Industrial city",
+          "lat": 39.9183,
+          "lon": 127.5364
+        }
+      ],
+      "military": [
+        {
+          "name": "Wonsan",
+          "description": "Naval base",
+          "lat": 39.1528,
+          "lon": 127.4436
+        }
+      ],
+      "secret": [
+        {
+          "name": "Yongbyon Nuclear Zone",
+          "description": "Strategic nuclear facility",
+          "lat": 39.7967,
+          "lon": 125.7550,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Taiwan",
+      "capital": {
+        "name": "Taipei",
+        "type": "political",
+        "description": "National capital and high-tech center",
+        "lat": 25.0330,
+        "lon": 121.5654
+      },
+      "economic": [
+        
