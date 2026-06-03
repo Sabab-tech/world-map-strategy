@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Clean Satellite Map</title>
+    <title>World Map with Borders</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; }
@@ -10,12 +10,34 @@
 </head>
 <body>
     <div id="map"></div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        var map = L.map('map', { zoomControl: false }).setView([20.0, 78.0], 5);
+        // জুম লেভেল সেট করা: minZoom (পৃথিবী দেখা যাবে) থেকে maxZoom (খুব কাছ থেকে দেখা যাবে)
+        var map = L.map('map', { 
+            zoomControl: false,
+            minZoom: 2,  
+            maxZoom: 10  
+        }).setView([20, 0], 2);
+
+        // স্যাটেলাইট বেস লেয়ার
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Satellite Map'
         }).addTo(map);
+
+        // GeoJSON বর্ডার লেয়ার
+        fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+            .then(res => res.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    style: {
+                        color: "#ffffff",      // সাদা রঙ
+                        weight: 1,             // বর্ডারের পুরুত্ব
+                        opacity: 0.5,          // হালকা সাদা (0.5 মানে ৫০% স্বচ্ছ)
+                        fillOpacity: 0         // দেশের ভেতরে কোনো রঙ থাকবে না
+                    }
+                }).addTo(map);
+            });
     </script>
 </body>
 </html>
