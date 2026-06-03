@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Perfect Strategy Map Engine</title>
+    <title>Ultimate 3D Strategy Map Engine</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; background: #000; overflow: hidden; }
         #map { height: 100vh; width: 100%; background: #000; }
         
-        /* দেশের নামগুলোর প্রিমিয়াম গেম স্টাইল */
-        .country-label {
+        /* থ্রিডি টাইপ প্রফেশনাল গেম টেক্সট স্টাইল */
+        .game-country-label {
             background: none !important;
             border: none !important;
             box-shadow: none !important;
-            color: rgba(255, 255, 255, 0.85);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #f1f5f9;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             font-size: 11px;
-            font-weight: bold;
-            text-shadow: 0px 2px 4px #000, 0px -1px 2px #000;
+            font-weight: 800;
+            letter-spacing: 0.8px;
             white-space: nowrap;
             pointer-events: none;
+            transition: opacity 0.2s ease;
+            
+            /* মাল্টিপল লেয়ার শ্যাডো দিয়ে তৈরি ৩ডি ইফেক্ট */
+            text-shadow: 
+                1px 1px 0px #334155,
+                2px 2px 0px #1e293b,
+                3px 3px 5px rgba(0, 0, 0, 0.9),
+                -1px -1px 2px rgba(0,0,0,0.5);
         }
 
-        /* হার্ডওয়্যার লেভেলে লকিং */
+        /* জিপিইউ এক্সিলারেশন এবং লকিং */
         .leaflet-zoom-animated, .leaflet-pane {
             will-change: transform, opacity;
             transform-style: preserve-3d;
@@ -34,20 +42,19 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // ক্যানভাস রেন্ডারার (বর্ডার লকিংয়ের জন্য)
         var ultimateRenderer = L.canvas({ padding: 0.1, tolerance: 5 });
 
-        // পুরো পৃথিবীর ম্যাপকে স্ক্রিনের বাইরে ছিটকে যাওয়া থেকে আটকানোর বাউন্ডারি
-        var southWest = L.latLng(-60, -180);
-        var northEast = L.latLng(85, 180);
-        var bounds = L.latLngBounds(southWest, northEast);
+        // ওয়ার্ল্ড বাউন্ডারি লকিং
+        var bounds = L.latLngBounds(L.latLng(-60, -180), L.latLng(85, 180));
 
         var map = L.map('map', { 
             zoomControl: false,
-            minZoom: 3.8,      // উচ্চতা কঠোরভাবে নিয়ন্ত্রণ করা হলো (আর বেশি উপরে ওঠা সম্ভব নয়)
+            minZoom: 3.8,      // সর্বোচ্চ উচ্চতা লক
             maxZoom: 9,
-            zoomSnap: 0.1,     // স্মুথ জুম লকিং
+            zoomSnap: 0.1,
             zoomDelta: 1,
-            maxBounds: bounds, // ম্যাপ স্ক্রিনের ভেতরে আটকে থাকবে
+            maxBounds: bounds, 
             maxBoundsViscosity: 1.0, 
             inertia: false,
             renderer: ultimateRenderer
@@ -63,77 +70,126 @@
 
         var geojsonLayer;
         var selectedLayer = null;
+        var renderedCountries = new Set(); // ডুপ্লিকেট নাম ট্র্যাকার ম্যাট্রিক্স
 
+        // লম্বা বা বাঁকা দেশগুলোর নাম কাত করার জন্য অ্যাঙ্গেল ক্যালকুলেটর (যেমন: চিলি, ইতালি)
+        function calculateTextRotation(bounds) {
+            var northEast = bounds.getNorthEast();
+            var southWest = bounds.getSouthWest();
+            var latDiff = northEast.lat - southWest.lat;
+            var lngDiff = northEast.lng - southWest.lng;
+            
+            // যদি দেশটা চওড়ার চেয়ে লম্বায় বেশি বড় হয়, তবে নাম কাত হবে
+            if (latDiff > lngDiff * 1.5) {
+                var angle = Math.atan2(latDiff, lngDiff) * (180 / Math.PI);
+                return (angle > 90) ? angle - 180 : angle - 65; // পারফেক্ট ডাউন-সেন্টার অ্যাঙ্গেল
+            }
+            return 0; // সাধারণ দেশের জন্য সোজা টেক্সট
+        }
+
+        // জিও-জেসন ডাটা লোড ও প্রসেসিং
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
             .then(data => {
                 geojsonLayer = L.geoJSON(data, {
+                    // ১. শুধুমাত্র জাতিসংঘ স্বীকৃত দেশ ফিল্টার
                     filter: function(feature) {
                         var name = feature.properties.ADMIN;
                         var code = feature.properties.ISO_A3;
                         return code !== "-99" && name !== "Somaliland" && name !== "Western Sahara";
                     },
+                    // ২. সাধারণ অবস্থায় সূক্ষ্ম সাদা বর্ডার
                     style: function(feature) {
                         return {
                             color: "#ffffff",
-                            weight: map.getZoom() > 5.5 ? 2.3 : 0.9, // জুম করলে বর্ডার একটু বোল্ড হবে
+                            weight: map.getZoom() > 5.5 ? 2.3 : 0.9,
                             opacity: 0.4,
                             fillColor: "#ffffff",
-                            fillOpacity: 0.01 // টাচ ইভেন্ট ক্যাচ করার জন্য মিনিমাম ওপাটিসিটি
+                            fillOpacity: 0.01 
                         };
                     },
                     onEachFeature: function(feature, layer) {
                         var countryName = feature.properties.ADMIN;
                         
                         if (layer.getBounds) {
-                            layer.bindTooltip(countryName, {
-                                permanent: true,
-                                direction: 'center',
-                                className: 'country-label',
-                                opacity: 0.85
-                            }).openTooltip();
-                        }
+                            var center = layer.getBounds().getCenter();
+                            var countryBounds = layer.getBounds();
 
-                        // টাচ/ক্লিক ইন্টারঅ্যাকশন
-                        layer.on({
-                            click: function(e) {
-                                if (selectedLayer) {
-                                    geojsonLayer.resetStyle(selectedLayer);
-                                }
+                            // ৩. ডুপ্লিকেট নাম আসা চিরতরে বন্ধ করার লজিক
+                            if (!renderedCountries.has(countryName)) {
+                                renderedCountries.add(countryName);
 
-                                selectedLayer = e.target;
-                                
-                                // নতুন রুল: গাঢ় সাদা এবং অত্যন্ত হালকা সবুজ আভাযুক্ত সিলেকশন কালার
-                                selectedLayer.setStyle({
-                                    color: "#e6fffa", // গাঢ় সাদা সাথে খুব হালকা গ্রিন/সায়ান মিক্স ভাইব
-                                    weight: map.getZoom() > 5.5 ? 3.5 : 2.5, // সিলেক্টেড বর্ডার আরও বোল্ড দেখাবে
-                                    opacity: 0.9,
-                                    fillColor: "#e6fffa",
-                                    fillOpacity: 0.1
+                                // ৪. লম্বা দেশের নাম কাত করার হিসাব চালু
+                                var rotationAngle = calculateTextRotation(countryBounds);
+
+                                // থ্রিডি টেক্সট মার্কার তৈরি
+                                var labelMarker = L.marker(center, {
+                                    icon: L.divIcon({
+                                        className: 'game-country-label',
+                                        html: `<div style="transform: rotate(${rotationAngle}deg);">${countryName}</div>`,
+                                        iconSize: [100, 20]
+                                    }),
+                                    interactive: false // নামের ওপর টাচ করলেও যেন নিচে সিলেক্ট কাজ করে
                                 });
 
-                                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                                    selectedLayer.bringToFront();
+                                // ৫. জুম লেভেল ফিল্টার (ছোট দেশগুলো জুম করলে দৃশ্যমান হবে)
+                                var isSmallCountry = countryBounds.getNorthEast().lat - countryBounds.getSouthWest().lat < 4;
+                                
+                                if (!isSmallCountry || map.getZoom() > 5.2) {
+                                    labelMarker.addTo(map);
                                 }
 
-                                console.log("Selected: " + countryName);
+                                // জুম ইভেন্টে ছোট দেশের নাম অন/অফ করার ট্র্যাকার
+                                map.on('zoomend', function() {
+                                    if (isSmallCountry) {
+                                        if (map.getZoom() > 5.2) {
+                                            if (!map.hasLayer(labelMarker)) labelMarker.addTo(map);
+                                        } else {
+                                            if (map.hasLayer(labelMarker)) map.removeLayer(labelMarker);
+                                        }
+                                    }
+                                });
                             }
-                        });
+
+                            // ৬. টাচ/ক্লিক ইন্টারঅ্যাকশন: গাঢ় সাদা ও হালকা সবুজ সিলেকশন বর্ডার
+                            layer.on({
+                                click: function(e) {
+                                    if (selectedLayer) {
+                                        geojsonLayer.resetStyle(selectedLayer);
+                                    }
+
+                                    selectedLayer = e.target;
+                                    
+                                    selectedLayer.setStyle({
+                                        color: "#e6fffa", // গাঢ় সাদা সাথে একদম হালকা সবুজ আভা
+                                        weight: map.getZoom() > 5.5 ? 3.5 : 2.5,
+                                        opacity: 0.9,
+                                        fillColor: "#e6fffa",
+                                        fillOpacity: 0.1
+                                    });
+
+                                    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                                        selectedLayer.bringToFront();
+                                    }
+
+                                    console.log("Selected Country: " + countryName);
+                                }
+                            });
+                        }
                     }
                 }).addTo(map);
             });
 
-        // জুম চেঞ্জের সাথে সাথে বর্ডারের বোল্ডনেস রিয়েল-টাইম আপডেট
+        // জুম চেঞ্জের সাথে সাথে বর্ডারের বোল্ডনেস ডাইনামিক রেন্ডারিং
         map.on('zoomend', function() {
             if (geojsonLayer) {
                 var currentZoom = map.getZoom();
                 geojsonLayer.eachLayer(function(layer) {
                     if (layer !== selectedLayer) {
                         layer.setStyle({
-                            weight: currentZoom > 5.5 ? 2.3 : 0.9 // জুম ইন করলে সাধারণ বর্ডারও বোল্ড হবে
+                            weight: currentZoom > 5.5 ? 2.3 : 0.9
                         });
                     } else {
-                        // সিলেক্টেড দেশের বর্ডার জুম অবস্থায় আরও বেশি বোল্ড থাকবে
                         layer.setStyle({
                             weight: currentZoom > 5.5 ? 3.5 : 2.5
                         });
