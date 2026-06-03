@@ -19,17 +19,17 @@
             letter-spacing: 0.8px;
             white-space: nowrap;
             pointer-events: none;
-            transition: opacity 0.2s ease;
+            display: block;
+            text-align: center;
             
-            /* মাল্টিপল লেয়ার শ্যাডো দিয়ে তৈরি ৩ডি ইফেক্ট */
+            /* ৩ডি শ্যাডো ইফেক্ট */
             text-shadow: 
                 1px 1px 0px #334155,
                 2px 2px 0px #1e293b,
-                3px 3px 5px rgba(0, 0, 0, 0.9),
-                -1px -1px 2px rgba(0,0,0,0.5);
+                3px 3px 5px rgba(0, 0, 0, 0.9);
         }
 
-        /* জিপিইউ এক্সিলারেশন এবং লকিং */
+        /* জিপিইউ লকিং */
         .leaflet-zoom-animated, .leaflet-pane {
             will-change: transform, opacity;
             transform-style: preserve-3d;
@@ -42,15 +42,12 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ক্যানভাস রেন্ডারার (বর্ডার লকিংয়ের জন্য)
         var ultimateRenderer = L.canvas({ padding: 0.1, tolerance: 5 });
-
-        // ওয়ার্ল্ড বাউন্ডারি লকিং
         var bounds = L.latLngBounds(L.latLng(-60, -180), L.latLng(85, 180));
 
         var map = L.map('map', { 
             zoomControl: false,
-            minZoom: 3.8,      // সর্বোচ্চ উচ্চতা লক
+            minZoom: 3.8,      
             maxZoom: 9,
             zoomSnap: 0.1,
             zoomDelta: 1,
@@ -70,35 +67,40 @@
 
         var geojsonLayer;
         var selectedLayer = null;
-        var renderedCountries = new Set(); // ডুপ্লিকেট নাম ট্র্যাকার ম্যাট্রিক্স
+        var renderedCountries = new Set(); 
 
-        // লম্বা বা বাঁকা দেশগুলোর নাম কাত করার জন্য অ্যাঙ্গেল ক্যালকুলেটর (যেমন: চিলি, ইতালি)
+        // লম্বা বা বাঁকা দেশগুলোর নাম কাত করার জন্য অ্যাঙ্গেল ক্যালকুলেটর
         function calculateTextRotation(bounds) {
             var northEast = bounds.getNorthEast();
             var southWest = bounds.getSouthWest();
             var latDiff = northEast.lat - southWest.lat;
             var lngDiff = northEast.lng - southWest.lng;
             
-            // যদি দেশটা চওড়ার চেয়ে লম্বায় বেশি বড় হয়, তবে নাম কাত হবে
             if (latDiff > lngDiff * 1.5) {
                 var angle = Math.atan2(latDiff, lngDiff) * (180 / Math.PI);
-                return (angle > 90) ? angle - 180 : angle - 65; // পারফেক্ট ডাউন-সেন্টার অ্যাঙ্গেল
+                return (angle > 90) ? angle - 180 : angle - 65; 
             }
-            return 0; // সাধারণ দেশের জন্য সোজা টেক্সট
+            return 0; 
         }
 
-        // জিও-জেসন ডাটা লোড ও প্রসেসিং
+        // জিও-জেসন ডাটা লোড
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
             .then(data => {
                 geojsonLayer = L.geoJSON(data, {
-                    // ১. শুধুমাত্র জাতিসংঘ স্বীকৃত দেশ ফিল্টার
+                    // ১. কড়া ফিল্টার: শুধুমাত্র সম্পূর্ণ জাতিসংঘ স্বীকৃত দেশ রাখা হলো
                     filter: function(feature) {
                         var name = feature.properties.ADMIN;
                         var code = feature.properties.ISO_A3;
-                        return code !== "-99" && name !== "Somaliland" && name !== "Western Sahara";
+                        
+                        // অ-স্বীকৃত, বিতর্কিত বা অপ্রয়োজনীয় অঞ্চলের তালিকা (সম্পূর্ণ ফিল্টারিং)
+                        var excludedCountries = ["Somaliland", "Western Sahara", "Taiwan", "Kosovo", "Northern Cyprus", "South Ossetia", "Abkhazia", "Transnistria"];
+                        
+                        if (code === "-99" || excludedCountries.includes(name)) {
+                            return false; 
+                        }
+                        return true; 
                     },
-                    // ২. সাধারণ অবস্থায় সূক্ষ্ম সাদা বর্ডার
                     style: function(feature) {
                         return {
                             color: "#ffffff",
@@ -115,31 +117,31 @@
                             var center = layer.getBounds().getCenter();
                             var countryBounds = layer.getBounds();
 
-                            // ৩. ডুপ্লিকেট নাম আসা চিরতরে বন্ধ করার লজিক
+                            // ২. ডুপ্লিকেট নাম রোধ এবং নাম রেন্ডার নিশ্চিতকরণ
                             if (!renderedCountries.has(countryName)) {
                                 renderedCountries.add(countryName);
 
-                                // ৪. লম্বা দেশের নাম কাত করার হিসাব চালু
                                 var rotationAngle = calculateTextRotation(countryBounds);
 
-                                // থ্রিডি টেক্সট মার্কার তৈরি
+                                // সরাসরি লেবেল মার্কার তৈরি (যা নিশ্চিতভাবে নাম দেখাবে)
                                 var labelMarker = L.marker(center, {
                                     icon: L.divIcon({
                                         className: 'game-country-label',
                                         html: `<div style="transform: rotate(${rotationAngle}deg);">${countryName}</div>`,
-                                        iconSize: [100, 20]
+                                        iconSize: [120, 24],
+                                        iconAnchor: [60, 12] // লেখার একদম মাঝখানে এংকর ফিক্স
                                     }),
-                                    interactive: false // নামের ওপর টাচ করলেও যেন নিচে সিলেক্ট কাজ করে
+                                    interactive: false 
                                 });
 
-                                // ৫. জুম লেভেল ফিল্টার (ছোট দেশগুলো জুম করলে দৃশ্যমান হবে)
-                                var isSmallCountry = countryBounds.getNorthEast().lat - countryBounds.getSouthWest().lat < 4;
+                                // ৩. জুম লেভেল অনুযায়ী ছোট দেশ নিয়ন্ত্রণ
+                                var isSmallCountry = (countryBounds.getNorthEast().lat - countryBounds.getSouthWest().lat < 4.5);
                                 
                                 if (!isSmallCountry || map.getZoom() > 5.2) {
                                     labelMarker.addTo(map);
                                 }
 
-                                // জুম ইভেন্টে ছোট দেশের নাম অন/অফ করার ট্র্যাকার
+                                // জুম ট্র্যাকার
                                 map.on('zoomend', function() {
                                     if (isSmallCountry) {
                                         if (map.getZoom() > 5.2) {
@@ -151,7 +153,7 @@
                                 });
                             }
 
-                            // ৬. টাচ/ক্লিক ইন্টারঅ্যাকশন: গাঢ় সাদা ও হালকা সবুজ সিলেকশন বর্ডার
+                            // ৪. টাচ ইন্টারঅ্যাকশন (গাঢ় সাদা + হালকা সবুজ আভা)
                             layer.on({
                                 click: function(e) {
                                     if (selectedLayer) {
@@ -161,7 +163,7 @@
                                     selectedLayer = e.target;
                                     
                                     selectedLayer.setStyle({
-                                        color: "#e6fffa", // গাঢ় সাদা সাথে একদম হালকা সবুজ আভা
+                                        color: "#e6fffa", 
                                         weight: map.getZoom() > 5.5 ? 3.5 : 2.5,
                                         opacity: 0.9,
                                         fillColor: "#e6fffa",
@@ -171,8 +173,6 @@
                                     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                                         selectedLayer.bringToFront();
                                     }
-
-                                    console.log("Selected Country: " + countryName);
                                 }
                             });
                         }
@@ -180,7 +180,7 @@
                 }).addTo(map);
             });
 
-        // জুম চেঞ্জের সাথে সাথে বর্ডারের বোল্ডনেস ডাইনামিক রেন্ডারিং
+        // বর্ডারের বোল্ডনেস জুম অনুযায়ী আপডেট
         map.on('zoomend', function() {
             if (geojsonLayer) {
                 var currentZoom = map.getZoom();
@@ -199,4 +199,5 @@
         });
     </script>
 </body>
-</html>
+    </html>
+    
