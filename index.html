@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>এশিয়ান জিওপলিტიკ্যাল স্ট্র্যাটেজি ম্যাপ</title>
+    <title>এশিয়ান জিওপলিটিক্যাল স্ট্র্যাটেজি ম্যাপ</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * {
@@ -194,7 +194,6 @@
         fetch('./cities.json?cb=' + new Date().getTime())
             .then(response => response.json())
             .then(data => {
-                // ফাইল সরাসরি বা .regions অবজেক্টের ভেতর থেকে ডেটা নেওয়ার সুরক্ষাকবচ
                 const rootData = data.regions ? data.regions : data;
                 
                 for (let region in rootData) {
@@ -238,5 +237,49 @@
 
                             marker.bindPopup(popupContent);
                             marker.gameData = { role: loc.role, status: loc.status };
-                            marker.
+                            marker.addTo(map);
+                            allMarkers.push(marker);
+                        });
+                    }
+                }
+                updateZoomVisibility();
+            })
+            .catch(error => console.error('Error loading data:', error));
+
+        function filterLayer(role, btn) {
+            currentFilter = role;
+            document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            allMarkers.forEach(marker => {
+                if (role === 'all' || marker.gameData.role === role) {
+                    if (!map.hasLayer(marker)) marker.addTo(map);
+                } else {
+                    if (map.hasLayer(marker)) map.removeLayer(marker);
+                }
+            });
+            updateZoomVisibility();
+        }
+
+        function updateZoomVisibility() {
+            const currentZoom = map.getZoom();
+            allMarkers.forEach(marker => {
+                if (currentFilter === 'all' || marker.gameData.role === currentFilter) {
+                    if (currentZoom <= 4) {
+                        if (marker.gameData.role !== 'capital') {
+                            if (map.hasLayer(marker)) map.removeLayer(marker);
+                        } else {
+                            if (!map.hasLayer(marker)) marker.addTo(map);
+                        }
+                    } else {
+                        if (!map.hasLayer(marker)) marker.addTo(map);
+                    }
+                }
+            });
+        }
+
+        map.on('zoomend', updateZoomVisibility);
+    </script>
+</body>
+    </html>
     
