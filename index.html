@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Perfect Grand Strategy Map</title>
+    <title>Interactive Strategy Map Engine</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; background: #000; overflow: hidden; }
         #map { height: 100vh; width: 100%; background: #000; }
         
-        /* দেশের নামগুলোর প্রিমিয়াম স্টাইল */
+        /* দেশের নামগুলোর প্রিমিয়াম গেম স্টাইল */
         .country-label {
             background: none !important;
             border: none !important;
@@ -21,7 +21,7 @@
             pointer-events: none;
         }
 
-        /* হার্ডওয়্যার লেভেলে বর্ডারের কাঁপুনি বন্ধ করার জন্য জিপিইউ এক্সিলারেশন */
+        /* জিপিইউ এক্সিলারেশন লকিং */
         .leaflet-zoom-animated, .leaflet-pane {
             will-change: transform, opacity;
             transform-style: preserve-3d;
@@ -34,55 +34,53 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // বর্ডারকে মাটির সাথে সিমেন্ট দিয়ে জাম করার জন্য আল্ট্রা-স্মুথ ক্যানভাস রেন্ডারার
-        var ultimateRenderer = L.canvas({ 
-            padding: 0.1,
-            tolerance: 1 // লাইনের শার্পনেস সর্বোচ্চ রাখার জন্য
-        });
+        var ultimateRenderer = L.canvas({ padding: 0.1, tolerance: 5 });
 
         var map = L.map('map', { 
             zoomControl: false,
-            minZoom: 2,  
+            minZoom: 3,       // পরিবর্তন: সর্বোচ্চ উচ্চতা নির্ধারণ করা হলো (আর বেশি উপরে ওঠা যাবে না)
             maxZoom: 9,
-            zoomSnap: 1,      // নির্দিষ্ট লেভেলে লক থাকবে
-            zoomDelta: 1,     // ইচ্ছামতো জুম হয়ে লাফাবে না
-            trackResize: false,
-            inertia: false,   // ম্যাপ ড্রাগ করার পর পিছলে যাবে locks position
-            renderer: ultimateRenderer // ক্যানভাস ইঞ্জিন অ্যাক্টিভেট করা হলো
-        }).setView([20, 0], 2);
+            zoomSnap: 1,
+            zoomDelta: 1,
+            inertia: false,
+            renderer: ultimateRenderer
+        }).setView([20, 0], 3);
 
-        // হাই-রেজোলিউশন স্যাটেলাইট বেস লেয়ার (ইসরো/ইএসআরআই স্ট্যান্ডার্ড)
+        // স্যাটেলাইট বেস লেয়ার
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Strategy Map',
-            maxNativeZoom: 19, // ১৯ লেভেলের ক্রিস্প ডেটা টেনে আনবে, ফলে ম্যাপ কখনো ঝাপসা হবে না
-            keepBuffer: 4,     // চারপাশের ৪ লেয়ার আগে থেকেই লোড রাখবে
+            maxNativeZoom: 19,
+            keepBuffer: 4,
             updateWhenIdle: true
         }).addTo(map);
 
-        // জেসন ডেটা লোড এবং আগের সব নিয়মের বাস্তবায়ন
+        var geojsonLayer;
+        var selectedLayer = null; // বর্তমানে সিলেক্টেড দেশ ধরে রাখার জন্য
+
+        // জেসন ডেটা ইঞ্জিন
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
             .then(data => {
-                L.geoJSON(data, {
-                    // নিয়ম ১: শুধুমাত্র জাতিসংঘ স্বীকৃত দেশ থাকবে (অপ্রয়োজনীয় দেশ বাদ)
+                geojsonLayer = L.geoJSON(data, {
                     filter: function(feature) {
                         var name = feature.properties.ADMIN;
                         var code = feature.properties.ISO_A3;
                         return code !== "-99" && name !== "Somaliland" && name !== "Western Sahara";
                     },
-                    // নিয়ম ২: বর্ডার হালকা সাদা ও নিখুঁত চিকন হবে
-                    style: {
-                        color: "#ffffff",
-                        weight: 1.0,      // একদম সূক্ষ্ম ১ পিক্সেল বর্ডার
-                        opacity: 0.4,       // হালকা সাদা নিয়ন লুক
-                        fillOpacity: 0
+                    style: function(feature) {
+                        return {
+                            color: "#ffffff",
+                            weight: map.getZoom() > 5 ? 2.5 : 1.0, // ডায়নামিক বর্ডার রুল
+                            opacity: 0.5,
+                            fillColor: "#ffffff",
+                            fillOpacity: 0.05 // টাচ বা ক্লিক ডিটেক্ট করার জন্য হালকা ওপাটিসিটি জরুরি
+                        };
                     },
-                    // নিয়ম ৩: বাহরাইন, মালদ্বীপসহ সব দেশের নাম থাকবে
                     onEachFeature: function(feature, layer) {
                         var countryName = feature.properties.ADMIN;
                         
+                        // দেশের নাম বসানো
                         if (layer.getBounds) {
-                            // নিখুঁত কেন্দ্রবিন্দু হিসাব করে নাম বসানো
                             layer.bindTooltip(countryName, {
                                 permanent: true,
                                 direction: 'center',
@@ -90,9 +88,50 @@
                                 opacity: 0.85
                             }).openTooltip();
                         }
+
+                        // টাচ/ক্লিক ইন্টারঅ্যাকশন (দেশ সিলেক্ট করার লজিক)
+                        layer.on({
+                            click: function(e) {
+                                // আগের সিলেক্ট করা দেশ থাকলে তা রিসেট করি
+                                if (selectedLayer) {
+                                    geojsonLayer.resetStyle(selectedLayer);
+                                }
+
+                                // নতুন দেশ সিলেক্ট এবং হাইলাইট (নিওন রেড বর্ডার)
+                                selectedLayer = e.target;
+                                selectedLayer.setStyle({
+                                    color: "#ff3333",
+                                    weight: map.getZoom() > 5 ? 3.5 : 2.5,
+                                    opacity: 1.0,
+                                    fillOpacity: 0.2
+                                });
+
+                                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                                    selectedLayer.bringToFront();
+                                }
+
+                                console.log("Selected Country: " + countryName);
+                                // এখানে আপনি ভবিষ্যতে আপনার 'Economy' বা 'Military' ইঞ্জিন যুক্ত করতে পারবেন
+                            }
+                        });
                     }
                 }).addTo(map);
             });
+
+        // জুম লেভেলের ওপর ভিত্তি করে বর্ডার মোটা বা চিকন করার রিয়েল-টাইম লজিক
+        map.on('zoomend', function() {
+            if (geojsonLayer) {
+                var currentZoom = map.getZoom();
+                geojsonLayer.eachLayer(function(layer) {
+                    // যদি এই লেয়ারটি বর্তমানে সিলেক্টেড দেশ না হয়, তবেই সাধারণ জুম স্টাইল পাবে
+                    if (layer !== selectedLayer) {
+                        layer.setStyle({
+                            weight: currentZoom > 5 ? 2.5 : 1.0 // জুম ৫ এর বেশি হলে বর্ডার বোল্ড (২.৫) হবে
+                        });
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
