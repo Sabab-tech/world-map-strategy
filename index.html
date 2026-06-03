@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Fixed World Map</title>
+    <title>UN Recognized Fixed Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; }
@@ -13,31 +13,44 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ম্যাপ সেটিংস: জুম কন্ট্রোল এবং লেভেল লিমিট
+        // ক্যানভাস রেন্ডারার তৈরি করা যা বর্ডারকে মাটির সাথে আটকে রাখবে
+        var myRenderer = L.canvas({ padding: 0.5 });
+
         var map = L.map('map', { 
             zoomControl: false,
             minZoom: 2,  
-            maxZoom: 9, // জুম লিমিট কমিয়ে ৯ করা হলো
-            zoomSnap: 1, // প্রতিটি জুম লেভেলে আটকে থাকবে, ইচ্ছামতো জুম হবে না
-            zoomDelta: 1 // প্রতি ক্লিকে এক লেভেল জুম হবে
+            maxZoom: 9,
+            zoomSnap: 1,
+            zoomDelta: 1,
+            renderer: myRenderer // ক্যানভাস ইঞ্জিন চালু করা হলো
         }).setView([20, 0], 2);
 
-        // স্যাটেলাইট লেয়ার লোডিং পারফরম্যান্স ঠিক করা
+        // স্যাটেলাইট লেয়ার
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Satellite Map',
-            keepBuffer: 3, // ম্যাপ লোড হওয়ার সময় বাফার বাড়াবে
-            updateWhenIdle: true // স্থির থাকলেই লোড হবে, জুম করার সময় লোড কম নেবে
+            keepBuffer: 3,
+            updateWhenIdle: true
         }).addTo(map);
 
-        // জিও-জেসন বর্ডার লেয়ার
+        // জিও-জেসন বর্ডার লেয়ার লোড এবং ফিল্টার
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
             .then(data => {
                 L.geoJSON(data, {
+                    // ফিল্টার লজিক: অপ্রয়োজনীয় বা অ-স্বীকৃত দেশ বাদ দেওয়ার জন্য (ISO কোড চেক)
+                    filter: function(feature) {
+                        // কিছু সুনির্দিষ্ট বিতর্কিত বা অ-স্বীকৃত অঞ্চল বাদ দেওয়া হলো
+                        var name = feature.properties.ADMIN;
+                        var code = feature.properties.ISO_A3;
+                        if (code === "-99" || name === "Somaliland" || name === "Western Sahara") {
+                            return false; // এগুলো ম্যাপে আসবে না
+                        }
+                        return true; // শুধুমাত্র জাতিসংঘ ও আন্তর্জাতিকভাবে স্বীকৃত দেশ থাকবে
+                    },
                     style: {
                         color: "#ffffff",
                         weight: 1.2,
-                        opacity: 0.7,
+                        opacity: 0.6,
                         fillOpacity: 0
                     }
                 }).addTo(map);
