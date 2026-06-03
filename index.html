@@ -1,137 +1,21 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>গ্লোবাল ম্যাপ</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000;
-        }
-        #map {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>World Map Engine</title>
+
+  <link rel="stylesheet" href="css/style.css"/>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 </head>
 <body>
 
-    <div id="map"></div>
+  <div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // ব্রাউজার ক্যাশ ক্লিন করার লজিক
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                for(let registration of registrations) registration.unregister();
-            });
-        }
-        if ('caches' in window) {
-            caches.keys().then(names => {
-                for (let name of names) caches.delete(name);
-            });
-        }
+  <!-- Core engine first -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="js/map-engine.js"></script>
 
-        // ম্যাপ ইনিশিয়ালাইজেশন
-        const map = L.map('map', {
-            center: [22.0, 90.0], 
-            zoom: 4,
-            minZoom: 2,
-            maxZoom: 18
-        });
-
-        // হুবহু আগের সেই গুগল হাইব্রিড ম্যাপ (স্যাটেলাইট + দেশের সীমানা ও নাম)
-        L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-            attribution: '&copy; Google Maps'
-        }).addTo(map);
-
-        // শহরের বর্তমান রঙিন সার্কেল মার্কার স্টাইল
-        function getMarkerStyle(role, status) {
-            if (status === 'locked') return { color: '#555555', fillColor: '#222222', radius: 6 };
-            switch(role) {
-                case 'capital': return { color: '#ff5555', fillColor: '#ff0000', radius: 10 };
-                case 'economic_hub': return { color: '#55ff55', fillColor: '#00cc00', radius: 8 };
-                case 'military_hub': return { color: '#5555ff', fillColor: '#0000ff', radius: 8 };
-                case 'secret_zone': return { color: '#ffff55', fillColor: '#cccc00', radius: 7 };
-                default: return { color: '#ffffff', fillColor: '#888888', radius: 6 };
-            }
-        }
-
-        // ব্যাকআপ দেশভিত্তিক কোঅর্ডিনেটস (যদি কোনো শহরের নিজস্ব অবস্থান ফাইলে না থাকে)
-        const countryCoords = {
-            "Bangladesh": [23.6850, 90.3563], "India": [20.5937, 78.9629], "Pakistan": [30.3753, 69.3451],
-            "Nepal": [28.3949, 84.1240], "Sri Lanka": [7.8731, 80.7718], "Bhutan": [27.5142, 90.4336],
-            "Maldives": [3.2028, 73.2207], "Afghanistan": [33.9391, 67.7100], "Indonesia": [-0.7893, 113.9213],
-            "Vietnam": [14.0583, 108.2772], "Thailand": [15.8700, 100.9925], "Malaysia": [4.2105, 101.9758],
-            "Singapore": [1.3521, 103.8198], "Philippines": [12.8797, 121.7740], "Myanmar": [21.9162, 95.9560],
-            "Cambodia": [12.5657, 104.9910], "Laos": [19.8563, 102.4955], "Brunei": [4.5353, 114.7277],
-            "Timor-Leste": [-8.8742, 125.7275], "China": [35.8617, 104.1954], "Japan": [36.2048, 138.2529],
-            "South Korea": [35.9078, 127.7669], "North Korea": [40.3399, 127.5101], "Mongolia": [46.8625, 103.8467],
-            "Taiwan": [23.6978, 120.9605], "Iran": [32.4279, 53.6880], "Saudi Arabia": [23.8859, 45.0792],
-            "Turkey": [38.9637, 35.2433], "Bahrain": [26.0667, 50.5577], "Kuwait": [29.3759, 47.9774]
-        };
-
-        // cities.json থেকে সরাসরি আপনার সেট করা প্রগ্রেস ডাটা রিড করা
-        fetch('./cities.json?cb=' + new Date().getTime())
-            .then(response => response.json())
-            .then(data => {
-                const rootData = data.regions ? data.regions : data;
-                
-                for (let region in rootData) {
-                    if (region === 'game_world') continue; 
-                    const countries = rootData[region].countries;
-                    if (!countries) continue;
-
-                    for (let countryName in countries) {
-                        const countryData = countries[countryName];
-                        const locations = countryData.locations;
-                        if (!locations) continue;
-
-                        // ফাইলের নিজস্ব দেশের কোঅর্ডিনেট চেক
-                        let countryLat = countryData.lat || countryData.latitude || (countryData.coordinates && countryData.coordinates[0]);
-                        let countryLng = countryData.lng || countryData.longitude || (countryData.coordinates && countryData.coordinates[1]);
-                        const baseCoord = (countryLat && countryLng) ? [countryLat, countryLng] : (countryCoords[countryName] || [20, 77]);
-
-                        locations.forEach((loc, index) => {
-                            // আপনার তৈরি করা শহরের নির্দিষ্ট অক্ষাংশ ও দ্রাঘিমাংশ রিড করার সর্বোচ্চ অগ্রাধিকার
-                            let lat = loc.lat || loc.latitude || (loc.coordinates && loc.coordinates[0]) || (loc.coords && loc.coords[0]);
-                            let lng = loc.lng || loc.longitude || (loc.coordinates && loc.coordinates[1]) || (loc.coords && loc.coords[1]);
-
-                            // কোনো কারণে ডাটা মিসিং থাকলে ব্যাকআপ পজিশনিং গ্রিড ব্যবহার হবে
-                            if (lat === undefined || lng === undefined) {
-                                const latOffset = (index % 3 - 1) * 1.3;
-                                const lngOffset = (Math.floor(index / 3) - 1) * 1.3;
-                                lat = baseCoord[0] + latOffset;
-                                lng = baseCoord[1] + lngOffset;
-                            }
-
-                            const style = getMarkerStyle(loc.role, loc.status);
-                            L.circleMarker([lat, lng], {
-                                radius: style.radius,
-                                fillColor: style.fillColor,
-                                color: style.color,
-                                weight: 2,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            }).bindPopup(`<b>${loc.name}</b><br>দেশ: ${countryName}<br>স্ট্যাটাস: ${loc.status}`)
-                              .addTo(map);
-                        });
-                    }
-                }
-            })
-            .catch(error => console.error('Error loading data:', error));
-    </script>
 </body>
 </html>
