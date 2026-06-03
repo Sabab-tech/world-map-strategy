@@ -1,179 +1,200 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Grand Strategy - Dynamic City Engine</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        body { margin: 0; padding: 0; background: #000; overflow: hidden; }
-        #map { height: 100vh; width: 100%; background: #000; }
-        
-        .game-country-label {
-            background: none !important; border: none !important; box-shadow: none !important;
-            color: #f1f5f9; font-family: 'Segoe UI', Roboto, sans-serif;
-            font-size: 11px; font-weight: 800; letter-spacing: 0.8px;
-            white-space: nowrap; pointer-events: none; text-align: center;
-            text-shadow: 1px 1px 0px #334155, 2px 2px 0px #1e293b, 3px 3px 5px rgba(0, 0, 0, 0.9);
-        }
+ <title>Ultimate 3D Strategy Map Engine</title>
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+ <style>
+ body { margin: 0; padding: 0; background: #000; overflow: hidden; }
+ #map { height: 100vh; width: 100%; background: #000; }
+ 
+ .game-country-label {
+ background: none !important; border: none !important; box-shadow: none !important;
+ color: #f1f5f9; font-family: 'Segoe UI', Roboto, sans-serif;
+ font-size: 11px; font-weight: 800; letter-spacing: 0.8px;
+ white-space: nowrap; pointer-events: none; text-align: center;
+ text-shadow: 1px 1px 0px #334155, 2px 2px 0px #1e293b, 3px 3px 5px rgba(0, 0, 0, 0.9);
+ }
 
-        .game-popup .leaflet-popup-content-wrapper {
-            background: #0f172a; color: #f8fafc;
-            border: 1px solid #38bdf8; border-radius: 4px;
-            font-family: monospace; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        }
-        .game-popup .leaflet-popup-tip { background: #0f172a; border: 1px solid #38bdf8; }
-        .status-locked { color: #f87171; font-weight: bold; }
-        .status-unlocked { color: #4ade80; font-weight: bold; }
-    </style>
+ .game-popup .leaflet-popup-content-wrapper {
+ background: #0f172a; color: #f8fafc;
+ border: 1px solid #38bdf8; border-radius: 4px;
+ font-family: monospace; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+ }
+ .game-popup .leaflet-popup-tip { background: #0f172a; border: 1px solid #38bdf8; }
+ .status-locked { color: #f87171; font-weight: bold; }
+ .status-unlocked { color: #4ade80; font-weight: bold; }
+
+ .leaflet-zoom-animated, .leaflet-pane {
+ will-change: transform, opacity; transform-style: preserve-3d; backface-visibility: hidden;
+ }
+ </style>
 </head>
 <body>
-    <div id="map"></div>
+ <div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // গেমের দেশের তালিকা (ফিল্টারিংয়ের জন্য)
-        const gameCountries = [
-            "Bangladesh", "India", "Pakistan", "Nepal", "Sri Lanka", "Bhutan", "Maldives", "Afghanistan",
-            "Indonesia", "Vietnam", "Thailand", "Malaysia", "Singapore", "Philippines", "Myanmar", "Cambodia", "Laos", "Brunei", "Timor-Leste",
-            "China", "Japan", "South Korea", "North Korea", "Mongolia", "Taiwan", "Iran", "Saudi Arabia", "Turkey"
-        ];
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+ <script>
+ // আপনার এশিয়া রেডি গ্রিডের দেশের তালিকা (বর্ডার ফিক্স করার ফিল্টার)
+ const gameCountries = [
+ "Bangladesh", "India", "Pakistan", "Nepal", "Sri Lanka", "Bhutan", "Maldives", "Afghanistan",
+ "Indonesia", "Vietnam", "Thailand", "Malaysia", "Singapore", "Philippines", "Myanmar", "Cambodia", "Laos", "Brunei", "Timor-Leste",
+ "China", "Japan", "South Korea", "North Korea", "Mongolia", "Taiwan", "Iran", "Saudi Arabia", "Turkey"
+ ];
 
-        var locationsRegistry = {}; // এখানে cities.json ফাইল থেকে ডাটা অটোমেটিক এসে জমা হবে
+ var locationsRegistry = {}; // এখানে cities.json এর ডাটা অটো-লোড হবে
 
-        var ultimateRenderer = L.canvas({ padding: 0.1, tolerance: 5 });
-        var bounds = L.latLngBounds(L.latLng(-60, -180), L.latLng(85, 180));
+ var ultimateRenderer = L.canvas({ padding: 0.1, tolerance: 5 });
+ var bounds = L.latLngBounds(L.latLng(-60, -180), L.latLng(85, 180));
 
-        var map = L.map('map', { 
-            zoomControl: false, minZoom: 3.8, maxZoom: 9, zoomSnap: 0.1, zoomDelta: 1,
-            maxBounds: bounds, maxBoundsViscosity: 1.0, inertia: false, renderer: ultimateRenderer
-        }).setView([20, 75], 3.8);
+ var map = L.map('map', { 
+ zoomControl: false, minZoom: 3.8, maxZoom: 9, zoomSnap: 0.1, zoomDelta: 1,
+ maxBounds: bounds, maxBoundsViscosity: 1.0, inertia: false, renderer: ultimateRenderer
+ }).setView([20, 78], 3.8); // এশিয়া ফোকাসড ভিউ
 
-        // স্যাটেলাইট বেস লেয়ার
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Strategy Map Engine', maxNativeZoom: 19, keepBuffer: 4, updateWhenIdle: true
-        }).addTo(map);
+ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+ attribution: 'Strategy Map', maxNativeZoom: 19, keepBuffer: 4, updateWhenIdle: true
+ }).addTo(map);
 
-        var geojsonLayer, selectedLayer = null;
-        var renderedCountries = new Set(), smallCountryMarkers = [], activeGameMarkers = [];
+ var geojsonLayer, selectedLayer = null;
+ var renderedCountries = new Set(), smallCountryMarkers = [], activeGameMarkers = []; 
 
-        function calculateTextRotation(bounds) {
-            var northEast = bounds.getNorthEast(), southWest = bounds.getSouthWest();
-            return (northEast.lat - southWest.lat > (northEast.lng - southWest.lng) * 1.5) ? 45 : 0; 
-        }
+ function calculateTextRotation(bounds) {
+ var northEast = bounds.getNorthEast(), southWest = bounds.getSouthWest();
+ return (northEast.lat - southWest.lat > (northEast.lng - southWest.lng) * 1.5) ? 45 : 0; 
+ }
 
-        // ডাইনামিক সিটি লোডার (cities.json থেকে ডাটা টানার ইঞ্জিন)
-        function loadGameCities() {
-            fetch('cities.json')
-                .then(res => res.json())
-                .then(data => {
-                    locationsRegistry = data; // সফলভাবে ডাটা রিসিভ হলো
-                    console.log("Cities Loaded Successfully!");
-                })
-                .catch(err => console.log("City file loading skipped or not found yet."));
-        }
+ // ব্যাকগ্রাউন্ডে cities.json ফাইল থেকে ডাটা রিড করার ইঞ্জিন
+ function loadGameCities() {
+ fetch('cities.json')
+ .then(res => res.json())
+ .then(data => {
+ // যদি জেসন ফাইলে "regions" এর ভেতর ডাটা থাকে তবে সেটাকে ফিল্টার করে নিয়ে আসবে
+ if(data.regions) {
+ locationsRegistry = {};
+ for (let reg in data.regions) {
+ Object.assign(locationsRegistry, data.regions[reg].countries);
+ }
+ } else {
+ locationsRegistry = data;
+ }
+ console.log("Cities system linked successfully!");
+ })
+ .catch(err => console.log("Cities.json load tracking waiting..."));
+ }
 
-        // দেশের সুনির্দিষ্ট হাবগুলো ফুটিয়ে তোলার ফাংশন
-        function showCountryHubs(countryName, countryLayer) {
-            activeGameMarkers.forEach(m => map.removeLayer(m));
-            activeGameMarkers = [];
+ // দেশ ক্লিক করলে cities.json থেকে ওই দেশের সব শহর/হাব ফুটিয়ে তোলার ফাংশন
+ function showCountryHubs(countryName, countryLayer) {
+ activeGameMarkers.forEach(m => map.removeLayer(m));
+ activeGameMarkers = [];
 
-            const hubs = locationsRegistry[countryName];
-            if (!hubs) return;
+ // জেসন ফাইল বা রেজিস্ট্রি থেকে দেশের ডাটা চেক
+ const countryData = locationsRegistry[countryName];
+ const hubs = countryData?.locations ? countryData.locations : countryData;
+ if (!hubs || !Array.isArray(hubs)) return;
 
-            hubs.forEach(hub => {
-                var latlng = countryLayer.getBounds().getCenter();
-                
-                // বিভিন্ন শহরের পজিশন সামান্য এলোমেলো করা যেন এক জায়গায় সব ডট জমা না হয়
-                if(hub.name.includes("Chittagong") || hub.name.includes("Bay")) latlng = [latlng.lat - 1.2, latlng.lng + 0.8];
-                if(hub.name.includes("Jessore") || hub.name.includes("Rooppur")) latlng = [latlng.lat - 0.1, latlng.lng - 0.6];
-                if(hub.name.includes("Mumbai")) latlng = [19.07, 72.87];
-                if(hub.name.includes("Karachi")) latlng = [24.86, 67.00];
+ hubs.forEach(hub => {
+ var latlng = countryLayer.getBounds().getCenter();
+ 
+ // শহরগুলোকে ম্যাপের কেন্দ্রে জটলা না পাকিয়ে কিছুটা স্প্রেড করার লজিক
+ if(hub.name.includes("Dhaka")) latlng = [23.8103, 90.4125];
+ else if(hub.name.includes("Chittagong")) latlng = [22.3569, 91.7832];
+ else if(hub.name.includes("New Delhi")) latlng = [28.6139, 77.2090];
+ else if(hub.name.includes("Mumbai")) latlng = [19.0760, 72.8777];
+ else if(hub.name.includes("Islamabad")) latlng = [33.6844, 73.0479];
+ else {
+ // অন্যান্য শহরের জন্য ডাইনামিক অফসেট (এলোমেলো ছড়ানো)
+ latlng = [latlng.lat + (Math.random() - 0.5) * 2, latlng.lng + (Math.random() - 0.5) * 2];
+ }
 
-                var color = hub.status === 'unlocked' ? '#4ade80' : '#f87171';
-                if(hub.role && hub.role.includes("SECRET")) color = '#a855f7';
+ var color = hub.status === 'unlocked' ? '#4ade80' : '#f87171';
+ if(hub.role && hub.role.toLowerCase().includes("secret")) color = '#a855f7';
 
-                var hubMarker = L.circleMarker(latlng, {
-                    radius: 6, fillColor: color, color: '#fff', weight: 1.5, fillOpacity: 0.9
-                }).addTo(map);
+ var hubMarker = L.circleMarker(latlng, {
+ radius: 6, fillColor: color, color: '#fff', weight: 1.5, fillOpacity: 0.9
+ }).addTo(map);
 
-                var popupContent = `
-                    <div class="game-popup">
-                        <strong>${hub.name}</strong><br/>
-                        <span style="font-size:11px;color:#94a3b8">${hub.role || 'HUB'}</span><br/>
-                        Status: <span class="status-${hub.status}">${hub.status.toUpperCase()}</span>
-                        ${hub.condition ? `<br/><span style="color:#e2e8f0;font-size:10px;">Req: ${hub.condition}</span>` : ''}
-                    </div>
-                `;
-                hubMarker.bindPopup(popupContent);
-                activeGameMarkers.push(hubMarker);
-            });
-        }
+ var popupContent = `
+ <div class="game-popup">
+ <strong>${hub.name}</strong><br/>
+ <span style="font-size:11px;color:#94a3b8">${hub.role.toUpperCase().replace('_', ' ')}</span><br/>
+ Status: <span class="status-${hub.status}">${hub.status.toUpperCase()}</span>
+ ${hub.unlock_condition ? `<br/><span style="color:#e2e8f0;font-size:10px;">Req: ${hub.unlock_condition}</span>` : ''}
+ </div>
+ `;
+ hubMarker.bindPopup(popupContent);
+ activeGameMarkers.push(hubMarker);
+ });
+ }
 
-        // দেশ ও ম্যাপ লোডার
-        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
-            .then(res => res.json())
-            .then(data => {
-                geojsonLayer = L.geoJSON(data, {
-                    filter: function(feature) {
-                        return gameCountries.includes(feature.properties.ADMIN);
-                    },
-                    style: function() {
-                        return { color: "#ffffff", weight: map.getZoom() > 5.5 ? 2.3 : 0.9, opacity: 0.4, fillColor: "#ffffff", fillOpacity: 0.01 };
-                    },
-                    onEachFeature: function(feature, layer) {
-                        var countryName = feature.properties.ADMIN;
-                        if (layer.getBounds) {
-                            var center = layer.getBounds().getCenter();
-                            var countryBounds = layer.getBounds();
+ // নিখুঁত বর্ডার এবং জিও-জেসন রেন্ডারার
+ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+ .then(res => res.json())
+ .then(data => {
+ geojsonLayer = L.geoJSON(data, {
+ filter: function(feature) {
+ var name = feature.properties.ADMIN || feature.properties.name;
+ return gameCountries.includes(name); // শুধুমাত্র গেমের এশিয়ান দেশগুলো ফিল্টার হবে
+ },
+ style: function() {
+ return { color: "#ffffff", weight: map.getZoom() > 5.5 ? 2.3 : 0.9, opacity: 0.4, fillColor: "#ffffff", fillOpacity: 0.02 };
+ },
+ onEachFeature: function(feature, layer) {
+ var countryName = feature.properties.ADMIN || feature.properties.name;
+ 
+ if (layer.getBounds) {
+ var center = layer.getBounds().getCenter();
+ var countryBounds = layer.getBounds();
 
-                            if (!renderedCountries.has(countryName)) {
-                                renderedCountries.add(countryName);
-                                var rotationAngle = calculateTextRotation(countryBounds);
+ if (!renderedCountries.has(countryName)) {
+ renderedCountries.add(countryName);
+ var rotationAngle = calculateTextRotation(countryBounds);
 
-                                var labelMarker = L.marker(center, {
-                                    icon: L.divIcon({
-                                        className: 'game-country-label',
-                                        html: `<div style="transform: rotate(${rotationAngle}deg);">${countryName}</div>`,
-                                        iconSize: [120, 24], iconAnchor: [60, 12]
-                                    }),
-                                    interactive: false 
-                                });
+ var labelMarker = L.marker(center, {
+ icon: L.divIcon({
+ className: 'game-country-label',
+ html: `<div style="transform: rotate(${rotationAngle}deg);">${countryName}</div>`,
+ iconSize: [120, 24], iconAnchor: [60, 12]
+ }),
+ interactive: false 
+ });
 
-                                if (countryBounds.getNorthEast().lat - countryBounds.getSouthWest().lat >= 4.5) {
-                                    labelMarker.addTo(map);
-                                } else {
-                                    smallCountryMarkers.push({ marker: labelMarker, layer: layer });
-                                    if (map.getZoom() > 5.2) labelMarker.addTo(map);
-                                }
-                            }
+ var isSmallCountry = (countryBounds.getNorthEast().lat - countryBounds.getSouthWest().lat < 4.5);
+ if (!isSmallCountry || map.getZoom() > 5.2) {
+ labelMarker.addTo(map);
+ }
 
-                            layer.on({
-                                click: function(e) {
-                                    if (selectedLayer) geojsonLayer.resetStyle(selectedLayer);
-                                    selectedLayer = e.target;
-                                    selectedLayer.setStyle({ color: "#e6fffa", weight: map.getZoom() > 5.5 ? 3.5 : 2.5, opacity: 0.9, fillColor: "#e6fffa", fillOpacity: 0.1 });
-                                    showCountryHubs(countryName, selectedLayer);
-                                }
-                            });
-                        }
-                    }
-                }).addTo(map);
-                
-                // ম্যাপ লোড হওয়ার সাথে সাথে শহরের ডাটা ব্যাকগ্রাউন্ডে লোড হবে
-                loadGameCities();
-            });
+ map.on('zoomend', function() {
+ if (isSmallCountry) {
+ if (map.getZoom() > 5.2) { if (!map.hasLayer(labelMarker)) labelMarker.addTo(map); } 
+ else { if (map.hasLayer(labelMarker)) map.removeLayer(labelMarker); }
+ }
+ });
+ }
 
-        map.on('zoomend', function() {
-            var currentZoom = map.getZoom();
-            if (geojsonLayer) {
-                geojsonLayer.eachLayer(function(layer) {
-                    layer.setStyle({ weight: layer === selectedLayer ? (currentZoom > 5.5 ? 3.5 : 2.5) : (currentZoom > 5.5 ? 2.3 : 0.9) });
-                });
-            }
-            smallCountryMarkers.forEach(function(item) {
-                if (currentZoom > 5.2) { if (!map.hasLayer(item.marker)) map.addLayer(item.marker); }
-                else { if (map.hasLayer(item.marker)) map.removeLayer(item.marker); }
-            });
-        });
-    </script>
+ layer.on({
+ click: function(e) {
+ if (selectedLayer) geojsonLayer.resetStyle(selectedLayer);
+ selectedLayer = e.target;
+ 
+ selectedLayer.setStyle({ color: "#e6fffa", weight: map.getZoom() > 5.5 ? 3.5 : 2.5, opacity: 0.9, fillColor: "#e6fffa", fillOpacity: 0.1 });
+ showCountryHubs(countryName, selectedLayer); // ক্লিক করলেই cities.json এর ডেটা শো করবে
+ }
+ });
+ }
+ }
+ }).addTo(map);
+
+ loadGameCities(); // ম্যাপ রেডি হতেই জেসন ফাইল কানেক্ট করা হলো
+ });
+
+ map.on('zoomend', function() {
+ if (geojsonLayer) {
+ var currentZoom = map.getZoom();
+ geojsonLayer.eachLayer(function(layer) {
+ layer.setStyle({ weight: layer === selectedLayer ? (currentZoom > 5.5 ? 3.5 : 2.5) : (currentZoom > 5.5 ? 2.3 : 0.9) });
+ });
+ }
+ });
+ </script>
 </body>
 </html>
