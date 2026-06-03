@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>UN Recognized Fixed Map</title>
+    <title>Perfect World Map with Country Names</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { margin: 0; padding: 0; }
-        #map { height: 100vh; width: 100%; background: #000; }
+        body { margin: 0; padding: 0; background: #000; }
+        #map { height: 100vh; width: 100%; }
+        
+        /* দেশের নামগুলোর স্টাইল: একদম ক্লিন, ব্যাকগ্রাউন্ড ছাড়া শুধু টেক্সট */
+        .country-label {
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            color: rgba(255, 255, 255, 0.85);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 10px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #000, -1px -1px 2px #000; /* লেখা সহজে পড়ার জন্য শ্যাডো */
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -13,8 +26,8 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ক্যানভাস রেন্ডারার তৈরি করা যা বর্ডারকে মাটির সাথে আটকে রাখবে
-        var myRenderer = L.canvas({ padding: 0.5 });
+        // হার্ডওয়্যার এক্সিলারেশন এবং SVG স্মুথ রেন্ডারার চালু করা
+        var svgRenderer = L.svg({ padding: 0.1 });
 
         var map = L.map('map', { 
             zoomControl: false,
@@ -22,36 +35,52 @@
             maxZoom: 9,
             zoomSnap: 1,
             zoomDelta: 1,
-            renderer: myRenderer // ক্যানভাস ইঞ্জিন চালু করা হলো
+            preferCanvas: false, // SVG ব্যবহার করব নিখুঁত শার্পনেসের জন্য
+            renderer: svgRenderer
         }).setView([20, 0], 2);
 
-        // স্যাটেলাইট লেয়ার
+        // স্যাটেলাইট বেস লেয়ার
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Satellite Map',
-            keepBuffer: 3,
-            updateWhenIdle: true
+            keepBuffer: 4,
+            updateWhenIdle: false // স্ক্রোল করার সময়ই যেন লোড হয়, অলস বসে থাকবে না
         }).addTo(map);
 
-        // জিও-জেসন বর্ডার লেয়ার লোড এবং ফিল্টার
+        // জিও-জেসন বর্ডার ও নাম লোড করার ইঞ্জিন
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
             .then(data => {
                 L.geoJSON(data, {
-                    // ফিল্টার লজিক: অপ্রয়োজনীয় বা অ-স্বীকৃত দেশ বাদ দেওয়ার জন্য (ISO কোড চেক)
                     filter: function(feature) {
-                        // কিছু সুনির্দিষ্ট বিতর্কিত বা অ-স্বীকৃত অঞ্চল বাদ দেওয়া হলো
                         var name = feature.properties.ADMIN;
                         var code = feature.properties.ISO_A3;
+                        // জাতিসংঘ অ-স্বীকৃত দেশ ফিল্টার
                         if (code === "-99" || name === "Somaliland" || name === "Western Sahara") {
-                            return false; // এগুলো ম্যাপে আসবে না
+                            return false;
                         }
-                        return true; // শুধুমাত্র জাতিসংঘ ও আন্তর্জাতিকভাবে স্বীকৃত দেশ থাকবে
+                        return true;
                     },
                     style: {
                         color: "#ffffff",
-                        weight: 1.2,
-                        opacity: 0.6,
+                        weight: 1.0,      // একদম চিকন ও সূক্ষ্ম বর্ডার
+                        opacity: 0.5,      // হালকা সাদা ধোঁয়াশা লুক
                         fillOpacity: 0
+                    },
+                    onEachFeature: function(feature, layer) {
+                        // প্রতিটি দেশের নাম বের করা হচ্ছে
+                        var countryName = feature.properties.ADMIN;
+                        
+                        // দেশের সীমানার কেন্দ্রবিন্দু (Center) বের করার লজিক
+                        if (layer.getBounds) {
+                            var center = layer.getBounds().getCenter();
+                            
+                            // ম্যাপে দেশের নাম স্থায়ীভাবে বসানো (Permanent Tooltip)
+                            layer.bindTooltip(countryName, {
+                                permanent: true,
+                                direction: 'center',
+                                className: 'country-label'
+                            }).openTooltip();
+                        }
                     }
                 }).addTo(map);
             });
