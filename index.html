@@ -1,30 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Grand Strategy Map Engine</title>
+    <title>Perfect Grand Strategy Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { margin: 0; padding: 0; background: #0c0f12; overflow: hidden; }
-        #map { height: 100vh; width: 100%; background: #0c0f12; }
+        body { margin: 0; padding: 0; background: #000; overflow: hidden; }
+        #map { height: 100vh; width: 100%; background: #000; }
         
-        /* গেম সাইকোলজি অনুযায়ী টেক্সট স্টাইল: প্রিমিয়াম ও মিনিমালিস্টিক */
+        /* দেশের নামগুলোর প্রিমিয়াম স্টাইল */
         .country-label {
             background: none !important;
             border: none !important;
             box-shadow: none !important;
-            color: #e0e6ed;
-            font-family: 'Cinzel', 'Courier New', Courier, monospace; /* স্ট্র্যাটেজি গেম ভাইব */
+            color: rgba(255, 255, 255, 0.85);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.9);
+            font-weight: bold;
+            text-shadow: 0px 2px 4px #000, 0px -1px 2px #000;
             white-space: nowrap;
-            pointer-events: none; /* লেখার ওপর ক্লিক হলেও যেন ম্যাপ কাজ করে */
+            pointer-events: none;
         }
 
-        /* বর্ডার লাইনগুলোকে কোনো জুম অ্যানিমেশনে কাঁপতে না দেওয়ার জন্য CSS লেভেল লকিং */
-        .leaflet-zoom-animated {
-            will-change: transform; /* জিপিইউ এক্সিলারেশন অন করবে */
+        /* হার্ডওয়্যার লেভেলে বর্ডারের কাঁপুনি বন্ধ করার জন্য জিপিইউ এক্সিলারেশন */
+        .leaflet-zoom-animated, .leaflet-pane {
+            will-change: transform, opacity;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
         }
     </style>
 </head>
@@ -33,57 +34,55 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // হার্ডওয়্যার (GPU) এক্সিলারেশন ইঞ্জিন চালু করা
-        var baseRenderer = L.svg({ padding: 0.5 });
+        // বর্ডারকে মাটির সাথে সিমেন্ট দিয়ে জাম করার জন্য আল্ট্রা-স্মুথ ক্যানভাস রেন্ডারার
+        var ultimateRenderer = L.canvas({ 
+            padding: 0.1,
+            tolerance: 1 // লাইনের শার্পনেস সর্বোচ্চ রাখার জন্য
+        });
 
         var map = L.map('map', { 
             zoomControl: false,
             minZoom: 2,  
-            maxZoom: 8,          // গেমের ট্যাকটিক্যাল ভিউয়ের জন্য ৮ হলো পারফেক্ট (বেশি জুম করলে স্যাটেলাইট পিক্সেল ফেটে যায়)
-            zoomSnap: 1,
-            zoomDelta: 1,
-            bounceAtZoomLimits: false, // জুম লিমিটে ধাক্কা খাওয়া বন্ধ
-            wheelDebounceTime: 40,    // মাউস বা টাচ স্ক্রোলের রেসপন্স টাইম কমানো
-            renderer: baseRenderer
+            maxZoom: 9,
+            zoomSnap: 1,      // নির্দিষ্ট লেভেলে লক থাকবে
+            zoomDelta: 1,     // ইচ্ছামতো জুম হয়ে লাফাবে না
+            trackResize: false,
+            inertia: false,   // ম্যাপ ড্রাগ করার পর পিছলে যাবে locks position
+            renderer: ultimateRenderer // ক্যানভাস ইঞ্জিন অ্যাক্টিভেট করা হলো
         }).setView([20, 0], 2);
 
-        // গেম-রেডি হাই পারফরম্যান্স স্যাটেলাইট টাইলস (Stadia/Esri রিকনফিগারড)
-        // এটি দ্রুত লোড হয় এবং ব্লারনেস কমায়
+        // হাই-রেজোলিউশন স্যাটেলাইট বেস লেয়ার (ইসরো/ইএসআরআই স্ট্যান্ডার্ড)
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Strategy Map',
-            maxNativeZoom: 19,      // সার্ভারকে বাধ্য করবে হাই-রেজোলিউশন ডেটা পুশ করতে
-            tileSize: 256,
-            keepBuffer: 6,          // স্ক্রিনের বাইরে ৬ লেয়ার পর্যন্ত ইমেজ আগে থেকে লোড করে রাখবে (স্মুথনেস)
-            noWrap: false,
-            updateInterval: 0       // কোনো লেটেন্সি ছাড়া সাথে সাথে ম্যাপ আপডেট হবে
+            maxNativeZoom: 19, // ১৯ লেভেলের ক্রিস্প ডেটা টেনে আনবে, ফলে ম্যাপ কখনো ঝাপসা হবে না
+            keepBuffer: 4,     // চারপাশের ৪ লেয়ার আগে থেকেই লোড রাখবে
+            updateWhenIdle: true
         }).addTo(map);
 
-        // বর্ডার এবং দেশের নাম লোডিং ইঞ্জিন
+        // জেসন ডেটা লোড এবং আগের সব নিয়মের বাস্তবায়ন
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
             .then(data => {
                 L.geoJSON(data, {
+                    // নিয়ম ১: শুধুমাত্র জাতিসংঘ স্বীকৃত দেশ থাকবে (অপ্রয়োজনীয় দেশ বাদ)
                     filter: function(feature) {
                         var name = feature.properties.ADMIN;
                         var code = feature.properties.ISO_A3;
                         return code !== "-99" && name !== "Somaliland" && name !== "Western Sahara";
                     },
+                    // নিয়ম ২: বর্ডার হালকা সাদা ও নিখুঁত চিকন হবে
                     style: {
                         color: "#ffffff",
-                        weight: 1.0,        // সুক্ষ্ম ১ পিক্সেল বর্ডার
-                        opacity: 0.4,       // হালকা নিয়ন হোয়াইট লুক (গেমের জন্য বেস্ট)
-                        fillColor: "#000000",
-                        fillOpacity: 0.01   // অত্যন্ত হালকা টাচ যাতে ক্লিকের ইভেন্ট ক্যাচ করা যায়
+                        weight: 1.0,      // একদম সূক্ষ্ম ১ পিক্সেল বর্ডার
+                        opacity: 0.4,       // হালকা সাদা নিয়ন লুক
+                        fillOpacity: 0
                     },
+                    // নিয়ম ৩: বাহরাইন, মালদ্বীপসহ সব দেশের নাম থাকবে
                     onEachFeature: function(feature, layer) {
                         var countryName = feature.properties.ADMIN;
                         
-                        // দেশের সীমানার নিখুঁত কেন্দ্রবিন্দু
                         if (layer.getBounds) {
-                            var center = layer.getBounds().getCenter();
-                            
-                            // বাহরাইন, মালদ্বীপের মতো ছোট দেশের নামের জন্য বিশেষ লজিক
-                            // বড় মানচিত্রে নামগুলো জুম করলে তবেই সুন্দর দেখাবে
+                            // নিখুঁত কেন্দ্রবিন্দু হিসাব করে নাম বসানো
                             layer.bindTooltip(countryName, {
                                 permanent: true,
                                 direction: 'center',
