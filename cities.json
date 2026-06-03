@@ -457,7 +457,50 @@
       "secret": [
         { "name": "Gaza Defensive Perimeter", "description": "Strategic coastal surveillance zone", "lat": 31.4500, "lon": 34.4000, "status": "locked" }
       ]
-    }
+    },
+    {
+      "name": "Israel",
+      "capital": { "name": "Tel Aviv", "type": "political", "description": "Financial and technological hub", "lat": 32.0853, "lon": 34.7818 },
+      "economic": [
+        { "name": "Haifa", "description": "Primary northern deep-water port", "lat": 32.7940, "lon": 34.9896 },
+        { "name": "Eilat", "description": "Red Sea southern trade gateway", "lat": 29.5577, "lon": 34.9519 }
+      ],
+      "military": [
+        { "name": "Nevatim", "description": "Strategic air force base", "lat": 31.2075, "lon": 35.0142 }
+      ],
+      "secret": [
+        { "name": "Dimona Nuclear Zone", "description": "Negev strategic research facility", "lat": 31.0500, "lon": 35.0333, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Iran",
+      "capital": { "name": "Tehran", "type": "political", "description": "National capital", "lat": 35.6892, "lon": 51.3890 },
+      "economic": [
+        { "name": "Isfahan", "description": "Industrial and commercial hub", "lat": 32.6546, "lon": 51.6680 },
+        { "name": "Bandar Abbas", "description": "Strategic shipping port", "lat": 27.1833, "lon": 56.2667 }
+      ],
+      "military": [
+        { "name": "Shiraz Air Base", "description": "Southern air defense command", "lat": 29.5391, "lon": 52.5889 }
+      ],
+      "secret": [
+        { "name": "Natanz Strategic Grid", "description": "Subterranean energy installation", "lat": 33.7214, "lon": 51.7247, "status": "locked" },
+        { "name": "Hormuz Strait Watch", "description": "Chokepoint maritime monitoring", "lat": 26.5000, "lon": 56.5000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Iraq",
+      "capital": { "name": "Baghdad", "type": "political", "description": "National capital", "lat": 33.3152, "lon": 44.3661 },
+      "economic": [
+        { "name": "Basra", "description": "Primary oil export port city", "lat": 30.5081, "lon": 47.7835 }
+      ],
+      "military": [
+        { "name": "Al-Asad", "description": "Major western air defense base", "lat": 33.7844, "lon": 42.4389 }
+      ],
+      "secret": [
+        { "name": "Fao Peninsula Grid", "description": "Strategic gulf security sector", "lat": 29.9764, "lon": 48.4731, "status": "locked" }
+      ]
+        }
+    
     
         
           
