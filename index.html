@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>World Map with Borders</title>
+    <title>Fixed World Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; }
         #map { height: 100vh; width: 100%; }
+        /* বর্ডার লেয়ারটিকে ম্যাপের মাটির সাথে আটকে রাখার জন্য */
+        .leaflet-tile-pane { z-index: 2; }
+        .leaflet-overlay-pane { z-index: 3; }
     </style>
 </head>
 <body>
@@ -13,29 +16,30 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // জুম লেভেল সেট করা: minZoom (পৃথিবী দেখা যাবে) থেকে maxZoom (খুব কাছ থেকে দেখা যাবে)
         var map = L.map('map', { 
             zoomControl: false,
             minZoom: 2,  
-            maxZoom: 10  
+            maxZoom: 10,
+            zoomAnimation: false, // নড়াচড়া কমানোর জন্য অ্যানিমেশন বন্ধ
+            fadeAnimation: false 
         }).setView([20, 0], 2);
 
-        // স্যাটেলাইট বেস লেয়ার
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Satellite Map'
         }).addTo(map);
 
-        // GeoJSON বর্ডার লেয়ার
         fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
             .then(res => res.json())
             .then(data => {
                 L.geoJSON(data, {
                     style: {
-                        color: "#ffffff",      // সাদা রঙ
-                        weight: 1,             // বর্ডারের পুরুত্ব
-                        opacity: 0.5,          // হালকা সাদা (0.5 মানে ৫০% স্বচ্ছ)
-                        fillOpacity: 0         // দেশের ভেতরে কোনো রঙ থাকবে না
-                    }
+                        color: "#ffffff",
+                        weight: 1.5, // সামান্য পুরুত্ব বাড়ানো হলো যাতে স্থির থাকে
+                        opacity: 0.6,
+                        fillOpacity: 0
+                    },
+                    // এটি বর্ডারকে ম্যাপ টাইলসের সাথে শক্তভাবে লক করে রাখবে
+                    pane: 'overlayPane' 
                 }).addTo(map);
             });
     </script>
