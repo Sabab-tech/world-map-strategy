@@ -183,17 +183,17 @@
             maxZoom: 7
         });
 
-        // Map Styles Definitions
+        // Google Hybrid Map (Satellite + Labels + Borders) - হুবহু আগের মতো ফিরিয়ে আনা হলো
         const mapLayers = {
             dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; OpenStreetMap &copy; CARTO'
             }),
-            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            satellite: L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+                attribution: '&copy; Google Maps'
             })
         };
 
-        // Default set to Satellite as requested!
+        // Default set to Google Hybrid Satellite with borders and names!
         mapLayers.satellite.addTo(map);
 
         function switchMapStyle(type) {
@@ -201,6 +201,7 @@
                 map.removeLayer(mapLayers.satellite);
                 mapLayers.dark.addTo(map);
                 document.getElementById('btn-dark').classList.add('active');
+                document.getElementById('btn-sat').classList.remove('remove');
                 document.getElementById('btn-sat').classList.remove('active');
             } else {
                 map.removeLayer(mapLayers.dark);
@@ -337,5 +338,5 @@
         map.on('zoomend', updateZoomVisibility);
     </script>
 </body>
-  </html>
-  
+    </html>
+        
