@@ -415,8 +415,49 @@
       "secret": [
         { "name": "Gas Strategic Reserve", "description": "Energy reserve zone", "lat": 25.8000, "lon": 51.6000, "status": "locked" }
       ]
+    }, 
+    {
+      "name": "Russia",
+      "capital": { "name": "Moscow", "type": "political", "description": "National capital and command center", "lat": 55.7558, "lon": 37.6173 },
+      "economic": [
+        { "name": "St. Petersburg", "description": "Major Baltic port and trade hub", "lat": 59.9343, "lon": 30.3351 },
+        { "name": "Vladivostok", "description": "Pacific gateway and logistics hub", "lat": 43.1198, "lon": 131.8869 }
+      ],
+      "military": [
+        { "name": "Sevastopol", "description": "Black Sea fleet strategic base", "lat": 44.6167, "lon": 33.5254 },
+        { "name": "Murmansk", "description": "Arctic naval defense command", "lat": 68.9585, "lon": 33.0827 }
+      ],
+      "secret": [
+        { "name": "Siberian Nuclear Shield", "description": "Strategic defense and missile zone", "lat": 56.0000, "lon": 92.0000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Ukraine",
+      "capital": { "name": "Kyiv", "type": "political", "description": "National capital", "lat": 50.4501, "lon": 30.5234 },
+      "economic": [
+        { "name": "Odesa", "description": "Black Sea mega port", "lat": 46.4825, "lon": 30.7233 }
+      ],
+      "military": [
+        { "name": "Lviv Command Zone", "description": "Western defense logistics", "lat": 49.8397, "lon": 24.0297 }
+      ],
+      "secret": [
+        { "name": "Chernobyl Exclusion Grid", "description": "Strategic monitoring perimeter", "lat": 51.2763, "lon": 30.2219, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Palestine",
+      "capital": { "name": "East Jerusalem", "type": "political", "description": "Declared capital and historic center", "lat": 31.7719, "lon": 35.2170 },
+      "economic": [
+        { "name": "Ramallah", "description": "Administrative and economic hub", "lat": 31.9029, "lon": 35.2062 },
+        { "name": "Gaza Port Area", "description": "Coastal trade sector", "lat": 31.5000, "lon": 34.4667 }
+      ],
+      "military": [
+        { "name": "West Bank Command", "description": "Regional security sector", "lat": 32.2211, "lon": 35.2544 }
+      ],
+      "secret": [
+        { "name": "Gaza Defensive Perimeter", "description": "Strategic coastal surveillance zone", "lat": 31.4500, "lon": 34.4000, "status": "locked" }
+      ]
     }
-  ]
-    }
+    
         
           
