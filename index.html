@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Fixed World Map</title>
+    <title>Advanced World Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; }
-        #map { height: 100vh; width: 100%; }
-        /* বর্ডার লেয়ারটিকে ম্যাপের মাটির সাথে আটকে রাখার জন্য */
+        #map { height: 100vh; width: 100%; background: #000; }
+        /* বর্ডার লকিং এবং পারফরম্যান্স অপ্টিমাইজেশন */
         .leaflet-tile-pane { z-index: 2; }
         .leaflet-overlay-pane { z-index: 3; }
     </style>
@@ -20,26 +20,27 @@
             zoomControl: false,
             minZoom: 2,  
             maxZoom: 10,
-            zoomAnimation: false, // নড়াচড়া কমানোর জন্য অ্যানিমেশন বন্ধ
+            zoomAnimation: false, 
             fadeAnimation: false 
         }).setView([20, 0], 2);
 
+        // স্যাটেলাইট বেস লেয়ার (ESRI)
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Satellite Map'
         }).addTo(map);
 
-        fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+        // ডিটেইলড GeoJSON ফাইল (বাহারাইন, পানামা, মালদ্বীপ সহ)
+        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(res => res.json())
             .then(data => {
                 L.geoJSON(data, {
                     style: {
                         color: "#ffffff",
-                        weight: 1.5, // সামান্য পুরুত্ব বাড়ানো হলো যাতে স্থির থাকে
-                        opacity: 0.6,
+                        weight: 1.2,
+                        opacity: 0.7,
                         fillOpacity: 0
                     },
-                    // এটি বর্ডারকে ম্যাপ টাইলসের সাথে শক্তভাবে লক করে রাখবে
-                    pane: 'overlayPane' 
+                    pane: 'overlayPane'
                 }).addTo(map);
             });
     </script>
