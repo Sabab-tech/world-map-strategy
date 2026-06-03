@@ -145,6 +145,66 @@
           "status": "locked"
         }
       ]
+    },
+    {
+      "name": "Pakistan",
+      "capital": {
+        "name": "Islamabad",
+        "type": "political",
+        "description": "National capital and government center",
+        "lat": 33.6844,
+        "lon": 73.0479
+      },
+      "economic": [
+        {
+          "name": "Karachi",
+          "description": "Largest port and financial center",
+          "lat": 24.8607,
+          "lon": 67.0011
+        },
+        {
+          "name": "Lahore",
+          "description": "Industrial and commercial hub",
+          "lat": 31.5204,
+          "lon": 74.3587
+        },
+        {
+          "name": "Faisalabad",
+          "description": "Textile manufacturing center",
+          "lat": 31.4504,
+          "lon": 73.1350
+        }
+      ],
+      "military": [
+        {
+          "name": "Rawalpindi",
+          "description": "Army headquarters",
+          "lat": 33.5651,
+          "lon": 73.0169
+        },
+        {
+          "name": "Sargodha",
+          "description": "Major air force base",
+          "lat": 32.0836,
+          "lon": 72.6711
+        }
+      ],
+      "secret": [
+        {
+          "name": "Kahuta Nuclear Zone",
+          "description": "Strategic nuclear facility",
+          "lat": 33.5889,
+          "lon": 73.3872,
+          "status": "locked"
+        },
+        {
+          "name": "Gwadar Strategic Port",
+          "description": "Deep sea strategic port",
+          "lat": 25.1264,
+          "lon": 62.3225,
+          "status": "locked"
+        }
+      ]
     }
   ]
         }
