@@ -249,6 +249,8 @@
         let retryCount = 0;
         let lastUpdateTime = null;
         let dataLoadCount = 0;
+        let autoRefreshInterval = null;
+        let fullReloadInterval = null;
 
         // ===== ইনিশিয়াল ক্যাশ পরিষ্কার =====
         function clearAllCaches() {
@@ -421,12 +423,17 @@
 
             // টাইমআউট সহ ফেচ করা
             const fetchWithTimeout = (url, options, timeout) => {
+                let timeoutId;
                 return Promise.race([
                     fetch(url, options),
-                    new Promise((_, reject) =>
-                        setTimeout(() => reject(new Error('Fetch timeout')), timeout)
-                    )
-                ]);
+                    new Promise((_, reject) => {
+                        timeoutId = setTimeout(() => {
+                            reject(new Error('Fetch timeout'));
+                        }, timeout);
+                    })
+                ]).finally(() => {
+                    if (timeoutId) clearTimeout(timeoutId);
+                });
             };
 
             fetchWithTimeout(url, fetchOptions, CONFIG.TIMEOUT)
@@ -437,8 +444,12 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (!data || !data.regions) {
-                        throw new Error('Invalid data format');
+                    // ডেটা ভ্যালিডেশন
+                    if (!data || typeof data !== 'object') {
+                        throw new Error('Invalid JSON structure');
+                    }
+                    if (!data.regions || typeof data.regions !== 'object') {
+                        throw new Error('Missing regions data');
                     }
 
                     const rootData = data.regions;
@@ -446,7 +457,9 @@
                     // পুরানো মার্কার সরিয়ে ফেলা
                     allMarkers.forEach(marker => {
                         try {
-                            map.removeLayer(marker);
+                            if (map.hasLayer(marker)) {
+                                map.removeLayer(marker);
+                            }
                         } catch (e) {
                             console.warn('Error removing marker:', e);
                         }
@@ -455,18 +468,29 @@
 
                     // নতুন মার্কার যোগ করা
                     for (let region in rootData) {
-                        if (region === 'game_world') continue; 
-                        const countries = rootData[region].countries;
-                        if (!countries) continue;
+                        if (region === 'game_world') continue;
+                        
+                        const regionData = rootData[region];
+                        if (!regionData || typeof regionData !== 'object') continue;
+                        
+                        const countries = regionData.countries;
+                        if (!countries || typeof countries !== 'object') continue;
 
                         for (let countryName in countries) {
-                            const locations = countries[countryName].locations;
+                            const countryData = countries[countryName];
+                            if (!countryData || typeof countryData !== 'object') continue;
+                            
+                            const locations = countryData.locations;
                             if (!locations || !Array.isArray(locations)) continue;
                             
                             const baseCoord = countryCoords[countryName] || [20, 77];
 
                             locations.forEach((loc, index) => {
                                 try {
+                                    // ডেটা ভ্যালিডেশন
+                                    if (!loc || typeof loc !== 'object') return;
+                                    if (!loc.name || !loc.role) return;
+
                                     const latOffset = (index % 3 - 1) * 1.3;
                                     const lngOffset = (Math.floor(index / 3) - 1) * 1.3;
                                     const finalCoord = [baseCoord[0] + latOffset, baseCoord[1] + lngOffset];
@@ -488,9 +512,10 @@
                                     `;
 
                                     if(loc.status === 'locked') {
+                                        const unlockCondition = loc.unlock_condition || 'N/A';
                                         popupContent += `
                                             <div class="popup-status status-locked">🔒 LOCKED</div>
-                                            <div class="popup-meta" style="margin-top:5px; color:#ff7b72;">Unlock: ${loc.unlock_condition}</div>
+                                            <div class="popup-meta" style="margin-top:5px; color:#ff7b72;">Unlock: ${unlockCondition}</div>
                                         `;
                                     } else {
                                         popupContent += `<div class="popup-status status-unlocked">🟢 ACTIVE NODE</div>`;
@@ -525,6 +550,7 @@
                         updateStatusBar('error');
                         
                         setTimeout(() => {
+                            isLoading = false; // রিট্রাইয়ের আগে ফ্ল্যাগ রিসেট
                             loadCitiesData(true);
                         }, CONFIG.RETRY_DELAY);
                     } else {
@@ -532,6 +558,7 @@
                         showErrorToast('Failed to load data after multiple retries');
                         console.error('Max retries reached');
                         retryCount = 0;
+                        isLoading = false; // ফ্ল্যাগ রিসেট করা
                     }
                 })
                 .finally(() => {
@@ -551,14 +578,14 @@
         loadCitiesData();
 
         // প্রতি ৫ মিনিটে স্বয়ংক্রিয় ডেটা রিফ্রেশ
-        const autoRefreshInterval = setInterval(() => {
+        autoRefreshInterval = setInterval(() => {
             console.log('📢 Auto-refresh triggered (5 min interval)');
             retryCount = 0;
             loadCitiesData();
         }, CONFIG.REFRESH_INTERVAL);
 
         // প্রতি ২ ঘন্টায় সম্পূর্ণ পেজ রিলোড
-        const fullReloadInterval = setInterval(() => {
+        fullReloadInterval = setInterval(() => {
             console.log('🔄 Full page reload (2 hour interval) - clearing all browser cache');
             clearAllCaches();
             location.reload();
@@ -602,10 +629,9 @@
 
         // ===== ক্লিনআপ =====
         window.addEventListener('beforeunload', () => {
-            clearInterval(autoRefreshInterval);
-            clearInterval(fullReloadInterval);
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            if (fullReloadInterval) clearInterval(fullReloadInterval);
         });
     </script>
 </body>
 </html>
-
