@@ -688,7 +688,48 @@
       "secret": [
         { "name": "Caspian Maritime Surveillance", "description": "Offshore energy and naval monitoring network", "lat": 40.1000, "lon": 51.0000, "status": "locked" }
       ]
+    },
+    {
+      "name": "Armenia",
+      "capital": { "name": "Yerevan", "type": "political", "description": "National capital and cultural center", "lat": 40.1792, "lon": 44.5152 },
+      "economic": [
+        { "name": "Gyumri", "description": "Information technology hub and commercial city", "lat": 40.7829, "lon": 43.8310 }
+      ],
+      "military": [
+        { "name": "Gyumri Military Zone", "description": "Joint regional defense command hub", "lat": 40.7915, "lon": 43.8465 }
+      ],
+      "secret": [
+        { "name": "Metsamor Energy Grid", "description": "Strategic nuclear power infrastructure perimeter", "lat": 40.1791, "lon": 44.1494, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Georgia",
+      "capital": { "name": "Tbilisi", "type": "political", "description": "National capital and industrial center", "lat": 41.7151, "lon": 44.8271 },
+      "economic": [
+        { "name": "Batumi", "description": "Major Black Sea port and tourism gateway", "lat": 41.6168, "lon": 41.6367 },
+        { "name": "Poti", "description": "Primary industrial maritime trade harbor", "lat": 42.1468, "lon": 41.6719 }
+      ],
+      "military": [
+        { "name": "Senaki Base", "description": "Strategic western land and tactical defense command", "lat": 42.2428, "lon": 42.0678 }
+      ],
+      "secret": [
+        { "name": "Pankisi Gorge Watch", "description": "Northern mountain border surveillance sector", "lat": 42.1500, "lon": 45.4500, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Cyprus",
+      "capital": { "name": "Nicosia", "type": "political", "description": "Divided national capital and administrative hub", "lat": 35.1856, "lon": 33.3823 },
+      "economic": [
+        { "name": "Limassol", "description": "Primary maritime trade port and financial center", "lat": 34.6750, "lon": 33.0433 }
+      ],
+      "military": [
+        { "name": "Akrotiri Base Area", "description": "Strategic Mediterranean air reconnaissance facility", "lat": 34.5901, "lon": 32.9888 }
+      ],
+      "secret": [
+        { "name": "Levantine Basin Monitor", "description": "Offshore energy and maritime electronic surveillance grid", "lat": 34.5000, "lon": 34.0000, "status": "locked" }
+      ]
         }
+    
         
       
         
