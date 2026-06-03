@@ -834,8 +834,7 @@
         }
       ]
     },
-    {
-      "name": "Taiwan",
+    { "name": "Taiwan",
       "capital": {
         "name": "Taipei",
         "type": "political",
@@ -844,4 +843,252 @@
         "lon": 121.5654
       },
       "economic": [
-        
+        {
+          "name": "Kaohsiung",
+          "description": "Major port",
+          "lat": 22.6273,
+          "lon": 120.3014
+        },
+        {
+          "name": "Taichung",
+          "description": "Industrial hub",
+          "lat": 24.1477,
+          "lon": 120.6736
+        }
+      ],
+      "military": [
+        {
+          "name": "Hsinchu",
+          "description": "Strategic defense area",
+          "lat": 24.8138,
+          "lon": 120.9675
+        }
+      ],
+      "secret": [
+        {
+          "name": "Strait Missile Defense Zone",
+          "description": "Strategic defense network",
+          "lat": 24.5000,
+          "lon": 120.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Mongolia",
+      "capital": {
+        "name": "Ulaanbaatar",
+        "type": "political",
+        "description": "National capital",
+        "lat": 47.8864,
+        "lon": 106.9057
+      },
+      "economic": [
+        {
+          "name": "Erdenet",
+          "description": "Mining hub",
+          "lat": 49.0333,
+          "lon": 104.0833
+        }
+      ],
+      "military": [
+        {
+          "name": "Darkhan",
+          "description": "Strategic military area",
+          "lat": 49.4867,
+          "lon": 105.9228
+        }
+      ],
+      "secret": [
+        {
+          "name": "Gobi Surveillance Zone",
+          "description": "Desert monitoring network",
+          "lat": 43.5000,
+          "lon": 103.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Myanmar",
+      "capital": {
+        "name": "Naypyidaw",
+        "type": "political",
+        "description": "Administrative national capital",
+        "lat": 19.7633,
+        "lon": 96.0785
+      },
+      "economic": [
+        {
+          "name": "Yangon",
+          "description": "Commercial capital",
+          "lat": 16.8409,
+          "lon": 96.1735
+        },
+        {
+          "name": "Mandalay",
+          "description": "Trade hub",
+          "lat": 21.9588,
+          "lon": 96.0891
+        }
+      ],
+      "military": [
+        {
+          "name": "Coco Islands",
+          "description": "Strategic military outpost",
+          "lat": 14.1167,
+          "lon": 93.3667
+        }
+      ],
+      "secret": [
+        {
+          "name": "Border Operations Zone",
+          "description": "Strategic frontier network",
+          "lat": 21.0000,
+          "lon": 98.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Cambodia",
+      "capital": {
+        "name": "Phnom Penh",
+        "type": "political",
+        "description": "National capital",
+        "lat": 11.5564,
+        "lon": 104.9282
+      },
+      "economic": [
+        {
+          "name": "Sihanoukville",
+          "description": "Port city",
+          "lat": 10.6250,
+          "lon": 103.5220
+        }
+      ],
+      "military": [
+        {
+          "name": "Ream",
+          "description": "Naval base",
+          "lat": 10.4830,
+          "lon": 103.6500
+        }
+      ],
+      "secret": [
+        {
+          "name": "Mekong Intelligence Zone",
+          "description": "Strategic monitoring area",
+          "lat": 12.0000,
+          "lon": 105.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Laos",
+      "capital": {
+        "name": "Vientiane",
+        "type": "political",
+        "description": "National capital",
+        "lat": 17.9757,
+        "lon": 102.6331
+      },
+      "economic": [
+        {
+          "name": "Luang Prabang",
+          "description": "Tourism and trade",
+          "lat": 19.8856,
+          "lon": 102.1347
+        }
+      ],
+      "military": [
+        {
+          "name": "Pakse",
+          "description": "Strategic southern zone",
+          "lat": 15.1202,
+          "lon": 105.7989
+        }
+      ],
+      "secret": [
+        {
+          "name": "Mekong Surveillance Zone",
+          "description": "River intelligence network",
+          "lat": 18.0000,
+          "lon": 103.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Brunei",
+      "capital": {
+        "name": "Bandar Seri Begawan",
+        "type": "political",
+        "description": "National capital",
+        "lat": 4.9031,
+        "lon": 114.9398
+      },
+      "economic": [
+        {
+          "name": "Seria",
+          "description": "Oil and gas hub",
+          "lat": 4.6064,
+          "lon": 114.3248
+        }
+      ],
+      "military": [
+        {
+          "name": "Muara",
+          "description": "Naval facility",
+          "lat": 5.0236,
+          "lon": 115.0731
+        }
+      ],
+      "secret": [
+        {
+          "name": "Energy Reserve Zone",
+          "description": "Strategic resource area",
+          "lat": 4.7000,
+          "lon": 114.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Timor-Leste",
+      "capital": {
+        "name": "Dili",
+        "type": "political",
+        "description": "National capital",
+        "lat": -8.5569,
+        "lon": 125.5603
+      },
+      "economic": [
+        {
+          "name": "Baucau",
+          "description": "Regional economic center",
+          "lat": -8.4667,
+          "lon": 126.4500
+        }
+      ],
+      "military": [
+        {
+          "name": "Suai",
+          "description": "Strategic coastal zone",
+          "lat": -9.3129,
+          "lon": 125.2560
+        }
+      ],
+      "secret": [
+        {
+          "name": "Timor Sea Watch Zone",
+          "description": "Maritime surveillance network",
+          "lat": -9.0000,
+          "lon": 126.0000,
+          "status": "locked"
+        }
+      ]
+    }
+  ]
+}
