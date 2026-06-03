@@ -281,5 +281,142 @@
       "secret": [
         { "name": "Strait Missile Defense Zone", "description": "Strategic defense network", "lat": 24.5000, "lon": 120.5000, "status": "locked" }
       ]
-        },
+    },
+    {
+      "name": "Mongolia",
+      "capital": { "name": "Ulaanbaatar", "type": "political", "description": "National capital", "lat": 47.8864, "lon": 106.9057 },
+      "economic": [
+        { "name": "Erdenet", "description": "Mining hub", "lat": 49.0333, "lon": 104.0833 }
+      ],
+      "military": [
+        { "name": "Darkhan", "description": "Strategic military area", "lat": 49.4867, "lon": 105.9228 }
+      ],
+      "secret": [
+        { "name": "Gobi Surveillance Zone", "description": "Desert monitoring network", "lat": 43.5000, "lon": 103.5000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Myanmar",
+      "capital": { "name": "Naypyidaw", "type": "political", "description": "Administrative national capital", "lat": 19.7633, "lon": 96.0785 },
+      "economic": [
+        { "name": "Yangon", "description": "Commercial capital", "lat": 16.8409, "lon": 96.1735 },
+        { "name": "Mandalay", "description": "Trade hub", "lat": 21.9588, "lon": 96.0891 }
+      ],
+      "military": [
+        { "name": "Coco Islands", "description": "Strategic military outpost", "lat": 14.1167, "lon": 93.3667 }
+      ],
+      "secret": [
+        { "name": "Border Operations Zone", "description": "Strategic frontier network", "lat": 21.0000, "lon": 98.0000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Cambodia",
+      "capital": { "name": "Phnom Penh", "type": "political", "description": "National capital", "lat": 11.5564, "lon": 104.9282 },
+      "economic": [
+        { "name": "Sihanoukville", "description": "Port city", "lat": 10.6250, "lon": 103.5220 }
+      ],
+      "military": [
+        { "name": "Ream", "description": "Naval base", "lat": 10.4830, "lon": 103.6500 }
+      ],
+      "secret": [
+        { "name": "Mekong Intelligence Zone", "description": "Strategic monitoring area", "lat": 12.0000, "lon": 105.0000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Laos",
+      "capital": { "name": "Vientiane", "type": "political", "description": "National capital", "lat": 17.9757, "lon": 102.6331 },
+      "economic": [
+        { "name": "Luang Prabang", "description": "Tourism and trade", "lat": 19.8856, "lon": 102.1347 }
+      ],
+      "military": [
+        { "name": "Pakse", "description": "Strategic southern zone", "lat": 15.1202, "lon": 105.7989 }
+      ],
+      "secret": [
+        { "name": "Mekong Surveillance Zone", "description": "River intelligence network", "lat": 18.0000, "lon": 103.0000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Brunei",
+      "capital": { "name": "Bandar Seri Begawan", "type": "political", "description": "National capital", "lat": 4.9031, "lon": 114.9398 },
+      "economic": [
+        { "name": "Seria", "description": "Oil and gas hub", "lat": 4.6064, "lon": 114.3248 }
+      ],
+      "military": [
+        { "name": "Muara", "description": "Naval facility", "lat": 5.0236, "lon": 115.0731 }
+      ],
+      "secret": [
+        { "name": "Energy Reserve Zone", "description": "Strategic resource area", "lat": 4.7000, "lon": 114.5000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Timor-Leste",
+      "capital": { "name": "Dili", "type": "political", "description": "National capital", "lat": -8.5569, "lon": 125.5603 },
+      "economic": [
+        { "name": "Baucau", "description": "Regional economic center", "lat": -8.4667, "lon": 126.4500 }
+      ],
+      "military": [
+        { "name": "Suai", "description": "Strategic coastal zone", "lat": -9.3129, "lon": 125.2560 }
+      ],
+      "secret": [
+        { "name": "Timor Sea Watch Zone", "description": "Maritime surveillance network", "lat": -9.0000, "lon": 126.0000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Saudi Arabia",
+      "capital": { "name": "Riyadh", "type": "political", "description": "National capital and financial hub", "lat": 24.7136, "lon": 46.6753 },
+      "economic": [
+        { "name": "Jeddah", "description": "Trade and port economy", "lat": 21.4858, "lon": 39.1925 }
+      ],
+      "military": [
+        { "name": "Air Force Network", "description": "National air defense and command command", "lat": 24.7214, "lon": 46.6912 }
+      ],
+      "secret": [
+        { "name": "NEOM Strategic Zone", "description": "Future strategic region", "lat": 28.0000, "lon": 35.0000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Turkey",
+      "capital": { "name": "Ankara", "type": "political", "description": "National capital and administrative hub", "lat": 39.9334, "lon": 32.8597 },
+      "economic": [
+        { "name": "Istanbul", "description": "Financial hub", "lat": 41.0082, "lon": 28.9784 },
+        { "name": "Izmir", "description": "Industrial port", "lat": 38.4237, "lon": 27.1428 }
+      ],
+      "military": [
+        { "name": "Incirlik", "description": "Air base", "lat": 37.0017, "lon": 35.4259 },
+        { "name": "Aksaz", "description": "Naval base", "lat": 36.8422, "lon": 28.2794 }
+      ],
+      "secret": [
+        { "name": "Bosporus Strategic Command", "description": "Strategic maritime control", "lat": 41.1000, "lon": 29.0000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "United Arab Emirates",
+      "capital": { "name": "Abu Dhabi", "type": "political", "description": "National capital and federal center", "lat": 24.4539, "lon": 54.3773 },
+      "economic": [
+        { "name": "Dubai", "description": "Financial hub", "lat": 25.2048, "lon": 55.2708 },
+        { "name": "Sharjah", "description": "Industrial center", "lat": 25.3463, "lon": 55.4209 }
+      ],
+      "military": [
+        { "name": "Al Dhafra", "description": "Air base", "lat": 24.2486, "lon": 54.5477 }
+      ],
+      "secret": [
+        { "name": "Strait Security Command", "description": "Maritime surveillance zone", "lat": 25.5000, "lon": 56.5000, "status": "locked" }
+      ]
+    },
+    {
+      "name": "Qatar",
+      "capital": { "name": "Doha", "type": "political", "description": "National capital and maritime hub", "lat": 25.2854, "lon": 51.5310 },
+      "economic": [
+        { "name": "Ras Laffan", "description": "Energy export hub", "lat": 25.9249, "lon": 51.5510 }
+      ],
+      "military": [
+        { "name": "Al Udeid", "description": "Strategic air base", "lat": 25.1170, "lon": 51.3150 }
+      ],
+      "secret": [
+        { "name": "Gas Strategic Reserve", "description": "Energy reserve zone", "lat": 25.8000, "lon": 51.6000, "status": "locked" }
+      ]
+    }
+  ]
+    }
+        
           
