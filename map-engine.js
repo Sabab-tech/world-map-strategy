@@ -1,12 +1,12 @@
 // ============================================================================
-// WORLD MAP STRATEGY ENGINE (DECOUPLED & OPTIMIZED FOR OFFLINE USE)
+// WORLD MAP STRATEGY ENGINE (FAULT-TOLERANT & OPTIMIZED FOR MOBILE)
 // ============================================================================
 
 var locationsRegistry = {}; 
 var currentActiveCountry = null; 
 var geojsonLayer, selectedLayer = null;
 const countryLookup = {};
-const countryLabels = []; // লেবেল ট্র্যাকিংয়ের জন্য অ্যারে
+const countryLabels = []; 
 
 // ম্যাপের বাউন্ডারি ও জুম রেঞ্জ লিমিট
 var bounds = L.latLngBounds(L.latLng(-60, -180), L.latLng(85, 180));
@@ -170,25 +170,28 @@ fetch('countries.json?v=' + new Date().getTime())
             countryLookup[normalizeName(c.name)] = c;
         });
 
-        // ২. আপনার ডাউনলোড করা লোকাল GeoJSON ফাইলটি লোড করা হচ্ছে
-        return fetch('./world.json')
+        // ২. আপনার আপলোড করা লোকাল world.json ফাইলটি লোড করা হচ্ছে
+        return fetch('./world.json?v=' + new Date().getTime())
             .then(res => {
                 if (!res.ok) throw new Error("Local GeoJSON (world.json) Load Failed!");
                 return res.json();
             })
             .then(geoData => {
                 geojsonLayer = L.geoJSON(geoData, {
-                    filter: function(feature) {
-                        var geoName = feature.properties.ADMIN || feature.properties.name;
-                        return findCountryConfig(geoName) !== null;
+                    // ম্যাপ সচল করতে ফিল্টারিং লক তুলে দেওয়া হলো
+                    filter: function(feature) { 
+                        return true; 
                     },
                     // Modern Age 3 স্টাইলের তীক্ষ্ণ বর্ডার ও আকর্ষণীয় সলিড কালার থিম
                     style: function(feature) {
-                        var geoName = feature.properties.ADMIN || feature.properties.name;
+                        var props = feature.properties || {};
+                        var geoName = props.ADMIN || props.name || props.NAME || props.Country;
                         var config = findCountryConfig(geoName);
                         var defaultColor = "#1e293b"; 
                         if (config) {
                             defaultColor = getCountryColor(config.name);
+                        } else if (geoName) {
+                            defaultColor = getCountryColor(geoName);
                         }
                         return { 
                             color: "rgba(255, 255, 255, 0.25)", // মসৃণ হালকা বর্ডার লাইন
@@ -199,10 +202,13 @@ fetch('countries.json?v=' + new Date().getTime())
                         };
                     },
                     onEachFeature: function(feature, layer) {
-                        var geoName = feature.properties.ADMIN || feature.properties.name;
+                        var props = feature.properties || {};
+                        var geoName = props.ADMIN || props.name || props.NAME || props.Country;
                         var config = findCountryConfig(geoName);
 
-                        if (!config) return;
+                        // যদি কনফিগারেশন না মেলে, সাময়িকভাবে জেনারেটেড নাম ব্যবহার করবে
+                        var displayName = config ? config.name : geoName;
+                        if (!displayName) return;
 
                         if (layer.getBounds) {
                             var center = layer.getBounds().getCenter();
@@ -210,13 +216,21 @@ fetch('countries.json?v=' + new Date().getTime())
                             var marker = L.marker(center, {
                                 icon: L.divIcon({
                                     className: "country-label",
-                                    html: `<div>${config.name}</div>`
+                                    html: `<div>${displayName}</div>`
                                 }),
                                 interactive: false
                             });
 
-                            // ট্র্যাকিং অ্যারেতে লেবেল স্টোর করা
-                            countryLabels.push({ marker: marker, config: config });
+                            // ট্র্যাকিং অ্যারেতে লেবেল স্টোর করা (যদি কনফিগারেশন থাকে)
+                            if (config) {
+                                countryLabels.push({ marker: marker, config: config });
+                            } else {
+                                // ফলব্যাক ডিফল্ট লেবেল ট্র্যাকিং
+                                countryLabels.push({ 
+                                    marker: marker, 
+                                    config: { name: displayName, minZoom: 3.8, maxZoom: 9 } 
+                                });
+                            }
 
                             layer.on({
                                 click: function(e) {
@@ -233,7 +247,7 @@ fetch('countries.json?v=' + new Date().getTime())
                                         fillOpacity: 0.45 
                                     });
                                     
-                                    currentActiveCountry = config.name;
+                                    currentActiveCountry = displayName;
                                     renderCountryHubs();
                                 }
                             });
@@ -273,3 +287,4 @@ map.on('click', function() {
     currentActiveCountry = null;
     hubsGroupLayer.clearLayers();
 });
+    
