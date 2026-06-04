@@ -911,8 +911,6 @@
     ]
   },
   {
-  "countries": [
-    {
       "name": "Taiwan",
       "capital": {
         "name": "Taipei",
@@ -1140,8 +1138,6 @@
         }
       ]
     }, 
-    {
-  
     {
       "name": "Saudi Arabia",
       "capital": {
