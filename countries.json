@@ -100,7 +100,7 @@
   { "code": "AE", "name": "United Arab Emirates", "lat": 23.4241, "lng": 53.8478, "minZoom": 4.5, "maxZoom": 9.0, "importance": 4 },
   { "code": "KW", "name": "Kuwait", "lat": 29.3117, "lng": 47.4818, "minZoom": 5.0, "maxZoom": 9.5, "importance": 4 },
   { "code": "OM", "name": "Oman", "lat": 21.4735, "lng": 55.9754, "minZoom": 4.5, "maxZoom": 9.0, "importance": 3 },
-  { "code": "YE", "name": "Yemen", "lat": 15.5527, "lng": 48.5164, "minZoom": 4.0, "maxZoom": 9.0, "importance": 3 }
+  { "code": "YE", "name": "Yemen", "lat": 15.5527, "lng": 48.5164, "minZoom": 4.0, "maxZoom": 9.0, "importance": 3 },
    
   { "code": "MA", "name": "Morocco", "lat": 31.7917, "lng": -7.0926, "minZoom": 4.0, "maxZoom": 8.8, "importance": 4 },
   { "code": "TN", "name": "Tunisia", "lat": 33.8869, "lng": 9.5375, "minZoom": 4.5, "maxZoom": 9.0, "importance": 3 },
