@@ -7,7 +7,7 @@
         body { margin: 0; padding: 0; background: #000; overflow: hidden; }
         #map { height: 100vh; width: 100%; background: #000; }
         
-        .game-country-label {
+        .game-country-label, .country-label {
             background: none !important; border: none !important; box-shadow: none !important;
             color: #f1f5f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             font-weight: 900; letter-spacing: 1px;
@@ -42,12 +42,11 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // দেশগুলোর ডাটা এবং জুম ফিল্টারিং এখন সরাসরি 'countries.json' থেকে ডায়নামিকালি হবে
-        var activeCountriesData = []; 
         var locationsRegistry = {}; 
-        var labelMarkersList = []; 
         var currentActiveCountry = null; 
-        
+        var geojsonLayer, selectedLayer = null;
+        const countryLookup = {};
+
         var bounds = L.latLngBounds(L.latLng(-60, -180), L.latLng(85, 180));
         var map = L.map('map', { 
             zoomControl: false, minZoom: 3.8, maxZoom: 9, zoomSnap: 0.1, zoomDelta: 1,
@@ -59,13 +58,26 @@
         }).addTo(map);
 
         var hubsGroupLayer = L.layerGroup().addTo(map);
-        var geojsonLayer, selectedLayer = null;
-        var renderedCountries = new Set();
 
-        function getFontSizeForZoom(zoom, importance) {
-            let baseSize = (importance && importance > 4) ? 12 : 9;
-            if (zoom > 3.8) baseSize += (zoom - 3.8) * 4.5; 
-            return baseSize;
+        // ===== COUNTRY NORMALIZER (আপনার লজিক) =====
+        function normalizeName(name) {
+            return (name || "")
+                .toLowerCase()
+                .replace(/\(.*?\)/g, "")
+                .replace(/[^a-z]/g, "")
+                .trim();
+        }
+
+        // ===== SMART MATCH FUNCTION (আপনার লজিক) =====
+        function findCountryConfig(geoName) {
+            let key = normalizeName(geoName);
+            if (countryLookup[key]) return countryLookup[key];
+            for (let k in countryLookup) {
+                if (k.includes(key) || key.includes(k)) {
+                    return countryLookup[k];
+                }
+            }
+            return null;
         }
 
         function getMarkerRadiusForZoom(zoom) {
@@ -73,14 +85,6 @@
             if (zoom <= 5.5) return 7;
             if (zoom <= 7.0) return 10;
             return 13; 
-        }
-
-        function calculateTextRotation(layerBounds) {
-            var northEast = layerBounds.getNorthEast(), southWest = layerBounds.getSouthWest();
-            var latDiff = northEast.lat - southWest.lat;
-            var lngDiff = northEast.lng - southWest.lng;
-            if (latDiff > lngDiff * 1.3) { return 45; }
-            return 0;
         }
 
         function loadGameCities() {
@@ -142,67 +146,64 @@
             });
         }
 
-        // প্রথমে আপনার তৈরি করা countries.json লোড করা হচ্ছে এবং জুম ফিল্টারিং ইন্টিগ্রেট করা হচ্ছে
+        // ===== GEOJSON & CONFIG MASTER LOADING =====
         fetch('countries.json?v=' + new Date().getTime())
             .then(res => res.json())
-            .then(countriesData => {
-                activeCountriesData = countriesData;
-                const allowedCountryNames = activeCountriesData.map(c => c.name);
+            .then(countryConfig => {
+                
+                // BUILD LOOKUP MAP (আপনার লজিক)
+                countryConfig.forEach(c => {
+                    countryLookup[normalizeName(c.name)] = c;
+                });
 
                 return fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
                     .then(res => res.json())
                     .then(geoData => {
                         geojsonLayer = L.geoJSON(geoData, {
                             filter: function(feature) {
-                                var name = feature.properties.ADMIN || feature.properties.name;
-                                return allowedCountryNames.includes(name);
+                                var geoName = feature.properties.ADMIN || feature.properties.name;
+                                return findCountryConfig(geoName) !== null;
                             },
                             style: function() {
                                 return { color: "#ffffff", weight: map.getZoom() > 5.5 ? 2.3 : 0.9, opacity: 0.4, fillColor: "#ffffff", fillOpacity: 0.01 };
                             },
                             onEachFeature: function(feature, layer) {
-                                var countryName = feature.properties.ADMIN || feature.properties.name;
-                                var targetCountryConfig = activeCountriesData.find(c => c.name === countryName);
-                                
+                                var geoName = feature.properties.ADMIN || feature.properties.name;
+                                var config = findCountryConfig(geoName);
+
+                                if (!config) return;
+
                                 if (layer.getBounds) {
-                                    var countryBounds = layer.getBounds();
-                                    var centerLatLng = countryBounds.getCenter();
+                                    var center = layer.getBounds().getCenter();
 
-                                    if (!renderedCountries.has(countryName)) {
-                                        renderedCountries.add(countryName);
-                                        
-                                        var rotationAngle = calculateTextRotation(countryBounds);
-                                        var currentZoom = map.getZoom();
-                                        
-                                        var minZ = targetCountryConfig ? targetCountryConfig.minZoom : 3.8;
-                                        var maxZ = targetCountryConfig ? targetCountryConfig.maxZoom : 9.0;
-                                        var imp = targetCountryConfig ? targetCountryConfig.importance : 3;
-                                        
-                                        var fontSizeNum = getFontSizeForZoom(currentZoom, imp);
+                                    var marker = L.marker(center, {
+                                        icon: L.divIcon({
+                                            className: "country-label",
+                                            html: `<div>${config.name}</div>`
+                                        }),
+                                        interactive: false
+                                    });
 
-                                        var labelMarker = L.marker(centerLatLng, {
-                                            icon: L.divIcon({
-                                                className: 'game-country-label',
-                                                html: `<div class="txt-render" style="transform: rotate(${rotationAngle}deg); font-size: ${fontSizeNum}px;">${countryName}</div>`,
-                                                iconSize: [160, 30], iconAnchor: [80, 15]
-                                            }),
-                                            interactive: false 
-                                        });
+                                    // ZOOM UPDATE FUNCTION (আপনার লজিক)
+                                    function update() {
+                                        var zoom = map.getZoom();
 
-                                        // সুপার ফাস্ট স্পিড লজিক: countries.json ফাইলের minZoom এবং maxZoom অনুযায়ী টেক্সট শো করবে
-                                        if (currentZoom >= minZ && currentZoom <= maxZ) {
-                                            labelMarker.addTo(map);
+                                        if (zoom >= config.minZoom && zoom <= config.maxZoom) {
+                                            if (!map.hasLayer(marker)) marker.addTo(map);
+                                        } else {
+                                            if (map.hasLayer(marker)) map.removeLayer(marker);
                                         }
-                                        
-                                        labelMarkersList.push({ 
-                                            country: countryName, 
-                                            marker: labelMarker, 
-                                            minZoom: minZ, 
-                                            maxZoom: maxZ, 
-                                            importance: imp, 
-                                            angle: rotationAngle 
-                                        });
+
+                                        marker.setIcon(L.divIcon({
+                                            className: "country-label",
+                                            html: `<div style="font-size:${zoom > 7 ? 18 : zoom > 5 ? 12 : 10}px">
+                                                ${config.name}
+                                            </div>`
+                                        }));
                                     }
+
+                                    update();
+                                    map.on("zoomend", update);
 
                                     layer.on({
                                         click: function(e) {
@@ -214,7 +215,7 @@
                                                 color: "#e6fffa", weight: map.getZoom() > 5.5 ? 3.5 : 2.5, opacity: 0.9, fillColor: "#e6fffa", fillOpacity: 0.1 
                                             });
                                             
-                                            currentActiveCountry = countryName;
+                                            currentActiveCountry = config.name;
                                             renderCountryHubs();
                                         }
                                     });
@@ -225,33 +226,17 @@
                         loadGameCities();
                     });
             })
-            .catch(err => console.log("Error loading countries master engine:", err));
+            .catch(err => console.log("Error running normalization engine:", err));
 
         map.on('zoomend', function() {
             var currentZoom = map.getZoom();
-            
             if (geojsonLayer) {
                 geojsonLayer.eachLayer(function(layer) {
-                    layer.setStyle({ weight: layer === selectedLayer ? (currentZoom > 5.5 ? 3.5 : 2.5) : (currentZoom > 5.5 ? 2.3 : 0.9) });
+                    if (layer !== selectedLayer) {
+                        layer.setStyle({ weight: currentZoom > 5.5 ? 2.3 : 0.9 });
+                    }
                 });
             }
-
-            // ডায়নামিক স্ক্রিন রেন্ডারিং লজিক (যা ম্যাপকে হ্যাং বা ল্যাগ হতে দেবে না)
-            labelMarkersList.forEach(function(item) {
-                if (currentZoom >= item.minZoom && currentZoom <= item.maxZoom) {
-                    if (!map.hasLayer(item.marker)) item.marker.addTo(map);
-                } else {
-                    if (map.hasLayer(item.marker)) map.removeLayer(item.marker);
-                }
-                
-                var size = getFontSizeForZoom(currentZoom, item.importance);
-                item.marker.setIcon(L.divIcon({
-                    className: 'game-country-label',
-                    html: `<div style="transform: rotate(${item.angle}deg); font-size: ${size}px;">${item.country}</div>`,
-                    iconSize: [160, 30], iconAnchor: [80, 15]
-                }));
-            });
-
             if (currentActiveCountry) {
                 renderCountryHubs();
             }
@@ -267,5 +252,4 @@
         });
     </script>
 </body>
-    </html>
-    
+</html>
