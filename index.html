@@ -1,20 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ultimate 3D Strategy Map Engine</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Ultimate Political Map Strategy Engine</title>
+    <link rel="stylesheet" href="./leaflet.css" />
     <style>
         body { margin: 0; padding: 0; background: #000; overflow: hidden; }
-        #map { height: 100vh; width: 100%; background: #000; }
         
+        /* Modern Age 3 এর মতো ডিপ নেভি ব্লু সমুদ্রের ব্যাকগ্রাউন্ড */
+        #map { 
+            height: 100vh; 
+            width: 100%; 
+            background: #0d1527; /* Deep Navy Ocean Background */
+        }
+        
+        /* দেশের নাম দেখানোর জন্য স্টাইলিশ লেবেল */
         .game-country-label, .country-label {
             background: none !important; border: none !important; box-shadow: none !important;
             color: #f1f5f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             font-weight: 900; letter-spacing: 1px;
             white-space: nowrap; pointer-events: none; display: block; text-align: center;
-            text-shadow: 1px 1px 0px #334155, 2px 2px 0px #1e293b, 3px 3px 6px rgba(0, 0, 0, 0.95);
+            text-shadow: 1px 1px 0px #1e293b, 2px 2px 4px rgba(0, 0, 0, 0.95);
         }
 
+        /* পপআপ উইন্ডো স্টাইল */
         .game-popup .leaflet-popup-content-wrapper {
             background: #0f172a !important; color: #f8fafc !important;
             border: 2px solid #38bdf8 !important; border-radius: 8px !important;
@@ -40,216 +50,7 @@
 <body>
     <div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        var locationsRegistry = {}; 
-        var currentActiveCountry = null; 
-        var geojsonLayer, selectedLayer = null;
-        const countryLookup = {};
-
-        var bounds = L.latLngBounds(L.latLng(-60, -180), L.latLng(85, 180));
-        var map = L.map('map', { 
-            zoomControl: false, minZoom: 3.8, maxZoom: 9, zoomSnap: 0.1, zoomDelta: 1,
-            maxBounds: bounds, maxBoundsViscosity: 1.0, inertia: false
-        }).setView([22, 80], 3.8);
-
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Strategy Map Engine', maxNativeZoom: 19, keepBuffer: 4, updateWhenIdle: true
-        }).addTo(map);
-
-        var hubsGroupLayer = L.layerGroup().addTo(map);
-
-        // ===== COUNTRY NORMALIZER =====
-        function normalizeName(name) {
-            return (name || "")
-                .toLowerCase()
-                .replace(/\(.*?\)/g, "")
-                .replace(/[^a-z]/g, "")
-                .trim();
-        }
-
-        // ===== SMART MATCH FUNCTION =====
-        function findCountryConfig(geoName) {
-            let key = normalizeName(geoName);
-            if (countryLookup[key]) return countryLookup[key];
-            for (let k in countryLookup) {
-                if (k.includes(key) || key.includes(k)) {
-                    return countryLookup[k];
-                }
-            }
-            return null;
-        }
-
-        function getMarkerRadiusForZoom(zoom) {
-            if (zoom <= 4.2) return 5;
-            if (zoom <= 5.5) return 7;
-            if (zoom <= 7.0) return 10;
-            return 13; 
-        }
-
-        function loadGameCities() {
-            fetch('cities.json?v=' + new Date().getTime())
-                .then(res => res.json())
-                .then(data => {
-                    if(data.regions) {
-                        locationsRegistry = {};
-                        for (let reg in data.regions) { Object.assign(locationsRegistry, data.regions[reg].countries); }
-                    } else if(data.countries) {
-                        locationsRegistry = {};
-                        data.countries.forEach(c => { locationsRegistry[c.name] = c; });
-                    } else { locationsRegistry = data; }
-                    console.log("Database Sync Ready.");
-                })
-                .catch(err => console.log("Waiting for data syncing..."));
-        }
-
-        function renderCountryHubs() {
-            hubsGroupLayer.clearLayers(); 
-            if (!currentActiveCountry) return;
-
-            const countryData = locationsRegistry[currentActiveCountry];
-            if (!countryData) return;
-
-            let hubs = [];
-            if (countryData.capital) hubs.push({ ...countryData.capital, role: 'capital' });
-            if (countryData.economic) countryData.economic.forEach(h => hubs.push({ ...h, role: 'economic' }));
-            if (countryData.military) countryData.military.forEach(h => hubs.push({ ...h, role: 'military' }));
-            if (countryData.secret) countryData.secret.forEach(h => hubs.push({ ...h, role: 'secret' }));
-
-            var currentRadius = getMarkerRadiusForZoom(map.getZoom());
-
-            hubs.forEach(hub => {
-                var latitude = hub.lat, longitude = hub.lon || hub.lng;
-                if (!latitude || !longitude) return;
-
-                var color = '#38bdf8';
-                if (hub.role === 'economic') color = '#eab308';
-                if (hub.role === 'military') color = '#ef4444';
-                if (hub.role === 'secret') color = '#a855f7';
-
-                var hubMarker = L.circleMarker([latitude, longitude], {
-                    radius: currentRadius, 
-                    fillColor: color, color: '#ffffff', weight: 2.5, fillOpacity: 0.95
-                });
-
-                var popupContent = `
-                    <div class="game-popup">
-                        <span class="game-popup-title">${hub.name}</span>
-                        <span class="role-${hub.role || 'economic'}">${hub.role}</span>
-                        <span class="game-popup-desc">${hub.description || ''}</span>
-                        ${hub.status ? `<span class="game-popup-status">STATUS: ${hub.status.toUpperCase()}</span>` : ''}
-                    </div>
-                `;
-                
-                hubMarker.bindPopup(popupContent, { maxWidth: 350, className: 'game-popup' });
-                hubsGroupLayer.addLayer(hubMarker);
-            });
-        }
-
-        // ===== GEOJSON & CONFIG MASTER LOADING (সরাসরি আপনার গিটহাবের ফাইল রিড করার সঠিক পাথ) =====
-        fetch('https://raw.githubusercontent.com/Sabab-tech/world-map-strategy/main/countries.json?v=' + new Date().getTime())
-            .then(res => res.json())
-            .then(countryConfig => {
-                
-                // BUILD LOOKUP MAP
-                countryConfig.forEach(c => {
-                    countryLookup[normalizeName(c.name)] = c;
-                });
-
-                return fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
-                    .then(res => res.json())
-                    .then(geoData => {
-                        geojsonLayer = L.geoJSON(geoData, {
-                            filter: function(feature) {
-                                var geoName = feature.properties.ADMIN || feature.properties.name;
-                                return findCountryConfig(geoName) !== null;
-                            },
-                            style: function() {
-                                return { color: "#ffffff", weight: map.getZoom() > 5.5 ? 2.3 : 0.9, opacity: 0.4, fillColor: "#ffffff", fillOpacity: 0.01 };
-                            },
-                            onEachFeature: function(feature, layer) {
-                                var geoName = feature.properties.ADMIN || feature.properties.name;
-                                var config = findCountryConfig(geoName);
-
-                                if (!config) return;
-
-                                if (layer.getBounds) {
-                                    var center = layer.getBounds().getCenter();
-
-                                    var marker = L.marker(center, {
-                                        icon: L.divIcon({
-                                            className: "country-label",
-                                            html: `<div>${config.name}</div>`
-                                        }),
-                                        interactive: false
-                                    });
-
-                                    // ZOOM UPDATE FUNCTION
-                                    function update() {
-                                        var zoom = map.getZoom();
-
-                                        if (zoom >= config.minZoom && zoom <= config.maxZoom) {
-                                            if (!map.hasLayer(marker)) marker.addTo(map);
-                                        } else {
-                                            if (map.hasLayer(marker)) map.removeLayer(marker);
-                                        }
-
-                                        marker.setIcon(L.divIcon({
-                                            className: "country-label",
-                                            html: `<div style="font-size:${zoom > 7 ? 18 : zoom > 5 ? 12 : 10}px">
-                                                ${config.name}
-                                            </div>`
-                                        }));
-                                    }
-
-                                    update();
-                                    map.on("zoomend", update);
-
-                                    layer.on({
-                                        click: function(e) {
-                                            L.DomEvent.stopPropagation(e);
-                                            if (selectedLayer) geojsonLayer.resetStyle(selectedLayer);
-                                            selectedLayer = e.target;
-                                            
-                                            selectedLayer.setStyle({ 
-                                                color: "#e6fffa", weight: map.getZoom() > 5.5 ? 3.5 : 2.5, opacity: 0.9, fillColor: "#e6fffa", fillOpacity: 0.1 
-                                            });
-                                            
-                                            currentActiveCountry = config.name;
-                                            renderCountryHubs();
-                                        }
-                                    });
-                                }
-                            }
-                        }).addTo(map);
-
-                        loadGameCities();
-                    });
-            })
-            .catch(err => console.log("Error running normalization engine:", err));
-
-        map.on('zoomend', function() {
-            var currentZoom = map.getZoom();
-            if (geojsonLayer) {
-                geojsonLayer.eachLayer(function(layer) {
-                    if (layer !== selectedLayer) {
-                        layer.setStyle({ weight: currentZoom > 5.5 ? 2.3 : 0.9 });
-                    }
-                });
-            }
-            if (currentActiveCountry) {
-                renderCountryHubs();
-            }
-        });
-
-        map.on('click', function() {
-            if (selectedLayer) {
-                geojsonLayer.resetStyle(selectedLayer);
-                selectedLayer = null;
-            }
-            currentActiveCountry = null;
-            hubsGroupLayer.clearLayers();
-        });
-    </script>
+    <script src="./leaflet.js"></script>
+    <script src="./map-engine.js"></script>
 </body>
 </html>
