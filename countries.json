@@ -69,4 +69,36 @@
   { "code": "MX", "name": "Mexico", "lat": 23.6345, "lng": -102.5528, "minZoom": 3.8, "maxZoom": 8.5, "importance": 4 },
   { "code": "AR2", "name": "Argentina (Alt)", "lat": -38.4161, "lng": -63.6167, "minZoom": 3.8, "maxZoom": 8.5, "importance": 4 },
   { "code": "CL", "name": "Chile", "lat": -35.6751, "lng": -71.5430, "minZoom": 3.8, "maxZoom": 8.5, "importance": 4 }
-    ]
+
+  { "code": "BR2", "name": "Brazil (Alt)", "lat": -14.2350, "lng": -51.9253, "minZoom": 3.5, "maxZoom": 7.5, "importance": 5 },
+  { "code": "CO", "name": "Colombia", "lat": 4.5709, "lng": -74.2973, "minZoom": 3.8, "maxZoom": 8.5, "importance": 4 },
+  { "code": "PE", "name": "Peru", "lat": -9.1900, "lng": -75.0152, "minZoom": 3.8, "maxZoom": 8.5, "importance": 4 },
+  { "code": "VE", "name": "Venezuela", "lat": 6.4238, "lng": -66.5897, "minZoom": 3.8, "maxZoom": 8.5, "importance": 3 },
+  { "code": "UY", "name": "Uruguay", "lat": -32.5228, "lng": -55.7658, "minZoom": 4.5, "maxZoom": 9.0, "importance": 3 },
+
+  { "code": "CU", "name": "Cuba", "lat": 21.5218, "lng": -77.7812, "minZoom": 4.5, "maxZoom": 9.0, "importance": 3 },
+  { "code": "HT", "name": "Haiti", "lat": 18.9712, "lng": -72.2852, "minZoom": 4.5, "maxZoom": 9.0, "importance": 2 },
+  { "code": "DO", "name": "Dominican Republic", "lat": 18.7357, "lng": -70.1627, "minZoom": 4.5, "maxZoom": 9.0, "importance": 3 },
+
+  { "code": "NZ", "name": "New Zealand", "lat": -40.9006, "lng": 174.8860, "minZoom": 4.0, "maxZoom": 8.5, "importance": 4 },
+  { "code": "PG", "name": "Papua New Guinea", "lat": -6.3149, "lng": 143.9555, "minZoom": 4.0, "maxZoom": 8.5, "importance": 3 },
+  { "code": "FJ", "name": "Fiji", "lat": -17.7134, "lng": 178.0650, "minZoom": 5.0, "maxZoom": 9.5, "importance": 2 },
+
+  { "code": "KZ", "name": "Kazakhstan", "lat": 48.0196, "lng": 66.9237, "minZoom": 3.5, "maxZoom": 8.5, "importance": 4 },
+  { "code": "UZ", "name": "Uzbekistan", "lat": 41.3775, "lng": 64.5853, "minZoom": 4.0, "maxZoom": 9.0, "importance": 3 },
+  { "code": "TM", "name": "Turkmenistan", "lat": 38.9697, "lng": 59.5563, "minZoom": 4.0, "maxZoom": 9.0, "importance": 3 },
+  { "code": "KG", "name": "Kyrgyzstan", "lat": 41.2044, "lng": 74.7661, "minZoom": 4.0, "maxZoom": 9.0, "importance": 3 },
+  { "code": "TJ", "name": "Tajikistan", "lat": 38.8610, "lng": 71.2761, "minZoom": 4.0, "maxZoom": 9.0, "importance": 3 },
+
+  { "code": "SY", "name": "Syria", "lat": 34.8021, "lng": 38.9968, "minZoom": 4.0, "maxZoom": 9.0, "importance": 3 },
+  { "code": "JO", "name": "Jordan", "lat": 30.5852, "lng": 36.2384, "minZoom": 4.0, "maxZoom": 9.0, "importance": 3 },
+  { "code": "LB", "name": "Lebanon", "lat": 33.8547, "lng": 35.8623, "minZoom": 4.5, "maxZoom": 9.0, "importance": 3 },
+  { "code": "IL", "name": "Israel", "lat": 31.0461, "lng": 34.8516, "minZoom": 4.5, "maxZoom": 9.0, "importance": 4 },
+  { "code": "PS", "name": "Palestine", "lat": 31.9522, "lng": 35.2332, "minZoom": 4.5, "maxZoom": 9.0, "importance": 3 },
+
+  { "code": "QA", "name": "Qatar", "lat": 25.3548, "lng": 51.1839, "minZoom": 5.0, "maxZoom": 9.5, "importance": 4 },
+  { "code": "AE", "name": "United Arab Emirates", "lat": 23.4241, "lng": 53.8478, "minZoom": 4.5, "maxZoom": 9.0, "importance": 4 },
+  { "code": "KW", "name": "Kuwait", "lat": 29.3117, "lng": 47.4818, "minZoom": 5.0, "maxZoom": 9.5, "importance": 4 },
+  { "code": "OM", "name": "Oman", "lat": 21.4735, "lng": 55.9754, "minZoom": 4.5, "maxZoom": 9.0, "importance": 3 },
+  { "code": "YE", "name": "Yemen", "lat": 15.5527, "lng": 48.5164, "minZoom": 4.0, "maxZoom": 9.0, "importance": 3 }
+  ]
