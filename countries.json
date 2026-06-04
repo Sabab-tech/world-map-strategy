@@ -37,7 +37,7 @@
   { "code": "ES", "name": "Spain", "lat": 40.4637, "lng": -3.7492, "minZoom": 4.0, "maxZoom": 8.5, "importance": 4 },
   { "code": "IT", "name": "Italy", "lat": 41.8719, "lng": 12.5674, "minZoom": 4.0, "maxZoom": 8.5, "importance": 4 },
   { "code": "TR", "name": "Turkey", "lat": 38.9637, "lng": 35.2433, "minZoom": 3.8, "maxZoom": 8.8, "importance": 4 },
-  { "code": "VN", "name": "Vietnam", "lat": 14.0583, "lng": 108.2772, "minZoom": 4.0, "maxZoom": 9.0, "importance": 3 }
+  { "code": "VN", "name": "Vietnam", "lat": 14.0583, "lng": 108.2772, "minZoom": 4.0, "maxZoom": 9.0, "importance": 3 },
     
   { "code": "SE", "name": "Sweden", "lat": 60.1282, "lng": 18.6435, "minZoom": 4.5, "maxZoom": 9.0, "importance": 4 },
   { "code": "CH", "name": "Switzerland", "lat": 46.8182, "lng": 8.2275, "minZoom": 4.5, "maxZoom": 9.0, "importance": 4 },
@@ -68,7 +68,7 @@
 
   { "code": "MX", "name": "Mexico", "lat": 23.6345, "lng": -102.5528, "minZoom": 3.8, "maxZoom": 8.5, "importance": 4 },
   { "code": "AR2", "name": "Argentina (Alt)", "lat": -38.4161, "lng": -63.6167, "minZoom": 3.8, "maxZoom": 8.5, "importance": 4 },
-  { "code": "CL", "name": "Chile", "lat": -35.6751, "lng": -71.5430, "minZoom": 3.8, "maxZoom": 8.5, "importance": 4 }
+  { "code": "CL", "name": "Chile", "lat": -35.6751, "lng": -71.5430, "minZoom": 3.8, "maxZoom": 8.5, "importance": 4 },
 
   { "code": "BR2", "name": "Brazil (Alt)", "lat": -14.2350, "lng": -51.9253, "minZoom": 3.5, "maxZoom": 7.5, "importance": 5 },
   { "code": "CO", "name": "Colombia", "lat": 4.5709, "lng": -74.2973, "minZoom": 3.8, "maxZoom": 8.5, "importance": 4 },
