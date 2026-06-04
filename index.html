@@ -59,7 +59,7 @@
 
         var hubsGroupLayer = L.layerGroup().addTo(map);
 
-        // ===== COUNTRY NORMALIZER (আপনার লজিক) =====
+        // ===== COUNTRY NORMALIZER =====
         function normalizeName(name) {
             return (name || "")
                 .toLowerCase()
@@ -68,7 +68,7 @@
                 .trim();
         }
 
-        // ===== SMART MATCH FUNCTION (আপনার লজিক) =====
+        // ===== SMART MATCH FUNCTION =====
         function findCountryConfig(geoName) {
             let key = normalizeName(geoName);
             if (countryLookup[key]) return countryLookup[key];
@@ -146,12 +146,12 @@
             });
         }
 
-        // ===== GEOJSON & CONFIG MASTER LOADING =====
-        fetch('countries.json?v=' + new Date().getTime())
+        // ===== GEOJSON & CONFIG MASTER LOADING (সরাসরি আপনার গিটহাবের ফাইল রিড করার সঠিক পাথ) =====
+        fetch('https://raw.githubusercontent.com/Sabab-tech/world-map-strategy/main/countries.json?v=' + new Date().getTime())
             .then(res => res.json())
             .then(countryConfig => {
                 
-                // BUILD LOOKUP MAP (আপনার লজিক)
+                // BUILD LOOKUP MAP
                 countryConfig.forEach(c => {
                     countryLookup[normalizeName(c.name)] = c;
                 });
@@ -184,7 +184,7 @@
                                         interactive: false
                                     });
 
-                                    // ZOOM UPDATE FUNCTION (আপনার লজিক)
+                                    // ZOOM UPDATE FUNCTION
                                     function update() {
                                         var zoom = map.getZoom();
 
