@@ -1,6 +1,6 @@
 try {
     // ============================================================================
-    // WORLD MAP STRATEGY ENGINE (FAULT-TOLERANT & OPTIMIZED FOR MOBILE - RESTORED)
+    // WORLD MAP STRATEGY ENGINE (OPTIMIZED WITH CENTERED DYNAMIC LABELS & PALESTINE ALIAS)
     // ============================================================================
 
     var locationsRegistry = {}; 
@@ -9,7 +9,7 @@ try {
     const countryLookup = {};
     const countryLabels = []; 
 
-    // ম্যাপের বাউন্ডারি ও জুম রেঞ্জ লিমিট (আগের নিখুঁত অবস্থায় ফেরত)
+    // ম্যাপের বাউন্ডারি ও জুম রেঞ্জ লিমিট
     var bounds = L.latLngBounds(L.latLng(-60, -180), L.latLng(85, 180));
     var map = L.map('map', { 
         zoomControl: false, minZoom: 3.8, maxZoom: 9, zoomSnap: 0.1, zoomDelta: 1,
@@ -152,11 +152,25 @@ try {
                 if (map.hasLayer(marker)) map.removeLayer(marker);
             }
 
+            // স্বাভাবিক জুম লেভেলে ২-অক্ষরের কান্ট্রি কোড এবং জুম করলে পুরো নাম দেখানো
+            var labelText = config.name;
+            if (zoom <= 5.0) {
+                labelText = config.code ? config.code : (config.name.length > 8 ? config.name.substring(0, 6) + ".." : config.name);
+            }
+
+            // ফন্ট সাইজ ডাইনামিক নির্ধারণ
+            var fontSize = 10;
+            if (zoom <= 4.2) fontSize = 8;
+            else if (zoom <= 5.0) fontSize = 10;
+            else if (zoom <= 7.0) fontSize = 12;
+            else fontSize = 16;
+
             marker.setIcon(L.divIcon({
                 className: "country-label",
-                html: `<div style="font-size:${zoom > 7 ? 18 : zoom > 5 ? 12 : 10}px">
-                    ${config.name}
-                </div>`
+                html: `<div style="transform: translate(-50%, -50%); font-size:${fontSize}px; white-space: nowrap;">
+                    ${labelText}
+                </div>`,
+                iconSize: [0, 0] // কেন্দ্রবিন্দু নিখুঁত লক করার জন্য ০ সাইজ
             }));
         });
     }
@@ -190,6 +204,12 @@ try {
                         style: function(feature) {
                             var props = feature.properties || {};
                             var geoName = props.ADMIN || props.name || props.NAME || props.Country;
+                            
+                            // ফিলিস্তিন/ওয়েস্ট ব্যাংক সমস্যার সমাধান (Alias mapping)
+                            if (geoName === "West Bank" || geoName === "Gaza" || geoName === "Gaza Strip" || geoName === "Palestine") {
+                                geoName = "Palestine";
+                            }
+
                             var config = findCountryConfig(geoName);
                             var defaultColor = "#1e293b"; 
                             if (config) {
@@ -208,6 +228,12 @@ try {
                         onEachFeature: function(feature, layer) {
                             var props = feature.properties || {};
                             var geoName = props.ADMIN || props.name || props.NAME || props.Country;
+                            
+                            // ফিলিস্তিন/ওয়েস্ট ব্যাংক সমস্যার সমাধান (Alias mapping)
+                            if (geoName === "West Bank" || geoName === "Gaza" || geoName === "Gaza Strip" || geoName === "Palestine") {
+                                geoName = "Palestine";
+                            }
+
                             var config = findCountryConfig(geoName);
 
                             // যদি কনফিগারেশন না মেলে, সাময়িকভাবে জেনারেটেড নাম ব্যবহার করবে
@@ -216,12 +242,19 @@ try {
 
                             if (layer.getBounds) {
                                 var center = layer.getBounds().getCenter();
+                                var initialZoom = map.getZoom();
+                                
+                                // শুরুতে জুম অনুযায়ী সংক্ষিপ্ত বা পুরো নাম নির্ধারণ
+                                var initialLabel = displayName;
+                                if (initialZoom <= 5.0) {
+                                    initialLabel = (config && config.code) ? config.code : (displayName.length > 8 ? displayName.substring(0, 6) + ".." : displayName);
+                                }
 
                                 var marker = L.marker(center, {
                                     icon: L.divIcon({
                                         className: "country-label",
-                                        html: `<div>${displayName}</div>`
-                                        // html: `<div>${config.name}</div>`
+                                        html: `<div style="transform: translate(-50%, -50%); font-size:${initialZoom > 5.0 ? 12 : 9}px; white-space: nowrap;">${initialLabel}</div>`,
+                                        iconSize: [0, 0] // কেন্দ্রবিন্দু নিখুঁত লক করার জন্য ০ সাইজ
                                     }),
                                     interactive: false
                                 });
@@ -233,7 +266,7 @@ try {
                                     // ফলব্যাক ডিফল্ট লেবেল ট্র্যাকিং
                                     countryLabels.push({ 
                                         marker: marker, 
-                                        config: { name: displayName, minZoom: 3.8, maxZoom: 9 } 
+                                        config: { name: displayName, code: props.ISO_A2 || props.iso_a2 || "", minZoom: 3.8, maxZoom: 9 } 
                                     });
                                 }
 
