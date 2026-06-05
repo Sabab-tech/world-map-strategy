@@ -138,7 +138,8 @@ try {
                 window.countryLookup[window.normalizeName(c.name)] = c;
             });
 
-            return fetch('./world.json?v=' + new Date().getTime())
+            // আপনার GitHub-এর world.json ফাইলটি CDN দিয়ে সরাসরি লোড করা হচ্ছে
+            return fetch('https://cdn.jsdelivr.net/gh/Sabab-tech/world-map-strategy@def5b842d53d37e122202875f67cdc11ab3c7311/world.json')
                 .then(res => {
                     if (!res.ok) throw new Error("world.json (GeoJSON) লোড ব্যর্থ হয়েছে (Status: " + res.status + ")");
                     return res.json();
@@ -218,7 +219,10 @@ try {
                                 layer.on({
                                     click: function(e) {
                                         L.DomEvent.stopPropagation(e);
-                                        if (window.selectedLayer) window.geojsonLayer.resetStyle(window.selectedLayer);
+                                        // ভুল এড়াতে window.geojsonLayer এর নাল চেক যুক্ত করা হলো
+                                        if (window.selectedLayer && window.geojsonLayer) {
+                                            window.geojsonLayer.resetStyle(window.selectedLayer);
+                                        }
                                         window.selectedLayer = e.target;
                                         
                                         var currentZoom = window.map.getZoom();
@@ -279,7 +283,7 @@ try {
 
     // ফাঁকা জায়গায় ক্লিক করলে সিলেকশন বাতিল করা
     window.map.on('click', function() {
-        if (window.selectedLayer) {
+        if (window.selectedLayer && window.geojsonLayer) {
             window.geojsonLayer.resetStyle(window.selectedLayer);
             window.selectedLayer = null;
         }
