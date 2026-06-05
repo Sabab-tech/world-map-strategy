@@ -224,12 +224,13 @@ try {
                                         var currentZoom = window.map.getZoom();
                                         var coastal = window.isCoastalCountry(displayName);
 
+                                        // পাতলা ক্লাসিক ও গ্লোয়িং সিলেকশন বর্ডার স্টাইল (সংশোধিত)
                                         window.selectedLayer.setStyle({ 
-                                            color: coastal ? "rgba(56, 189, 248, 0.75)" : "#38bdf8", 
-                                            weight: coastal ? (currentZoom > 5.5 ? 20 : 12) : (currentZoom > 5.5 ? 3.5 : 2.5), 
+                                            color: "#00e5ff", // নিয়ন আকাশী গ্লো কালার
+                                            weight: currentZoom > 5.5 ? 3.5 : 2.5, // একদম থিন ক্লাসিক বর্ডার
                                             opacity: 1.0, 
                                             fillColor: "#0284c7", 
-                                            fillOpacity: 0.45 
+                                            fillOpacity: 0.35 
                                         });
                                         
                                         window.currentActiveCountry = displayName;
@@ -258,14 +259,11 @@ try {
                 if (layer !== window.selectedLayer) {
                     layer.setStyle({ weight: currentZoom > 5.5 ? 2.0 : 1.0 });
                 } else {
-                    var displayName = window.currentActiveCountry;
-                    if (displayName) {
-                        var coastal = window.isCoastalCountry(displayName);
-                        layer.setStyle({
-                            color: coastal ? "rgba(56, 189, 248, 0.75)" : "#38bdf8",
-                            weight: coastal ? (currentZoom > 5.5 ? 20 : 12) : (currentZoom > 5.5 ? 3.5 : 2.5)
-                        });
-                    }
+                    // জুম পরিবর্তনের সাথে গ্লোইং সিলেকশন বর্ডার আপডেট
+                    layer.setStyle({
+                        color: "#00e5ff",
+                        weight: currentZoom > 5.5 ? 3.5 : 2.5
+                    });
                 }
             });
         }
@@ -288,4 +286,4 @@ try {
 } catch (error) {
     console.error("ম্যাপ ইঞ্জিন ২ ফাইলে ভুল:", error);
     alert("ম্যাপ ইঞ্জিন ২ লোড হতে পারেনি! প্রকৃত এরর:\n\n" + error.stack);
-                      }
+                        }
