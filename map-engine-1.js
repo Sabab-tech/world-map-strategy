@@ -144,7 +144,7 @@ try {
     window.map = L.map('map', { 
         zoomControl: false, minZoom: 3.8, maxZoom: 9, zoomSnap: 0.1, zoomDelta: 1,
         maxBounds: window.bounds, maxBoundsViscosity: 1.0, inertia: false,
-        preferCanvas: true
+        preferCanvas: true, bounceAtZoomLimits: false
     }).setView([22, 80], 3.8);
 
     window.hubsGroupLayer = L.layerGroup().addTo(window.map);
@@ -152,4 +152,4 @@ try {
 } catch (error) {
     console.error("ম্যাপ ইঞ্জিন ১ ফাইলে ভুল:", error);
     alert("ম্যাপ ইঞ্জিন ১ লোড হতে পারেনি! প্রকৃত এরর:\n\n" + error.stack);
-         }
+        }
