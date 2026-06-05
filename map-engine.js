@@ -1,6 +1,6 @@
 try {
     // ============================================================================
-    // WORLD MAP STRATEGY ENGINE (OPTIMIZED WITH CENTERED DYNAMIC LABELS & PALESTINE ALIAS)
+    // WORLD MAP STRATEGY ENGINE (OPTIMIZED FOR MOBILE - FULL NAMES & SEA BOUNDARIES)
     // ============================================================================
 
     var locationsRegistry = {}; 
@@ -33,6 +33,18 @@ try {
         '#80435c', // Muted Wine
         '#355c63', // Muted Forest-blue
         '#6e554d'  // Muted Clay
+    ];
+
+    // সমুদ্র ও মহাসাগরের নামের তালিকা এবং স্থানাঙ্ক (পেশাদার গেমের মতো প্রদর্শন)
+    const oceanLabelsList = [
+        { name: "ATLANTIC OCEAN", lat: 25, lng: -40, fontSize: 14 },
+        { name: "PACIFIC OCEAN", lat: 0, lng: -140, fontSize: 14 },
+        { name: "INDIAN OCEAN", lat: -15, lng: 80, fontSize: 14 },
+        { name: "SOUTHERN OCEAN", lat: -65, lng: 0, fontSize: 12 },
+        { name: "ARABIAN SEA", lat: 15, lng: 65, fontSize: 10 },
+        { name: "BAY OF BENGAL", lat: 15, lng: 88, fontSize: 10 },
+        { name: "SOUTH CHINA SEA", lat: 12, lng: 114, fontSize: 10 },
+        { name: "MEDITERRANEAN SEA", lat: 34, lng: 18, fontSize: 10 }
     ];
 
     // দেশের নামের ওপর ভিত্তি করে নির্দিষ্ট রাজনৈতিক কালার জেনারেট করার ফাংশন
@@ -71,6 +83,55 @@ try {
         if (zoom <= 5.5) return 7;
         if (zoom <= 7.0) return 10;
         return 13; 
+    }
+
+    // গ্লোবাল কান্ট্রি ইমপোর্ট্যান্স এবং জুম লেভেল অনুযায়ী ফন্ট সাইজ নির্ধারণের লজিক
+    function getFontSizeForCountry(config, zoom) {
+        var importance = (config && config.importance) ? config.importance : 3;
+        var baseSize = 9;
+        
+        if (importance >= 5) {
+            // সুপার জায়ান্ট দেশ (রাশিয়া, চীন, ইউএসএ, ভারত, কানাডা)
+            if (zoom <= 4.2) baseSize = 11;
+            else if (zoom <= 5.0) baseSize = 13;
+            else if (zoom <= 7.0) baseSize = 17;
+            else baseSize = 22;
+        } else if (importance === 4) {
+            // বড় দেশ (আর্জেন্টিনা, কাজাখস্তান, আলজেরিয়া)
+            if (zoom <= 4.2) baseSize = 10;
+            else if (zoom <= 5.0) baseSize = 11;
+            else if (zoom <= 7.0) baseSize = 14;
+            else baseSize = 18;
+        } else if (importance === 3) {
+            // মাঝারি দেশ (ইউক্রেন, ফ্রান্স, স্পেন)
+            if (zoom <= 4.2) baseSize = 9;
+            else if (zoom <= 5.0) baseSize = 10;
+            else if (zoom <= 7.0) baseSize = 12;
+            else baseSize = 15;
+        } else {
+            // ছোট ও ইনক্লেভ দেশ (ভুটান, ফিলিস্তিন, সুইজারল্যান্ড)
+            // ছোট হলেও লেখা পড়তে পারার সুবিধার্থে কমপক্ষে ৮ পিক্সেল রাখা হয়েছে
+            if (zoom <= 5.0) baseSize = 8;
+            else if (zoom <= 7.0) baseSize = 10;
+            else baseSize = 12;
+        }
+        return baseSize;
+    }
+
+    // সমুদ্র ও মহাসাগরের লেবেল ম্যাপে প্রদর্শন করার ফাংশন
+    function renderOceanLabels() {
+        oceanLabelsList.forEach(ocean => {
+            L.marker([ocean.lat, ocean.lng], {
+                icon: L.divIcon({
+                    className: "ocean-label",
+                    html: `<div style="transform: translate(-50%, -50%); font-family: 'Segoe UI', sans-serif; font-style: italic; font-weight: bold; color: rgba(147, 197, 253, 0.45); font-size: ${ocean.fontSize}px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); letter-spacing: 2px; white-space: nowrap;">
+                        ${ocean.name}
+                    </div>`,
+                    iconSize: [0, 0]
+                }),
+                interactive: false
+            }).addTo(map);
+        });
     }
 
     // অফলাইন সিটি জেসন ফাইল থেকে শহর ও হাবের ডেটা লোড
@@ -120,6 +181,20 @@ try {
             if (hub.role === 'military') color = '#ef4444';
             if (hub.role === 'secret') color = '#a855f7';
 
+            // পদ্ধতি ১ ও ৩: মিলিটারি এবং ইকোনমিক বন্দর বা কোস্টাল হাবগুলোর চারপাশে ১ নটিক্যাল মাইল এবং নৌ-সীমানা বৃত্ত আঁকা
+            if (hub.role === 'military' || hub.role === 'economic') {
+                var seaBoundary = L.circle([latitude, longitude], {
+                    radius: 180000, // ১৮০ কিমি বিস্তৃত জলসীমা বৃত্ত (টেরিটোরিয়াল সীমানা)
+                    color: 'rgba(56, 189, 248, 0.4)',
+                    weight: 1.5,
+                    dashArray: '4, 6',
+                    fillColor: 'rgba(56, 189, 248, 0.05)',
+                    fillOpacity: 0.1,
+                    interactive: false
+                });
+                hubsGroupLayer.addLayer(seaBoundary);
+            }
+
             var hubMarker = L.circleMarker([latitude, longitude], {
                 radius: currentRadius, 
                 fillColor: color, color: '#ffffff', weight: 2.5, fillOpacity: 0.95
@@ -152,25 +227,16 @@ try {
                 if (map.hasLayer(marker)) map.removeLayer(marker);
             }
 
-            // স্বাভাবিক জুম লেভেলে ২-অক্ষরের কান্ট্রি কোড এবং জুম করলে পুরো নাম দেখানো
+            // সংক্ষিপ্ত নাম চিরতরে বাতিল করা হলো। ম্যাপে সর্বদা পুরো নাম দেখাবে।
             var labelText = config.name;
-            if (zoom <= 5.0) {
-                labelText = config.code ? config.code : (config.name.length > 8 ? config.name.substring(0, 6) + ".." : config.name);
-            }
-
-            // ফন্ট সাইজ ডাইনামিক নির্ধারণ
-            var fontSize = 10;
-            if (zoom <= 4.2) fontSize = 8;
-            else if (zoom <= 5.0) fontSize = 10;
-            else if (zoom <= 7.0) fontSize = 12;
-            else fontSize = 16;
+            var fontSize = getFontSizeForCountry(config, zoom);
 
             marker.setIcon(L.divIcon({
                 className: "country-label",
                 html: `<div style="transform: translate(-50%, -50%); font-size:${fontSize}px; white-space: nowrap;">
                     ${labelText}
                 </div>`,
-                iconSize: [0, 0] // কেন্দ্রবিন্দু নিখুঁত লক করার জন্য ০ সাইজ
+                iconSize: [0, 0] // নিখুঁত ভিজ্যুয়াল সেন্টারিং বা কেন্দ্রস্থল লক করার জন্য ০ সাইজ
             }));
         });
     }
@@ -241,19 +307,22 @@ try {
                             if (!displayName) return;
 
                             if (layer.getBounds) {
-                                var center = layer.getBounds().getCenter();
-                                var initialZoom = map.getZoom();
-                                
-                                // শুরুতে জুম অনুযায়ী সংক্ষিপ্ত বা পুরো নাম নির্ধারণ
-                                var initialLabel = displayName;
-                                if (initialZoom <= 5.0) {
-                                    initialLabel = (config && config.code) ? config.code : (displayName.length > 8 ? displayName.substring(0, 6) + ".." : displayName);
+                                var center;
+                                // ১. countries.json এ যদি ম্যানুয়াল lat, lng স্থানাঙ্ক দেওয়া থাকে, তবে সেটিকেই আসল ভিজ্যুয়াল সেন্টার ধরবে
+                                if (config && config.lat && (config.lng || config.lng === 0 || config.lng || config.lng === 0)) {
+                                    center = L.latLng(config.lat, config.lng || config.lng);
+                                } else {
+                                    // ২. ফলব্যাক হিসেবে জ্যামিতিক মধ্যবিন্দু
+                                    center = layer.getBounds().getCenter();
                                 }
+
+                                var initialZoom = map.getZoom();
+                                var initialFontSize = getFontSizeForCountry(config, initialZoom);
 
                                 var marker = L.marker(center, {
                                     icon: L.divIcon({
                                         className: "country-label",
-                                        html: `<div style="transform: translate(-50%, -50%); font-size:${initialZoom > 5.0 ? 12 : 9}px; white-space: nowrap;">${initialLabel}</div>`,
+                                        html: `<div style="transform: translate(-50%, -50%); font-size:${initialFontSize}px; white-space: nowrap;">${displayName}</div>`,
                                         iconSize: [0, 0] // কেন্দ্রবিন্দু নিখুঁত লক করার জন্য ০ সাইজ
                                     }),
                                     interactive: false
@@ -293,8 +362,9 @@ try {
                         }
                     }).addTo(map);
 
-                    // লেবেল ও শহরের ডেটা রেন্ডার করা
+                    // লেবেল ও শহরের ডেটা এবং সমুদ্রের লেবেল রেন্ডার করা
                     updateCountryLabels();
+                    renderOceanLabels();
                     loadGameCities();
                 });
         })
