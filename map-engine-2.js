@@ -224,11 +224,11 @@ try {
                                         var currentZoom = window.map.getZoom();
                                         var coastal = window.isCoastalCountry(displayName);
 
-                                        // পাতলা ক্লাসিক ও গ্লোয়িং সিলেকশন বর্ডার স্টাইল (সংশোধিত)
+                                        // স্ট্যান্ডার্ড হেক্স কোড এবং লিফলেটের নিজস্ব অপাসিটি ব্যবহার করে সমুদ্রসীমা ফিক্স করা হলো
                                         window.selectedLayer.setStyle({ 
-                                            color: "#00e5ff", // নিয়ন আকাশী গ্লো কালার
-                                            weight: currentZoom > 5.5 ? 3.5 : 2.5, // একদম থিন ক্লাসিক বর্ডার
-                                            opacity: 1.0, 
+                                            color: "#00e5ff", // উজ্জ্বল নিয়ন সায়ান গ্লো
+                                            opacity: coastal ? 0.65 : 0.95, // সমুদ্রসীমা থাকলে গ্লো হালকা ও বড় হবে
+                                            weight: coastal ? (currentZoom > 5.5 ? 30 : 18) : (currentZoom > 5.5 ? 3.5 : 2.5), // ১৮-৩০ পিক্সেল চওড়া জলসীমা বেল্ট
                                             fillColor: "#0284c7", 
                                             fillOpacity: 0.35 
                                         });
@@ -259,11 +259,15 @@ try {
                 if (layer !== window.selectedLayer) {
                     layer.setStyle({ weight: currentZoom > 5.5 ? 2.0 : 1.0 });
                 } else {
-                    // জুম পরিবর্তনের সাথে গ্লোইং সিলেকশন বর্ডার আপডেট
-                    layer.setStyle({
-                        color: "#00e5ff",
-                        weight: currentZoom > 5.5 ? 3.5 : 2.5
-                    });
+                    var displayName = window.currentActiveCountry;
+                    if (displayName) {
+                        var coastal = window.isCoastalCountry(displayName);
+                        layer.setStyle({
+                            color: "#00e5ff",
+                            opacity: coastal ? 0.65 : 0.95,
+                            weight: coastal ? (currentZoom > 5.5 ? 30 : 18) : (currentZoom > 5.5 ? 3.5 : 2.5)
+                        });
+                    }
                 }
             });
         }
@@ -286,4 +290,4 @@ try {
 } catch (error) {
     console.error("ম্যাপ ইঞ্জিন ২ ফাইলে ভুল:", error);
     alert("ম্যাপ ইঞ্জিন ২ লোড হতে পারেনি! প্রকৃত এরর:\n\n" + error.stack);
-                        }
+            }
