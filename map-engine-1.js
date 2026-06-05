@@ -20,7 +20,14 @@ try {
         "france": [46.5, 2.5],
         "united kingdom": [54.0, -2.5],
         "brazil": [-14.2, -51.9],
-        "australia": [-25.2, 133.7]
+        "australia": [-25.2, 133.7],
+        // ইউরোপীয় ও বলকান দেশগুলোর ওভারল্যাপ এড়াতে নিখুঁত ভিজ্যুয়াল সেন্টার
+        "croatia": [45.1, 15.2],
+        "bosnia and herzegovina": [44.1, 17.6],
+        "montenegro": [42.8, 19.1],
+        "kosovo": [42.5, 21.0],
+        "slovenia": [46.1, 15.0],
+        "macedonia": [41.6, 21.7]
     };
 
     // স্থলবেষ্টিত বা ল্যান্ডলকড দেশের তালিকা (যাতে এদের ক্ষেত্রে সমুদ্রসীমা গ্লো না দেখায়)
@@ -124,9 +131,10 @@ try {
             else if (zoom <= 7.0) baseSize = 12;
             else baseSize = 15;
         } else {
-            if (zoom <= 5.0) baseSize = 8;
-            else if (zoom <= 7.0) baseSize = 10;
-            else baseSize = 12;
+            // ছোট দেশের নাম ওভারল্যাপ এড়াতে সাইজ কিছুটা কমানো হলো
+            if (zoom <= 5.0) baseSize = 7.5;
+            else if (zoom <= 7.0) baseSize = 8.5;
+            else baseSize = 11;
         }
         return baseSize;
     };
@@ -144,4 +152,4 @@ try {
 } catch (error) {
     console.error("ম্যাপ ইঞ্জিন ১ ফাইলে ভুল:", error);
     alert("ম্যাপ ইঞ্জিন ১ লোড হতে পারেনি! প্রকৃত এরর:\n\n" + error.stack);
-          }
+         }
