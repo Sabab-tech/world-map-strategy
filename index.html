@@ -9,7 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
     <script>eruda.init();</script>
 
-    <link rel="stylesheet" href="./leaflet.css" />
+    <!-- Leaflet CDN (লোকাল ফাইলের অনুপস্থিতিতেও ম্যাপ ঠিকভাবে লোড হওয়ার জন্য) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; background: #000; overflow: hidden; }
         
@@ -55,7 +56,8 @@
 <body>
     <div id="map"></div>
 
-    <script src="./leaflet.js"></script>
+    <!-- Leaflet CDN JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="./map-engine-1.js"></script>
     <script src="./map-engine-2.js"></script>
 </body>
