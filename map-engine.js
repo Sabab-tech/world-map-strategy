@@ -1,6 +1,6 @@
 try {
     // ============================================================================
-    // WORLD MAP STRATEGY ENGINE (FAULT-TOLERANT & OPTIMIZED FOR MOBILE WITH TERRAIN MAP)
+    // WORLD MAP STRATEGY ENGINE (FAULT-TOLERANT & OPTIMIZED FOR MOBILE - RESTORED)
     // ============================================================================
 
     var locationsRegistry = {}; 
@@ -9,23 +9,17 @@ try {
     const countryLookup = {};
     const countryLabels = []; 
 
-    // নতুন বাস্তবধর্মী টপোগ্রাফি ম্যাপের জন্য নিখুঁত বাউন্ডারি ও জুম রেঞ্জ লিমিট
-    var bounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
+    // ম্যাপের বাউন্ডারি ও জুম রেঞ্জ লিমিট (আগের নিখুঁত অবস্থায় ফেরত)
+    var bounds = L.latLngBounds(L.latLng(-60, -180), L.latLng(85, 180));
     var map = L.map('map', { 
         zoomControl: false, minZoom: 3.8, maxZoom: 9, zoomSnap: 0.1, zoomDelta: 1,
         maxBounds: bounds, maxBoundsViscosity: 1.0, inertia: false,
         preferCanvas: true // মোবাইল ডিভাইসের পারফরম্যান্স বাড়াতে ক্যানভাস সক্রিয় করা হয়েছে
     }).setView([22, 80], 3.8);
 
-    // ১. আপনার পাঠানো চমৎকার 'terrain-map.jpg' ছবিটি ব্যাকগ্রাউন্ডে সেট করা হচ্ছে
-    L.imageOverlay('./terrain-map.jpg', bounds, {
-        opacity: 1.0,
-        interactive: false // যাতে ছবির ওপরে ক্লিক না লেগে দেশের ওপরে ক্লিক স্পর্শ করে
-    }).addTo(map);
-
     var hubsGroupLayer = L.layerGroup().addTo(map);
 
-    // রাজনৈতিক ভেক্টর কালার প্যালেট (যা পেছনের পাহাড়-পর্বতের সাথে ম্যাচ করবে)
+    // Modern Age 3 স্টাইলের সুন্দর রাজনৈতিক ভেক্টর কালার প্যালেট
     const colorPalette = [
         '#385d75', // Muted Blue
         '#416b53', // Muted Green
@@ -192,7 +186,7 @@ try {
                         filter: function(feature) { 
                             return true; 
                         },
-                        // বাস্তবসম্মত মানচিত্রের জন্য হালকা কালার এবং কাচের মতো স্বচ্ছ স্টাইল থিম
+                        // Modern Age 3 স্টাইলের তীক্ষ্ণ বর্ডার ও আকর্ষণীয় সলিড কালার থিম
                         style: function(feature) {
                             var props = feature.properties || {};
                             var geoName = props.ADMIN || props.name || props.NAME || props.Country;
@@ -204,11 +198,11 @@ try {
                                 defaultColor = getCountryColor(geoName);
                             }
                             return { 
-                                color: "rgba(255, 255, 255, 0.22)", // সীমানায় অত্যন্ত মসৃণ হালকা সাদা বর্ডার
-                                weight: map.getZoom() > 5.5 ? 1.5 : 1.0, 
+                                color: "rgba(255, 255, 255, 0.25)", // মসৃণ হালকা বর্ডার লাইন
+                                weight: map.getZoom() > 5.5 ? 2.0 : 1.0, 
                                 opacity: 1.0, 
                                 fillColor: defaultColor, 
-                                fillOpacity: 0.18 // ১৮% অপাসিটি—পেছনের পর্বত ও বনভূমি গ্লাসের মতো দেখা যাবে!
+                                fillOpacity: 1.0 // ১০০% অফলাইন সলিড পলিটিক্যাল কালার
                             };
                         },
                         onEachFeature: function(feature, layer) {
@@ -227,6 +221,7 @@ try {
                                     icon: L.divIcon({
                                         className: "country-label",
                                         html: `<div>${displayName}</div>`
+                                        // html: `<div>${config.name}</div>`
                                     }),
                                     interactive: false
                                 });
@@ -248,13 +243,13 @@ try {
                                         if (selectedLayer) geojsonLayer.resetStyle(selectedLayer);
                                         selectedLayer = e.target;
                                         
-                                        // ক্লিক করার পর সিলেক্টেড দেশটিকে নিয়ন কালারে হাইলাইট করা (পেছনের টপোগ্রাফি সহ)
+                                        // ক্লিক করার পর সিলেক্টেড দেশটিকে নিয়ন কালারে হাইলাইট করা
                                         selectedLayer.setStyle({ 
                                             color: "#38bdf8", // নিয়ন বর্ডার গ্লো
                                             weight: map.getZoom() > 5.5 ? 3.5 : 2.5, 
                                             opacity: 1.0, 
-                                            fillColor: "#0284c7", // সিলেক্টেড নীল ফিল গ্লো
-                                            fillOpacity: 0.45 // পাহাড়ের বর্ডার নিচে ৪৫% গ্লোতেও সুন্দর ভেসে উঠবে
+                                            fillColor: "#0284c7", // সিলেক্টেড ফিল গ্লো
+                                            fillOpacity: 0.45 
                                         });
                                         
                                         currentActiveCountry = displayName;
@@ -281,7 +276,7 @@ try {
         if (geojsonLayer) {
             geojsonLayer.eachLayer(function(layer) {
                 if (layer !== selectedLayer) {
-                    layer.setStyle({ weight: currentZoom > 5.5 ? 1.5 : 1.0 });
+                    layer.setStyle({ weight: currentZoom > 5.5 ? 2.0 : 1.0 });
                 }
             });
         }
