@@ -1,0 +1,252 @@
+{
+  "region": "European Strategy Grid",
+  "countries": [
+    {
+      "name": "United Kingdom",
+      "capital": {
+        "name": "London",
+        "type": "political",
+        "description": "National capital and global financial command hub",
+        "lat": 51.5074,
+        "lon": -0.1278
+      },
+      "economic": [
+        {
+          "name": "Manchester",
+          "description": "Industrial core and major technology powerhouse",
+          "lat": 53.4808,
+          "lon": -2.2426
+        },
+        {
+          "name": "Birmingham",
+          "description": "Engineering, manufacturing and central transport node",
+          "lat": 52.4862,
+          "lon": -1.8904
+        }
+      ],
+      "military": [
+        {
+          "name": "Portsmouth Naval Base",
+          "description": "Primary headquarters and fleet command of the Royal Navy",
+          "lat": 50.8135,
+          "lon": -1.0911
+        }
+      ],
+      "secret": [
+        {
+          "name": "RAF Menwith Hill",
+          "description": "High-security strategic monitoring and global intelligence hub",
+          "lat": 54.0090,
+          "lon": -1.6901,
+          "status": "locked"
+        },
+        {
+          "name": "Faslane Nuclear Base",
+          "description": "Strategic nuclear submarine defense command",
+          "lat": 56.0682,
+          "lon": -4.8155,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "France",
+      "capital": {
+        "name": "Paris",
+        "type": "political",
+        "description": "National capital and major European cultural center",
+        "lat": 48.8566,
+        "lon": 2.3522
+      },
+      "economic": [
+        {
+          "name": "Marseille",
+          "description": "Largest commercial seaport on the Mediterranean coast",
+          "lat": 43.2965,
+          "lon": 5.3698
+        },
+        {
+          "name": "Lyon",
+          "description": "Chemical, pharmaceutical and biotechnology trade hub",
+          "lat": 45.7640,
+          "lon": 4.8357
+        }
+      ],
+      "military": [
+        {
+          "name": "Toulon Naval Base",
+          "description": "Main naval command and aircraft carrier fleet sector",
+          "lat": 43.1242,
+          "lon": 5.9280
+        }
+      ],
+      "secret": [
+        {
+          "name": "Ile Longue Submarine Base",
+          "description": "Subterranean nuclear ballistic missile submarine base",
+          "lat": 48.3000,
+          "lon": -4.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Germany",
+      "capital": {
+        "name": "Berlin",
+        "type": "political",
+        "description": "National capital and central administrative hub",
+        "lat": 52.5200,
+        "lon": 13.4050
+      },
+      "economic": [
+        {
+          "name": "Frankfurt",
+          "description": "Financial capital of Germany and major European aviation hub",
+          "lat": 50.1109,
+          "lon": 8.6821
+        },
+        {
+          "name": "Hamburg Port Area",
+          "description": "Germany's largest commercial shipping port and logistics node",
+          "lat": 53.5511,
+          "lon": 9.9937
+        },
+        {
+          "name": "Munich",
+          "description": "Advanced automotive, aerospace and technological industrial core",
+          "lat": 48.1351,
+          "lon": 11.5820
+        }
+      ],
+      "military": [
+        {
+          "name": "Ramstein Air Base",
+          "description": "Command headquarters for allied air forces in Europe",
+          "lat": 49.4350,
+          "lon": 7.6000
+        }
+      ],
+      "secret": [
+        {
+          "name": "Geltow Command Grid",
+          "description": "Strategic joint forces operations command center",
+          "lat": 52.3667,
+          "lon": 12.9667,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Italy",
+      "capital": {
+        "name": "Rome",
+        "type": "political",
+        "description": "National capital and historic administrative center",
+        "lat": 41.9028,
+        "lon": 12.4964
+      },
+      "economic": [
+        {
+          "name": "Milan",
+          "description": "Financial heart, industrial core and economic capital of Italy",
+          "lat": 45.4642,
+          "lon": 9.1900
+        },
+        {
+          "name": "Genoa Port",
+          "description": "Primary northern deepwater seaport and manufacturing gateway",
+          "lat": 44.4056,
+          "lon": 8.9463
+        }
+      ],
+      "military": [
+        {
+          "name": "Sigonella Naval Station",
+          "description": "Strategic air base providing Mediterranean surveillance and support",
+          "lat": 37.4011,
+          "lon": 14.9211
+        }
+      ],
+      "secret": [
+        {
+          "name": "Mount Soratte Grid",
+          "description": "Deep subterranean strategic bunker and emergency command center",
+          "lat": 42.2333,
+          "lon": 12.5167,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Spain",
+      "capital": {
+        "name": "Madrid",
+        "type": "political",
+        "description": "National capital and primary government headquarters",
+        "lat": 40.4168,
+        "lon": -3.7038
+      },
+      "economic": [
+        {
+          "name": "Barcelona Port Area",
+          "description": "Primary Mediterranean industrial port and commerce center",
+          "lat": 41.3851,
+          "lon": 2.1734
+        }
+      ],
+      "military": [
+        {
+          "name": "Rota Naval Base",
+          "description": "Strategic joint naval defense base on the Atlantic gateway",
+          "lat": 36.6167,
+          "lon": -6.3500
+        }
+      ],
+      "secret": [
+        {
+          "name": "Gibraltar Straits West",
+          "description": "Strategic maritime choke point electronic surveillance sector",
+          "lat": 36.0134,
+          "lon": -5.6034,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Norway",
+      "capital": {
+        "name": "Oslo",
+        "type": "political",
+        "description": "National capital and maritime trade administrative center",
+        "lat": 59.9139,
+        "lon": 10.7522
+      },
+      "economic": [
+        {
+          "name": "Bergen",
+          "description": "Major energy production logistics and shipping hub",
+          "lat": 60.3913,
+          "lon": 5.3221
+        }
+      ],
+      "military": [
+        {
+          "name": "Haakonsvern Naval Base",
+          "description": "Main base of the Royal Norwegian Navy and northern defense node",
+          "lat": 60.3340,
+          "lon": 5.2230
+        }
+      ],
+      "secret": [
+        {
+          "name": "Vardo Radar Grid",
+          "description": "High-latitude radar station for arctic border and space tracking",
+          "lat": 70.3705,
+          "lon": 31.1111,
+          "status": "locked"
+        }
+      ]
+    },
+  
+        
