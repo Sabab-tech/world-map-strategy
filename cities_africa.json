@@ -480,6 +480,293 @@
         }
       ]
     },
-  
+   {
+      "name": "Tunisia",
+      "capital": {
+        "name": "Tunis",
+        "type": "political",
+        "description": "National capital and historic central Mediterranean command hub",
+        "lat": 36.8065,
+        "lon": 10.1815
+      },
+      "economic": [
+        {
+          "name": "Sfax Port Area",
+          "description": "Second largest city, industrial hub and key commercial port",
+          "lat": 34.7400,
+          "lon": 10.7600
+        }
+      ],
+      "military": [
+        {
+          "name": "Bizerte Naval Base",
+          "description": "Highly strategic naval base protecting Mediterranean choke points",
+          "lat": 37.2744,
+          "lon": 9.8739
+        }
+      ],
+      "secret": [
+        {
+          "name": "Tunis Strait Surveillance",
+          "description": "Strategic maritime strait tracking radar grid",
+          "lat": 37.1000,
+          "lon": 11.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Zimbabwe",
+      "capital": {
+        "name": "Harare",
+        "type": "political",
+        "description": "National capital and prominent political center",
+        "lat": -17.8252,
+        "lon": 31.0335
+      },
+      "economic": [
+        {
+          "name": "Bulawayo",
+          "description": "Industrial core and major railway logistics terminal",
+          "lat": -20.1500,
+          "lon": 28.5833
+        }
+      ],
+      "military": [
+        {
+          "name": "Thornhill Air Base",
+          "description": "Primary military airfield and tactical jet interceptor squadron",
+          "lat": -19.4350,
+          "lon": 29.8619
+        }
+      ],
+      "secret": [
+        {
+          "name": "Marange Diamond Fields",
+          "description": "Highly secure strategic resource extraction perimeter",
+          "lat": -19.7500,
+          "lon": 32.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Senegal",
+      "capital": {
+        "name": "Dakar",
+        "type": "political",
+        "description": "National capital and westernmost Atlantic seaport gateway",
+        "lat": 14.7167,
+        "lon": -17.4677
+      },
+      "economic": [
+        {
+          "name": "Thies",
+          "description": "Major industrial node and railway logistics intersection",
+          "lat": 14.7911,
+          "lon": -16.9244
+        }
+      ],
+      "military": [
+        {
+          "name": "Ouakam Air Base",
+          "description": "Strategic tactical airbase and international logistics facility",
+          "lat": 14.7244,
+          "lon": -17.4856
+        }
+      ],
+      "secret": [
+        {
+          "name": "Atlantic Subsea Cable Terminal",
+          "description": "Critical undersea communications and data hub landing site",
+          "lat": 14.6500,
+          "lon": -17.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Somalia",
+      "capital": {
+        "name": "Mogadishu",
+        "type": "political",
+        "description": "National capital and historic Indian Ocean coastal center",
+        "lat": 2.0433,
+        "lon": 45.3433
+      },
+      "economic": [
+        {
+          "name": "Berbera Seaport",
+          "description": "Strategic trade port serving the Horn of Africa",
+          "lat": 10.4397,
+          "lon": 45.0142
+        },
+        {
+          "name": "Kismayo",
+          "description": "Southern coastal port and agricultural export terminal",
+          "lat": -1.3500,
+          "lon": 42.4833
+        }
+      ],
+      "military": [
+        {
+          "name": "Ballidogle Tactical Base",
+          "description": "Key military airfield and strategic counter-piracy command",
+          "lat": 2.5644,
+          "lon": 44.9125
+        }
+      ],
+      "secret": [
+        {
+          "name": "Gulf of Aden Watch",
+          "description": "Highly crucial Indian ocean choke-point tracking network",
+          "lat": 11.8000,
+          "lon": 48.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Ivory Coast",
+      "capital": {
+        "name": "Yamoussoukro",
+        "type": "political",
+        "description": "Legislative national capital and administrative heart",
+        "lat": 6.8276,
+        "lon": -5.2797
+      },
+      "economic": [
+        {
+          "name": "Abidjan Port Area",
+          "description": "Largest de facto economic seaport and financial megacity",
+          "lat": 5.3599,
+          "lon": -4.0083
+        }
+      ],
+      "military": [
+        {
+          "name": "Bouake Air Base",
+          "description": "Strategic central airbase and regional defense command",
+          "lat": 7.7333,
+          "lon": -5.0667
+        }
+      ],
+      "secret": [
+        {
+          "name": "San Pedro Deepsea Corridor",
+          "description": "Highly strategic cocoa export seaport and marine patrol zone",
+          "lat": 4.7500,
+          "lon": -6.6000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Uganda",
+      "capital": {
+        "name": "Kampala",
+        "type": "political",
+        "description": "National capital and major central African marketplace",
+        "lat": 0.3163,
+        "lon": 32.5825
+      },
+      "economic": [
+        {
+          "name": "Jinja Industrial Hub",
+          "description": "Historic industrial and hydroelectric power city near the Nile",
+          "lat": 0.4244,
+          "lon": 33.2041
+        }
+      ],
+      "military": [
+        {
+          "name": "Entebbe Air Base",
+          "description": "Main military airfield and air defense headquarters",
+          "lat": 0.0442,
+          "lon": 32.4436
+        }
+      ],
+      "secret": [
+        {
+          "name": "Lake Victoria Defense Sector",
+          "description": "Strategic fresh-water basin radar monitoring grid",
+          "lat": -0.2000,
+          "lon": 32.8000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Madagascar",
+      "capital": {
+        "name": "Antananarivo",
+        "type": "political",
+        "description": "National capital and central highland administration hub",
+        "lat": -18.8792,
+        "lon": 47.5079
+      },
+      "economic": [
+        {
+          "name": "Toamasina Port Area",
+          "description": "Largest international cargo port and commercial gateway",
+          "lat": -18.1492,
+          "lon": 49.4023
+        }
+      ],
+      "military": [
+        {
+          "name": "Diego Suarez Naval Base",
+          "description": "Vast strategic deepwater naval bay in the northern tip",
+          "lat": -12.2804,
+          "lon": 49.2917
+        }
+      ],
+      "secret": [
+        {
+          "name": "Mozambique Channel Monitoring System",
+          "description": "Strategic maritime shipping route surveillance grid",
+          "lat": -16.0000,
+          "lon": 44.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Cameroon",
+      "capital": {
+        "name": "Yaounde",
+        "type": "political",
+        "description": "National capital and cultural-political command center",
+        "lat": 3.8480,
+        "lon": 11.5021
+      },
+      "economic": [
+        {
+          "name": "Douala Port",
+          "description": "Primary commercial seaport and transport hub of Central Africa",
+          "lat": 4.0503,
+          "lon": 9.7013
+        }
+      ],
+      "military": [
+        {
+          "name": "Garoua Tactical Base",
+          "description": "Northern military air force and regional defense airfield",
+          "lat": 9.3333,
+          "lon": 13.4000
+        }
+      ],
+      "secret": [
+        {
+          "name": "Kribi Deep Sea Platform",
+          "description": "Offshore strategic petroleum and pipeline tracking terminal",
+          "lat": 2.9422,
+          "lon": 9.9011,
+          "status": "locked"
+        }
+      ]
+    }
+  ]
+}
   
         
