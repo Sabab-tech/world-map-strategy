@@ -1780,6 +1780,181 @@
           "status": "locked"
         }
       ]
+    },
+    {
+      "name": "Mauritius",
+      "capital": {
+        "name": "Port Louis",
+        "type": "political",
+        "description": "National capital and primary Indian ocean seaport core",
+        "lat": -20.1609,
+        "lon": 57.5012
+      },
+      "economic": [
+        {
+          "name": "Curepipe",
+          "description": "Highlands commercial city and central trade marketplace",
+          "lat": -20.3167,
+          "lon": 57.5167
+        }
+      ],
+      "military": [
+        {
+          "name": "Fort William",
+          "description": "Strategic maritime and coastal defense post command",
+          "lat": -20.1544,
+          "lon": 57.4856
+        }
+      ],
+      "secret": [
+        {
+          "name": "Chagos Archipelago Watch",
+          "description": "Indian Ocean long-range shipping surveillance grid",
+          "lat": -6.0000,
+          "lon": 71.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Seychelles",
+      "capital": {
+        "name": "Victoria",
+        "type": "political",
+        "description": "National capital and major Indian Ocean tourism gateway",
+        "lat": -4.6191,
+        "lon": 55.4514
+      },
+      "economic": [
+        {
+          "name": "Praslin",
+          "description": "Secondary island economic hub and maritime transit node",
+          "lat": -4.3167,
+          "lon": 55.7333
+        }
+      ],
+      "military": [
+        {
+          "name": "Mahe Coast Guard",
+          "description": "Primary naval squadron and exclusive economic zone patrol base",
+          "lat": -4.6700,
+          "lon": 55.4700
+        }
+      ],
+      "secret": [
+        {
+          "name": "Aldabra Island Grid",
+          "description": "Remote island security surveillance and radar tracking post",
+          "lat": -9.4000,
+          "lon": 46.3300,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Comoros",
+      "capital": {
+        "name": "Moroni",
+        "type": "political",
+        "description": "National capital and primary volcanic island seaport",
+        "lat": -11.7022,
+        "lon": 43.2551
+      },
+      "economic": [
+        {
+          "name": "Mutsamudu",
+          "description": "Primary commercial seaport on the island of Anjouan",
+          "lat": -12.1667,
+          "lon": 44.4000
+        }
+      ],
+      "military": [
+        {
+          "name": "Itsoundzou Command",
+          "description": "Central military barracks and tactical defense facility",
+          "lat": -11.8000,
+          "lon": 43.3000
+        }
+      ],
+      "secret": [
+        {
+          "name": "Mozambique Channel North Gate",
+          "description": "Strategic northern strait maritime tracking radar network",
+          "lat": -11.5000,
+          "lon": 43.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Cape Verde",
+      "capital": {
+        "name": "Praia",
+        "type": "political",
+        "description": "National capital and central maritime administrative core",
+        "lat": 14.9315,
+        "lon": -23.5125
+      },
+      "economic": [
+        {
+          "name": "Mindelo Port Area",
+          "description": "Atlantic deepwater commercial port and shipping terminal",
+          "lat": 16.8901,
+          "lon": -24.9912
+        }
+      ],
+      "military": [
+        {
+          "name": "Sal Island Base",
+          "description": "Strategic mid-Atlantic defense military airfield command",
+          "lat": 16.7244,
+          "lon": -22.9125
+        }
+      ],
+      "secret": [
+        {
+          "name": "Atlantic West Surveillance Grid",
+          "description": "High-altitude transatlantic radar and shipping sensor network",
+          "lat": 15.5000,
+          "lon": -23.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Sao Tome and Principe",
+      "capital": {
+        "name": "Sao Tome",
+        "type": "political",
+        "description": "National capital and primary Gulf of Guinea gateway",
+        "lat": 0.3302,
+        "lon": 6.7273
+      },
+      "economic": [
+        {
+          "name": "Santo Antonio",
+          "description": "Main economic town and trading port on the island of Principe",
+          "lat": 1.6333,
+          "lon": 7.4167
+        }
+      ],
+      "military": [
+        {
+          "name": "Gulf Force Post",
+          "description": "Coastal patrol and maritime interceptor naval post",
+          "lat": 0.3500,
+          "lon": 6.7000
+        }
+      ],
+      "secret": [
+        {
+          "name": "Gulf of Guinea Oil Watch",
+          "description": "Strategic deepwater oil terminal surveillance network",
+          "lat": 0.2000,
+          "lon": 6.5000,
+          "status": "locked"
+        }
+      ]
     }
   ]
 }
