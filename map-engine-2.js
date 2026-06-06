@@ -15,7 +15,7 @@ try {
             L.marker([ocean.lat, ocean.lng], {
                 icon: L.divIcon({
                     className: "ocean-label",
-                    html: `<div style="transform: translate(-50%, -50%); font-family: 'Segoe UI', sans-serif; font-style: italic; font-weight: bold; color: rgba(147, 197, 253, 0.45); font-size: ${ocean.fontSize}px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); letter-spacing: 2px; white-space: nowrap;">
+                    html: `<div class="ocean-label-text" style="transform: translate(-50%, -50%); font-size: ${ocean.fontSize}px; white-space: nowrap;">
                         ${ocean.name}
                     </div>`,
                     iconSize: [0, 0]
@@ -25,25 +25,50 @@ try {
         });
     };
 
+    // ডাইনামিক মাল্টি-ফাইল লোডার (cities.json এবং cities_europe.json একসাথে লোড করার জন্য)
     window.loadGameCities = function() {
-        fetch('cities.json?v=' + new Date().getTime())
-            .then(res => {
-                if (!res.ok) throw new Error("cities.json লোড ব্যর্থ হয়েছে (Status: " + res.status + ")");
-                return res.json();
-            })
-            .then(data => {
-                if (data.regions) {
-                    window.locationsRegistry = {};
-                    for (let reg in data.regions) { Object.assign(window.locationsRegistry, data.regions[reg].countries); }
-                } else if (data.countries) {
-                    window.locationsRegistry = {};
-                    data.countries.forEach(c => { window.locationsRegistry[c.name] = c; });
-                } else { window.locationsRegistry = data; }
-                console.log("Cities Database Sync Ready.");
+        const cityFiles = [
+            'cities.json',        // আপনার মূল এশিয়ার ফাইল
+            'cities_europe.json'  // আপনার নতুন তৈরি করা ইউরোপের ফাইল
+        ];
+
+        // সব ফাইল একসাথে ডাউনলোড করার জন্য প্রমিস তৈরি
+        const fetchPromises = cityFiles.map(file => 
+            fetch(file + '?v=' + new Date().getTime())
+                .then(res => {
+                    if (!res.ok) throw new Error(file + " লোড করা যায়নি (Status: " + res.status + ")");
+                    return res.json();
+                })
+        );
+
+        // সব ফাইল ডাউনলোড হওয়ার পর মেমোরিতে মার্জ বা একত্রিত করা হবে
+        Promise.all(fetchPromises)
+            .then(results => {
+                window.locationsRegistry = {}; // রেজিস্ট্রি পরিষ্কার করা হলো
+
+                results.forEach(data => {
+                    let countriesArray = [];
+                    
+                    if (data.regions) {
+                        for (let reg in data.regions) { 
+                            countriesArray = countriesArray.concat(data.regions[reg].countries || []); 
+                        }
+                    } else if (data.countries) {
+                        countriesArray = data.countries;
+                    } else {
+                        countriesArray = Array.isArray(data) ? data : Object.values(data);
+                    }
+
+                    countriesArray.forEach(c => { 
+                        window.locationsRegistry[c.name] = c; 
+                    });
+                });
+
+                console.log("Cities Database Sync Ready. Total Countries Loaded:", Object.keys(window.locationsRegistry).length);
             })
             .catch(err => {
                 console.error("Waiting for cities data syncing...", err);
-                alert("cities.json ফাইলটি ব্রাউজার লোড করতে পারেনি!\nকারণ: " + err.message);
+                alert("cities ফাইলগুলো ব্রাউজার লোড করতে পারেনি!\nকারণ: " + err.message);
             });
     };
 
@@ -138,8 +163,7 @@ try {
                 window.countryLookup[window.normalizeName(c.name)] = c;
             });
 
-            // আপনার GitHub-এর world.json ফাইলটি CDN দিয়ে সরাসরি লোড করা হচ্ছে
-            return fetch('https://cdn.jsdelivr.net/gh/Sabab-tech/world-map-strategy@def5b842d53d37e122202875f67cdc11ab3c7311/world.json')
+            return fetch('world.json?v=' + new Date().getTime())
                 .then(res => {
                     if (!res.ok) throw new Error("world.json (GeoJSON) লোড ব্যর্থ হয়েছে (Status: " + res.status + ")");
                     return res.json();
@@ -164,10 +188,10 @@ try {
                             }
                             return { 
                                 color: "rgba(255, 255, 255, 0.25)", 
-                                weight: window.map.getZoom() > 5.5 ? 2.0 : 1.0, 
+                                weight: window.map.getZoom() > 5.5 ? 1.5 : 0.8, 
                                 opacity: 1.0, 
                                 fillColor: defaultColor, 
-                                fillOpacity: 1.0 
+                                fillOpacity: 0.45 
                             };
                         },
                         onEachFeature: function(feature, layer) {
@@ -219,7 +243,6 @@ try {
                                 layer.on({
                                     click: function(e) {
                                         L.DomEvent.stopPropagation(e);
-                                        // ভুল এড়াতে window.geojsonLayer এর নাল চেক যুক্ত করা হলো
                                         if (window.selectedLayer && window.geojsonLayer) {
                                             window.geojsonLayer.resetStyle(window.selectedLayer);
                                         }
@@ -228,13 +251,12 @@ try {
                                         var currentZoom = window.map.getZoom();
                                         var coastal = window.isCoastalCountry(displayName);
 
-                                        // স্ট্যান্ডার্ড হেক্স কোড এবং লিফলেটের নিজস্ব অপাসিটি ব্যবহার করে সমুদ্রসীমা ফিক্স করা হলো
                                         window.selectedLayer.setStyle({ 
-                                            color: "#00e5ff", // উজ্জ্বল নিয়ন সায়ান গ্লো
-                                            opacity: coastal ? 0.65 : 0.95, // সমুদ্রসীমা থাকলে গ্লো হালকা ও বড় হবে
-                                            weight: coastal ? (currentZoom > 5.5 ? 30 : 18) : (currentZoom > 5.5 ? 3.5 : 2.5), // ১৮-৩০ পিক্সেল চওড়া জলসীমা বেল্ট
+                                            color: "#00e5ff", 
+                                            opacity: coastal ? 0.65 : 0.95, 
+                                            weight: coastal ? (currentZoom > 5.5 ? 30 : 18) : (currentZoom > 5.5 ? 3.5 : 2.5), 
                                             fillColor: "#0284c7", 
-                                            fillOpacity: 0.35 
+                                            fillOpacity: 0.5 
                                         });
                                         
                                         window.currentActiveCountry = displayName;
@@ -294,4 +316,4 @@ try {
 } catch (error) {
     console.error("ম্যাপ ইঞ্জিন ২ ফাইলে ভুল:", error);
     alert("ম্যাপ ইঞ্জিন ২ লোড হতে পারেনি! প্রকৃত এরর:\n\n" + error.stack);
-            }
+                     }
