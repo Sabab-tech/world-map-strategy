@@ -1477,6 +1477,146 @@
           "status": "locked"
         }
       ]
+     },
+    {
+      "name": "Monaco",
+      "capital": {
+        "name": "Monaco",
+        "type": "political",
+        "description": "Sovereign city-state capital and historic Mediterranean palace seat",
+        "lat": 43.7384,
+        "lon": 7.4246
+      },
+      "economic": [
+        {
+          "name": "Monte Carlo",
+          "description": "Principal economic, tourism and high-finance core",
+          "lat": 43.7417,
+          "lon": 7.4280
+        }
+      ],
+      "military": [
+        {
+          "name": "Palace Guard Base",
+          "description": "Elite sovereign military and security coordination post",
+          "lat": 43.7312,
+          "lon": 7.4200
+        }
+      ],
+      "secret": [
+        {
+          "name": "Ligurian Sea Surveillance",
+          "description": "Strategic maritime radar tracking and naval warning grid",
+          "lat": 43.7000,
+          "lon": 7.4500,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Andorra",
+      "capital": {
+        "name": "Andorra la Vella",
+        "type": "political",
+        "description": "National capital and high-altitude European commercial center",
+        "lat": 42.5063,
+        "lon": 1.5218
+      },
+      "economic": [
+        {
+          "name": "Escaldes-Engordany",
+          "description": "Principal commercial hub and thermal water resort node",
+          "lat": 42.5080,
+          "lon": 1.5333
+        }
+      ],
+      "military": [
+        {
+          "name": "Pyrenees Border Command",
+          "description": "Strategic mountain pass security coordination center",
+          "lat": 42.5500,
+          "lon": 1.5000
+        }
+      ],
+      "secret": [
+        {
+          "name": "Madriu Reserve Grid",
+          "description": "High-altitude mountain valley security and storage zone",
+          "lat": 42.4800,
+          "lon": 1.6000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "San Marino",
+      "capital": {
+        "name": "San Marino",
+        "type": "political",
+        "description": "National capital and historic central Apennine core",
+        "lat": 43.9424,
+        "lon": 12.4578
+      },
+      "economic": [
+        {
+          "name": "Dogana",
+          "description": "Largest commercial town and primary border transit node",
+          "lat": 43.9801,
+          "lon": 12.5000
+        }
+      ],
+      "military": [
+        {
+          "name": "Mount Titano Guard",
+          "description": "Historic fortress defense command and state guard",
+          "lat": 43.9333,
+          "lon": 12.4500
+        }
+      ],
+      "secret": [
+        {
+          "name": "Central Apennine Radar",
+          "description": "High-altitude strategic airspace defense radar grid",
+          "lat": 43.9000,
+          "lon": 12.4000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Vatican City",
+      "capital": {
+        "name": "Vatican City",
+        "type": "political",
+        "description": "Sovereign ecclesiastical city-state capital and Holy See seat",
+        "lat": 41.9029,
+        "lon": 12.4534
+      },
+      "economic": [
+        {
+          "name": "Vatican Bank Grid",
+          "description": "Highly secure sovereign financial and administrative network",
+          "lat": 41.9025,
+          "lon": 12.4545
+        }
+      ],
+      "military": [
+        {
+          "name": "Swiss Guard Command",
+          "description": "Elite sovereign defense and security force headquarters",
+          "lat": 41.9035,
+          "lon": 12.4550
+        }
+      ],
+      "secret": [
+        {
+          "name": "Apostolic Archive Vault",
+          "description": "Highly secure underground historical archive storage facility",
+          "lat": 41.9020,
+          "lon": 12.4525,
+          "status": "locked"
+        }
+      ]
      }
-    ]
-   }
+   ]
+  }
