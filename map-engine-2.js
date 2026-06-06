@@ -25,7 +25,7 @@ try {
         });
     };
 
-    // ডাইনামিক মাল্টি-ফাইল লোডার (এশিয়া, ইউরোপ, আফ্রিকা, ওশেনিয়া, উত্তর আমেরিকা এবং দক্ষিণ আমেরিকার ফাইল একসাথে লোড করার জন্য)
+    // ডাইনামিক মাল্টি-ফাইল লোডার (এশিয়া, ইউরোপ, আফ্রিকা, ওশেনিয়া এবং উত্তর আমেরিকার ফাইল একসাথে লোড করার জন্য)
     window.loadGameCities = function() {
         const cityFiles = [
             'cities.json',               // এশিয়ার দেশগুলোর ডাটাবেজ
@@ -33,7 +33,7 @@ try {
             'cities_africa.json',        // আফ্রিকার দেশগুলোর ডাটাবেজ
             'cities_oceania.json',       // ওশেনিয়ার দেশগুলোর ডাটাবেজ
             'cities_north_america.json', // উত্তর আমেরিকার দেশগুলোর ডাটাবেজ
-            'cities_south_america.json'  // দক্ষিণ আমেরিকার দেশগুলোর ডাটাবেজ (যুক্ত করা হলো)
+            'cities_south_america.json'  // দক্ষিণ আমেরিকার দেশগুলোর ডাটাবেজ
         ];
 
         // সব ফাইল একসাথে ডাউনলোড করার জন্য প্রমিস তৈরি
@@ -119,29 +119,27 @@ try {
         });
     };
 
+    // রিয়েল-টাইম পিক্সেল কলিশন ডিটেকশন সহ দেশের নাম আপডেট করার ফাংশন (ওভারল্যাপ প্রতিরোধে)
     window.updateCountryLabels = function() {
         var zoom = window.map.getZoom();
+        
+        // ১ম ধাপ: ফন্ট সাইজ এবং প্রাথমিক ভিজিবিলিটি ক্যালকুলেশন
         window.countryLabels.forEach(item => {
             var marker = item.marker;
             var config = item.config;
             var importance = config.importance || 3;
+            var shouldShow = false;
 
             if (zoom <= 4.2) {
-                if (importance >= 5) {
-                    if (!window.map.hasLayer(marker)) marker.addTo(window.map);
-                } else {
-                    if (window.map.hasLayer(marker)) window.map.removeLayer(marker);
-                }
+                if (importance >= 5) shouldShow = true;
             } else if (zoom <= 5.5) {
-                if (importance >= 3) {
-                    if (!window.map.hasLayer(marker)) marker.addTo(window.map);
-                } else {
-                    if (window.map.hasLayer(marker)) window.map.removeLayer(marker);
-                }
+                if (importance >= 3) shouldShow = true;
             } else {
-                if (!window.map.hasLayer(marker)) marker.addTo(window.map);
+                shouldShow = true;
             }
-
+            
+            item.shouldShow = shouldShow;
+            
             var labelText = window.getGameFriendlyName(config.name);
             var fontSize = window.getFontSizeForCountry(config, zoom);
 
@@ -152,6 +150,59 @@ try {
                 </div>`,
                 iconSize: [0, 0]
             }));
+        });
+
+        // ২য় ধাপ: পিক্সেল পজিশন তুলনা করে কলিশন এড়ানো (Collision Avoidance)
+        var visiblePositions = [];
+        
+        // বেশি গুরুত্বপূর্ণ দেশের নাম যেন আগে থাকে ও মুছে না যায়, তাই গুরুত্ব অনুসারে সাজানো হলো
+        var sortedLabels = [...window.countryLabels].sort((a, b) => {
+            var impA = a.config.importance || 3;
+            var impB = b.config.importance || 3;
+            return impB - impA;
+        });
+
+        sortedLabels.forEach(item => {
+            var marker = item.marker;
+            if (!item.shouldShow) {
+                if (window.map.hasLayer(marker)) window.map.removeLayer(marker);
+                return;
+            }
+
+            // ম্যাপের পিক্সেল কোঅর্ডিনেট বের করা
+            var point = window.map.latLngToLayerPoint(marker.getLatLng());
+            
+            // নামটির সম্ভাব্য দৈর্ঘ্য ও উচ্চতা মেপে বাউন্ডিং বক্স তৈরি
+            var labelText = window.getGameFriendlyName(item.config.name);
+            var estWidth = labelText.length * (window.getFontSizeForCountry(item.config, zoom) * 0.58);
+            var estHeight = window.getFontSizeForCountry(item.config, zoom) + 4;
+
+            var isOverlapping = false;
+            for (var i = 0; i < visiblePositions.length; i++) {
+                var other = visiblePositions[i];
+                // পিক্সেল অনুসারে ওভারল্যাপ পরীক্ষা (১০ পিক্সেল প্যাডিং সহ)
+                var horizontalOverlap = Math.abs(point.x - other.x) < (estWidth / 2 + other.width / 2 + 10);
+                var verticalOverlap = Math.abs(point.y - other.y) < (estHeight / 2 + other.height / 2 + 5);
+                
+                if (horizontalOverlap && verticalOverlap) {
+                    isOverlapping = true;
+                    break;
+                }
+            }
+
+            if (isOverlapping) {
+                // ওভারল্যাপ করলে নাম লুকিয়ে ফেলা হবে
+                if (window.map.hasLayer(marker)) window.map.removeLayer(marker);
+            } else {
+                // ওভারল্যাপ না করলে নাম সচল থাকবে এবং ডাটাতে যুক্ত হবে
+                if (!window.map.hasLayer(marker)) marker.addTo(window.map);
+                visiblePositions.push({
+                    x: point.x,
+                    y: point.y,
+                    width: estWidth,
+                    height: estHeight
+                });
+            }
         });
     };
 
@@ -191,11 +242,11 @@ try {
                                 defaultColor = window.getCountryColor(geoName);
                             }
                             return { 
-                                color: "rgba(255, 255, 255, 0.25)", 
-                                weight: window.map.getZoom() > 5.5 ? 1.5 : 0.8, 
+                                color: "rgba(255, 255, 255, 0.15)", // বর্ডার অত্যন্ত পাতলা ও প্রফেশনাল করা হলো
+                                weight: window.map.getZoom() > 5.5 ? 1.0 : 0.5, 
                                 opacity: 1.0, 
                                 fillColor: defaultColor, 
-                                fillOpacity: 0.45 
+                                fillOpacity: 0.58 // সলিড কালারগুলোর গ্লো বা উজ্জ্বলতা বাড়ানো হলো
                             };
                         },
                         onEachFeature: function(feature, layer) {
@@ -287,7 +338,7 @@ try {
         if (window.geojsonLayer) {
             window.geojsonLayer.eachLayer(function(layer) {
                 if (layer !== window.selectedLayer) {
-                    layer.setStyle({ weight: currentZoom > 5.5 ? 2.0 : 1.0 });
+                    layer.setStyle({ weight: currentZoom > 5.5 ? 1.0 : 0.5 }); // জুম করার সময়ও বর্ডার সূক্ষ্ম ও প্রফেশনাল থাকবে
                 } else {
                     var displayName = window.currentActiveCountry;
                     if (displayName) {
@@ -320,4 +371,4 @@ try {
 } catch (error) {
     console.error("ম্যাপ ইঞ্জিন ২ ফাইলে ভুল:", error);
     alert("ম্যাপ ইঞ্জিন ২ লোড হতে পারেনি! প্রকৃত এরর:\n\n" + error.stack);
-        }
+    }
