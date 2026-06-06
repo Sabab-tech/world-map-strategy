@@ -1045,9 +1045,709 @@
         "status": "locked"
       }
     ]
+  },
+  {
+      "name": "Botswana",
+      "capital": {
+        "name": "Gaborone",
+        "type": "political",
+        "description": "National capital and commercial-political center",
+        "lat": -24.6580,
+        "lon": 25.9122
+      },
+      "economic": [
+        {
+          "name": "Francistown",
+          "description": "Northern economic capital and mining logistics center",
+          "lat": -21.1700,
+          "lon": 27.5100
+        }
+      ],
+      "military": [
+        {
+          "name": "Thebephatshwa Air Base",
+          "description": "Major military airfield and strategic air defense command",
+          "lat": -24.2200,
+          "lon": 25.3400
+        }
+      ],
+      "secret": [
+        {
+          "name": "Jwaneng Diamond Mine",
+          "description": "High-security rich diamond mine facility and economic reserve",
+          "lat": -24.5900,
+          "lon": 24.7100,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Namibia",
+      "capital": {
+        "name": "Windhoek",
+        "type": "political",
+        "description": "National capital and primary economic-political hub",
+        "lat": -22.5609,
+        "lon": 17.0658
+      },
+      "economic": [
+        {
+          "name": "Walvis Bay",
+          "description": "Primary deepwater commercial seaport and logistics terminal",
+          "lat": -22.9575,
+          "lon": 14.5053
+        }
+      ],
+      "military": [
+        {
+          "name": "Grootfontein Air Base",
+          "description": "Northern regional defense military airfield and air defense",
+          "lat": -19.6011,
+          "lon": 18.1171
+        }
+      ],
+      "secret": [
+        {
+          "name": "Sperrgebiet Diamond Zone",
+          "description": "Highly restricted diamond extraction and border monitoring zone",
+          "lat": -26.6500,
+          "lon": 15.1500,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Rwanda",
+      "capital": {
+        "name": "Kigali",
+        "type": "political",
+        "description": "National capital and primary technological hub",
+        "lat": -1.9403,
+        "lon": 30.0586
+      },
+      "economic": [
+        {
+          "name": "Gisenyi",
+          "description": "Western trade gateway and transit center on Lake Kivu",
+          "lat": -1.7022,
+          "lon": 29.2563
+        }
+      ],
+      "military": [
+        {
+          "name": "Gako Military Camp",
+          "description": "Strategic army training base and southern command sector",
+          "lat": -2.2211,
+          "lon": 30.1812
+        }
+      ],
+      "secret": [
+        {
+          "name": "Kivu Energy Grid",
+          "description": "High-security gas extraction and national energy installation",
+          "lat": -1.8000,
+          "lon": 29.2000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Burundi",
+      "capital": {
+        "name": "Gitega",
+        "type": "political",
+        "description": "Administrative national capital and legislative center",
+        "lat": -3.4275,
+        "lon": 29.9244
+      },
+      "economic": [
+        {
+          "name": "Bujumbura",
+          "description": "Former capital, financial heart and lake port metropolis",
+          "lat": -3.3819,
+          "lon": 29.3614
+        }
+      ],
+      "military": [
+        {
+          "name": "Muzinda Base",
+          "description": "Primary infantry defense camp and regional command",
+          "lat": -3.2925,
+          "lon": 29.4131
+        }
+      ],
+      "secret": [
+        {
+          "name": "Tanganyika Border Monitor",
+          "description": "High-security water border radar surveillance system",
+          "lat": -3.5000,
+          "lon": 29.3000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Malawi",
+      "capital": {
+        "name": "Lilongwe",
+        "type": "political",
+        "description": "National capital and administrative heart",
+        "lat": -13.9833,
+        "lon": 33.7833
+      },
+      "economic": [
+        {
+          "name": "Blantyre",
+          "description": "Primary financial capital and southern commercial hub",
+          "lat": -15.7861,
+          "lon": 35.0058
+        }
+      ],
+      "military": [
+        {
+          "name": "Cobbe Barracks",
+          "description": "Primary defense command and tactical infantry post",
+          "lat": -15.3855,
+          "lon": 35.3312
+        }
+      ],
+      "secret": [
+        {
+          "name": "Lake Malawi Defense Grid",
+          "description": "Strategic border lake marine surveillance radar system",
+          "lat": -12.0000,
+          "lon": 34.3000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Gabon",
+      "capital": {
+        "name": "Libreville",
+        "type": "political",
+        "description": "National capital and prominent Atlantic trade seaport",
+        "lat": 0.3901,
+        "lon": 9.4544
+      },
+      "economic": [
+        {
+          "name": "Port-Gentil",
+          "description": "Primary commercial port, refinery and oil export hub",
+          "lat": -0.7194,
+          "lon": 8.7820
+        }
+      ],
+      "military": [
+        {
+          "name": "M'Vengue Air Base",
+          "description": "Strategic eastern regional military airfield",
+          "lat": -1.6500,
+          "lon": 13.5800
+        }
+      ],
+      "secret": [
+        {
+          "name": "Rabi-Kounga Oil Field",
+          "description": "High-security petroleum reserve and extraction facility",
+          "lat": -1.9000,
+          "lon": 9.9000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Central African Republic",
+      "capital": {
+        "name": "Bangui",
+        "type": "political",
+        "description": "National capital and primary river port core",
+        "lat": 4.3612,
+        "lon": 18.5522
+      },
+      "economic": [
+        {
+          "name": "Berberati",
+          "description": "Western mining hub and diamond trade marketplace",
+          "lat": 4.2612,
+          "lon": 15.7944
+        }
+      ],
+      "military": [
+        {
+          "name": "Bouar Military Base",
+          "description": "Strategic central defensive camp and army training command",
+          "lat": 5.9340,
+          "lon": 15.5869
+        }
+      ],
+      "secret": [
+        {
+          "name": "Eastern Frontier Watch",
+          "description": "High-alert border monitoring and remote radar station",
+          "lat": 6.5000,
+          "lon": 22.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Republic of the Congo",
+      "capital": {
+        "name": "Brazzaville",
+        "type": "political",
+        "description": "National capital and prominent Congo river port",
+        "lat": -4.2694,
+        "lon": 15.2714
+      },
+      "economic": [
+        {
+          "name": "Pointe-Noire",
+          "description": "Major deepwater port, shipping and oil logistics hub",
+          "lat": -4.7975,
+          "lon": 11.8501
+        }
+      ],
+      "military": [
+        {
+          "name": "Air Command Zone",
+          "description": "Primary tactical air defense and aviation airfield",
+          "lat": -4.2500,
+          "lon": 15.2500
+        }
+      ],
+      "secret": [
+        {
+          "name": "Djeno Offshore Terminal",
+          "description": "Strategic maritime energy terminal and offshore platform",
+          "lat": -4.9000,
+          "lon": 11.9500,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Equatorial Guinea",
+      "capital": {
+        "name": "Malabo",
+        "type": "political",
+        "description": "National island capital and strategic offshore gateway",
+        "lat": 3.7504,
+        "lon": 8.7811
+      },
+      "economic": [
+        {
+          "name": "Bata Seaport",
+          "description": "Largest mainland commercial port and logistics terminal",
+          "lat": 1.8667,
+          "lon": 9.7667
+        }
+      ],
+      "military": [
+        {
+          "name": "Luba Naval Post",
+          "description": "Primary naval fleet command and coastal patrol post",
+          "lat": 3.4833,
+          "lon": 8.5500
+        }
+      ],
+      "secret": [
+        {
+          "name": "Zafiro Offshore Grid",
+          "description": "Highly secure maritime oil extraction platforms",
+          "lat": 3.9000,
+          "lon": 8.3000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Eritrea",
+      "capital": {
+        "name": "Asmara",
+        "type": "political",
+        "description": "National capital and highland cultural center",
+        "lat": 15.3333,
+        "lon": 38.9333
+      },
+      "economic": [
+        {
+          "name": "Massawa Seaport",
+          "description": "Primary Red Sea deepwater commercial port and trade gateway",
+          "lat": 15.6083,
+          "lon": 39.4472
+        }
+      ],
+      "military": [
+        {
+          "name": "Sawa Defense Center",
+          "description": "High-alert military training command and army stronghold",
+          "lat": 15.7500,
+          "lon": 37.0500
+        }
+      ],
+      "secret": [
+        {
+          "name": "Dahlak Archipelago Watch",
+          "description": "Strategic Red Sea surveillance and naval monitoring station",
+          "lat": 15.7000,
+          "lon": 40.1000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Djibouti",
+      "capital": {
+        "name": "Djibouti",
+        "type": "political",
+        "description": "National capital and critical East African trading gateway",
+        "lat": 11.5889,
+        "lon": 43.1450
+      },
+      "economic": [
+        {
+          "name": "Doraleh Port",
+          "description": "Primary commercial container shipping terminal",
+          "lat": 11.5900,
+          "lon": 43.0800
+        }
+      ],
+      "military": [
+        {
+          "name": "Lemonnier Tactical Base",
+          "description": "Strategic international naval-air command and military base",
+          "lat": 11.5475,
+          "lon": 43.1556
+        }
+      ],
+      "secret": [
+        {
+          "name": "Bab-el-Mandeb East Guard",
+          "description": "Global shipping choke point maritime tracking command",
+          "lat": 12.1000,
+          "lon": 43.2500,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Liberia",
+      "capital": {
+        "name": "Monrovia",
+        "type": "political",
+        "description": "National capital and major Atlantic seaport core",
+        "lat": 6.3005,
+        "lon": -10.7969
+      },
+      "economic": [
+        {
+          "name": "Buchanan",
+          "description": "Industrial shipping port and mineral export gateway",
+          "lat": 5.8811,
+          "lon": -10.0444
+        }
+      ],
+      "military": [
+        {
+          "name": "Robertsfield Air Command",
+          "description": "Strategic regional military airport and air defence",
+          "lat": 6.2397,
+          "lon": -10.3606
+        }
+      ],
+      "secret": [
+        {
+          "name": "Mount Nimba Grid",
+          "description": "Protected high-security mineral mining border reserve",
+          "lat": 7.5000,
+          "lon": -8.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Sierra Leone",
+      "capital": {
+        "name": "Freetown",
+        "type": "political",
+        "description": "National capital and natural Atlantic deepwater seaport",
+        "lat": 8.4872,
+        "lon": -13.2356
+      },
+      "economic": [
+        {
+          "name": "Pepel Port",
+          "description": "Mineral shipping seaport and logistical trade terminal",
+          "lat": 8.5833,
+          "lon": -12.9833
+        }
+      ],
+      "military": [
+        {
+          "name": "Lungi Air Command",
+          "description": "Strategic regional military air base and tactical center",
+          "lat": 8.6164,
+          "lon": -13.1944
+        }
+      ],
+      "secret": [
+        {
+          "name": "Kono Diamond Fields",
+          "description": "Highly guarded diamond mining fields and economic reserve",
+          "lat": 8.6500,
+          "lon": -11.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Togo",
+      "capital": {
+        "name": "Lome",
+        "type": "political",
+        "description": "National capital and West African maritime gateway",
+        "lat": 6.1372,
+        "lon": 1.2122
+      },
+      "economic": [
+        {
+          "name": "Kpeme Port",
+          "description": "Key industrial phosphate export seaport terminal",
+          "lat": 6.2164,
+          "lon": 1.4833
+        }
+      ],
+      "military": [
+        {
+          "name": "Niamtougou Air Base",
+          "description": "Northern tactical air command and training airfield",
+          "lat": 9.7617,
+          "lon": 1.1000
+        }
+      ],
+      "secret": [
+        {
+          "name": "Gulf of Togo Patrol",
+          "description": "Maritime coastal radar and piracy prevention grid",
+          "lat": 6.0000,
+          "lon": 1.3000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Benin",
+      "capital": {
+        "name": "Porto-Novo",
+        "type": "political",
+        "description": "Official national capital and legislative center",
+        "lat": 6.4969,
+        "lon": 2.6289
+      },
+      "economic": [
+        {
+          "name": "Cotonou Port Area",
+          "description": "De facto capital, primary economic node and seaport",
+          "lat": 6.3703,
+          "lon": 2.4254
+        }
+      ],
+      "military": [
+        {
+          "name": "Cana Base Command",
+          "description": "Central army defense base and strategic military camp",
+          "lat": 7.1000,
+          "lon": 2.1000
+        }
+      ],
+      "secret": [
+        {
+          "name": "Pendjari Border Grid",
+          "description": "High-alert northern border defense and surveillance zone",
+          "lat": 11.3500,
+          "lon": 1.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Burkina Faso",
+      "capital": {
+        "name": "Ouagadougou",
+        "type": "political",
+        "description": "National capital and primary cultural-administrative hub",
+        "lat": 12.3714,
+        "lon": -1.5197
+      },
+      "economic": [
+        {
+          "name": "Bobo-Dioulasso",
+          "description": "Southern commercial center and regional logistics node",
+          "lat": 11.1775,
+          "lon": -4.2922
+        }
+      ],
+      "military": [
+        {
+          "name": "Air Command Zone",
+          "description": "Primary military air defense airfield and radar post",
+          "lat": 12.3500,
+          "lon": -1.5000
+        }
+      ],
+      "secret": [
+        {
+          "name": "Sahel Border Patrol",
+          "description": "Heavily fortified northern desert border monitoring sector",
+          "lat": 14.2500,
+          "lon": -0.2000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Guinea-Bissau",
+      "capital": {
+        "name": "Bissau",
+        "type": "political",
+        "description": "National capital and central commercial seaport gateway",
+        "lat": 11.8633,
+        "lon": -15.5975
+      },
+      "economic": [
+        {
+          "name": "Buba",
+          "description": "Inland transit river port and future trade developer",
+          "lat": 11.5833,
+          "lon": -15.0000
+        }
+      ],
+      "military": [
+        {
+          "name": "Bissalanca Air Base",
+          "description": "Primary military tactical airfield and air command",
+          "lat": 11.8900,
+          "lon": -15.6500
+        }
+      ],
+      "secret": [
+        {
+          "name": "Bijagos Archipelago Watch",
+          "description": "Strategic maritime and island radar security grid",
+          "lat": 11.2000,
+          "lon": -16.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Gambia",
+      "capital": {
+        "name": "Banjul",
+        "type": "political",
+        "description": "National capital and strategic Atlantic river seaport",
+        "lat": 13.4549,
+        "lon": -16.5790
+      },
+      "economic": [
+        {
+          "name": "Serrekunda",
+          "description": "Largest commercial city, marketplace and economic node",
+          "lat": 13.4350,
+          "lon": -16.6775
+        }
+      ],
+      "military": [
+        {
+          "name": "Fajara Barracks",
+          "description": "Main infantry defense command and army stronghold",
+          "lat": 13.4612,
+          "lon": -16.6833
+        }
+      ],
+      "secret": [
+        {
+          "name": "Gambia River Patrol",
+          "description": "Inland river tracking sensor network and security patrol",
+          "lat": 13.4500,
+          "lon": -16.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Lesotho",
+      "capital": {
+        "name": "Maseru",
+        "type": "political",
+        "description": "National capital and primary political-cultural core",
+        "lat": -29.3167,
+        "lon": 27.4833
+      },
+      "economic": [
+        {
+          "name": "Maputsoe",
+          "description": "Northern commercial border hub and industrial zone",
+          "lat": -28.8833,
+          "lon": 27.9000
+        }
+      ],
+      "military": [
+        {
+          "name": "Makoanyane Barracks",
+          "description": "Main army infantry defense command and barracks",
+          "lat": -29.3500,
+          "lon": 27.5200
+        }
+      ],
+      "secret": [
+        {
+          "name": "Katse Dam Grid",
+          "description": "High-security strategic water reservoir and infrastructure node",
+          "lat": -29.3333,
+          "lon": 28.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Swaziland",
+      "capital": {
+        "name": "Mbabane",
+        "type": "political",
+        "description": "Administrative national capital and government core",
+        "lat": -26.3167,
+        "lon": 31.1333
+      },
+      "economic": [
+        {
+          "name": "Manzini",
+          "description": "Primary industrial center, logistics and marketplace hub",
+          "lat": -26.4912,
+          "lon": 31.3712
+        }
+      ],
+      "military": [
+        {
+          "name": "Matsapha Airforce Base",
+          "description": "Strategic military airfield and aviation defense command",
+          "lat": -26.5164,
+          "lon": 31.3164
+        }
+      ],
+      "secret": [
+        {
+          "name": "Ngwenya Mine Grid",
+          "description": "Protected iron ore mine reserve and security perimeter",
+          "lat": -26.1989,
+          "lon": 31.0333,
+          "status": "locked"
+        }
+      ]
+    }
+  ]
   }
-]
-}
     
   
         
