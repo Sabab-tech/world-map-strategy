@@ -1,1 +1,233 @@
-
+{
+  "region": "African Strategy Grid",
+  "countries": [
+    {
+      "name": "Egypt",
+      "capital": {
+        "name": "Cairo",
+        "type": "political",
+        "description": "National capital and historic central command hub on the Nile",
+        "lat": 30.0444,
+        "lon": 31.2357
+      },
+      "economic": [
+        {
+          "name": "Alexandria",
+          "description": "Largest Mediterranean commercial seaport of Egypt",
+          "lat": 31.2001,
+          "lon": 29.9187
+        },
+        {
+          "name": "Suez Port",
+          "description": "Critical maritime trade gateway to the Red Sea",
+          "lat": 29.9667,
+          "lon": 32.5500
+        }
+      ],
+      "military": [
+        {
+          "name": "Sidi Barrani Base",
+          "description": "Strategic western desert airbase near the Libyan border",
+          "lat": 31.5794,
+          "lon": 25.9256
+        }
+      ],
+      "secret": [
+        {
+          "name": "Suez Canal Corridor",
+          "description": "Highly fortified global shipping choke point monitoring command",
+          "lat": 30.5852,
+          "lon": 32.2654,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "South Africa",
+      "capital": {
+        "name": "Pretoria",
+        "type": "political",
+        "description": "Administrative national capital and federal headquarters",
+        "lat": -25.7479,
+        "lon": 28.2293
+      },
+      "economic": [
+        {
+          "name": "Johannesburg",
+          "description": "Financial heart and industrial powerhouse of South Africa",
+          "lat": -26.2041,
+          "lon": 28.0473
+        },
+        {
+          "name": "Cape Town",
+          "description": "Legislative capital and highly crucial Atlantic-Indian ocean seaport",
+          "lat": -33.9249,
+          "lon": 18.4241
+        }
+      ],
+      "military": [
+        {
+          "name": "Simons Town Base",
+          "description": "Main base and fleet command of the South African Navy",
+          "lat": -34.1911,
+          "lon": 18.4322
+        }
+      ],
+      "secret": [
+        {
+          "name": "Koeberg Nuclear Grid",
+          "description": "Only nuclear power plant in Africa and strategic energy reserve",
+          "lat": -33.6775,
+          "lon": 18.4311,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Nigeria",
+      "capital": {
+        "name": "Abuja",
+        "type": "political",
+        "description": "National capital and federal command center",
+        "lat": 9.0765,
+        "lon": 7.3986
+      },
+      "economic": [
+        {
+          "name": "Lagos Port Area",
+          "description": "Largest economic seaport and financial megacity of West Africa",
+          "lat": 6.5244,
+          "lon": 3.3792
+        },
+        {
+          "name": "Port Harcourt",
+          "description": "Primary oil production, refinery and export logistics hub",
+          "lat": 4.8156,
+          "lon": 7.0498
+        }
+      ],
+      "military": [
+        {
+          "name": "Kaduna Air Command",
+          "description": "Primary military airforce tactical command and training base",
+          "lat": 10.5105,
+          "lon": 7.4167
+        }
+      ],
+      "secret": [
+        {
+          "name": "Niger Delta Defense Grid",
+          "description": "High-security strategic petroleum and oil field surveillance network",
+          "lat": 5.3000,
+          "lon": 6.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Algeria",
+      "capital": {
+        "name": "Algiers",
+        "type": "political",
+        "description": "National capital and historic Mediterranean coastal command",
+        "lat": 36.7538,
+        "lon": 3.0588
+      },
+      "economic": [
+        {
+          "name": "Oran Port Area",
+          "description": "Sizable industrial seaport and commercial trading gate",
+          "lat": 35.6971,
+          "lon": -0.6331
+        }
+      ],
+      "military": [
+        {
+          "name": "Mers El Kebir Base",
+          "description": "Vast underground-bunkered naval stronghold of the Algerian Navy",
+          "lat": 35.7333,
+          "lon": -0.7000
+        }
+      ],
+      "secret": [
+        {
+          "name": "Sahara Air Defense Grid",
+          "description": "Deep-desert long-range airspace radar surveillance network",
+          "lat": 28.0000,
+          "lon": 2.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Kenya",
+      "capital": {
+        "name": "Nairobi",
+        "type": "political",
+        "description": "National capital and diplomatic-financial core of East Africa",
+        "lat": -1.2921,
+        "lon": 36.8219
+      },
+      "economic": [
+        {
+          "name": "Mombasa Port",
+          "description": "Primary deepwater seaport and major trade gate for East Africa",
+          "lat": -4.0435,
+          "lon": 39.6682
+        }
+      ],
+      "military": [
+        {
+          "name": "Laikipia Air Command",
+          "description": "Main tactical jet fighter base of the Kenya Air Force",
+          "lat": -0.0333,
+          "lon": 37.0333
+        }
+      ],
+      "secret": [
+        {
+          "name": "Lamu Strategic Corridor",
+          "description": "Indian Ocean coastal security and counter-piracy tracking network",
+          "lat": -2.2700,
+          "lon": 40.9000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Ethiopia",
+      "capital": {
+        "name": "Addis Ababa",
+        "type": "political",
+        "description": "National capital and diplomatic headquarters of the African Union",
+        "lat": 9.0300,
+        "lon": 38.7400
+      },
+      "economic": [
+        {
+          "name": "Dire Dawa",
+          "description": "Eastern industrial transit node and primary rail corridor",
+          "lat": 9.6008,
+          "lon": 41.8601
+        }
+      ],
+      "military": [
+        {
+          "name": "Bishoftu Air Force Base",
+          "description": "Central military aviation command and primary defensive wing",
+          "lat": 8.7500,
+          "lon": 38.9833
+        }
+      ],
+      "secret": [
+        {
+          "name": "Grand Renaissance Dam Grid",
+          "description": "Highly guarded strategic hydro-electric megastructure network",
+          "lat": 11.2000,
+          "lon": 35.1000,
+          "status": "locked"
+        }
+      ]
+    }
+  ]
+        }
