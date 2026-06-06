@@ -248,5 +248,255 @@
         }
       ]
     },
-  
+    {
+      "name": "Netherlands",
+      "capital": {
+        "name": "Amsterdam",
+        "type": "political",
+        "description": "National capital and major cultural and trade hub",
+        "lat": 52.3676,
+        "lon": 4.9041
+      },
+      "economic": [
+        {
+          "name": "Rotterdam",
+          "description": "Europe's largest commercial seaport and heavy industrial gate",
+          "lat": 51.9244,
+          "lon": 4.4777
+        }
+      ],
+      "military": [
+        {
+          "name": "Den Helder Naval Base",
+          "description": "Primary base of the Royal Netherlands Navy",
+          "lat": 52.9563,
+          "lon": 4.7570
+        }
+      ],
+      "secret": [
+        {
+          "name": "Volkel Air Base",
+          "description": "High-security strategic airbase and strategic storage depot",
+          "lat": 51.6500,
+          "lon": 5.7000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Poland",
+      "capital": {
+        "name": "Warsaw",
+        "type": "political",
+        "description": "National capital and historical administrative center",
+        "lat": 52.2297,
+        "lon": 21.0122
+      },
+      "economic": [
+        {
+          "name": "Gdansk Port",
+          "description": "Primary Baltic Sea seaport and logistics terminal",
+          "lat": 54.3520,
+          "lon": 18.6466
+        }
+      ],
+      "military": [
+        {
+          "name": "Szczecin Allied Command",
+          "description": "Strategic multinational corps defense headquarters",
+          "lat": 53.4285,
+          "lon": 14.5528
+        }
+      ],
+      "secret": [
+        {
+          "name": "Redzikowo Shield Base",
+          "description": "High-tech NATO missile interceptor defense facility",
+          "lat": 54.4780,
+          "lon": 17.1120,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Sweden",
+      "capital": {
+        "name": "Stockholm",
+        "type": "political",
+        "description": "National capital and economic-political core of Scandinavia",
+        "lat": 59.3293,
+        "lon": 18.0686
+      },
+      "economic": [
+        {
+          "name": "Gothenburg Port Area",
+          "description": "Largest industrial port and major manufacturing hub",
+          "lat": 57.7089,
+          "lon": 11.9746
+        }
+      ],
+      "military": [
+        {
+          "name": "Karlskrona Naval Base",
+          "description": "Primary headquarters and shipyard of the Swedish Navy",
+          "lat": 56.1612,
+          "lon": 15.5869
+        }
+      ],
+      "secret": [
+        {
+          "name": "Musko Subterranean Base",
+          "description": "Vast underground granite-sheltered naval base",
+          "lat": 59.0000,
+          "lon": 18.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Switzerland",
+      "capital": {
+        "name": "Bern",
+        "type": "political",
+        "description": "De facto national capital and federal administrative center",
+        "lat": 46.9480,
+        "lon": 7.4474
+      },
+      "economic": [
+        {
+          "name": "Zurich",
+          "description": "Financial capital of Switzerland and major global banking node",
+          "lat": 47.3769,
+          "lon": 8.5417
+        },
+        {
+          "name": "Geneva",
+          "description": "Diplomatic center and headquarters of global organizations",
+          "lat": 46.2044,
+          "lon": 6.1432
+        }
+      ],
+      "military": [
+        {
+          "name": "Thun Armor Command",
+          "description": "Main defense command and tactical armored vehicles center",
+          "lat": 46.7580,
+          "lon": 7.6280
+        }
+      ],
+      "secret": [
+        {
+          "name": "Gotthard Fort Grid",
+          "description": "Massive alpine fortress system designed for national defense",
+          "lat": 46.5500,
+          "lon": 8.6000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Austria",
+      "capital": {
+        "name": "Vienna",
+        "type": "political",
+        "description": "National capital and major central European diplomatic hub",
+        "lat": 48.2082,
+        "lon": 16.3738
+      },
+      "economic": [
+        {
+          "name": "Linz Industrial Core",
+          "description": "Major heavy industry and advanced steel production center",
+          "lat": 48.3069,
+          "lon": 14.2858
+        }
+      ],
+      "military": [
+        {
+          "name": "Melk Pioneer Base",
+          "description": "Strategic military engineering and navigation command",
+          "lat": 48.2285,
+          "lon": 15.3312
+        }
+      ],
+      "secret": [
+        {
+          "name": "Alps Radar Grid",
+          "description": "High-altitude airspace defense and radar monitoring facility",
+          "lat": 47.2500,
+          "lon": 11.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Greece",
+      "capital": {
+        "name": "Athens",
+        "type": "political",
+        "description": "National capital and historical administration center",
+        "lat": 37.9838,
+        "lon": 23.7275
+      },
+      "economic": [
+        {
+          "name": "Piraeus Port Area",
+          "description": "Highly strategic Mediterranean shipping container mega-port",
+          "lat": 37.9430,
+          "lon": 23.6470
+        }
+      ],
+      "military": [
+        {
+          "name": "Souda Bay Naval Base",
+          "description": "Primary deepwater naval base and allied operations node in Crete",
+          "lat": 35.4855,
+          "lon": 24.1355
+        }
+      ],
+      "secret": [
+        {
+          "name": "Mount Athos Maritime Watch",
+          "description": "Strategic Aegean Sea naval surveillance sector",
+          "lat": 40.1500,
+          "lon": 24.3000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Portugal",
+      "capital": {
+        "name": "Lisbon",
+        "type": "political",
+        "description": "National capital and historic Atlantic maritime hub",
+        "lat": 38.7223,
+        "lon": -9.1393
+      },
+      "economic": [
+        {
+          "name": "Porto",
+          "description": "Northern industrial center and commercial seaport",
+          "lat": 41.1579,
+          "lon": -8.6291
+        }
+      ],
+      "military": [
+        {
+          "name": "Lajes Strategic Field",
+          "description": "Crucial transatlantic military airbase located in Azores",
+          "lat": 38.7617,
+          "lon": -27.0906
+        }
+      ],
+      "secret": [
+        {
+          "name": "Santa Maria Radar Station",
+          "description": "Transatlantic aerospace tracking and monitoring grid",
+          "lat": 36.9800,
+          "lon": -25.1300,
+          "status": "locked"
+        }
+      ]
+    }
         
