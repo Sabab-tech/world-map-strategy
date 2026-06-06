@@ -9,25 +9,54 @@
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
     <script>eruda.init();</script>
 
-    <!-- Leaflet CDN (লোকাল ফাইলের অনুপস্থিতিতেও ম্যাপ ঠিকভাবে লোড হওয়ার জন্য) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- সাই-ফাই ও মিলিটারী গেম ফন্ট ইমপোর্ট (Google Fonts) -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@500;800&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="./leaflet.css" />
     <style>
         body { margin: 0; padding: 0; background: #000; overflow: hidden; }
         
-        /* Modern Age 3 এর মতো ডিপ নেভি ব্লু সমুদ্রের ব্যাকগ্রাউন্ড */
+        /* মিলিটারী স্টাইল গ্লাস-মরফিজম টপ রিসোর্স বার */
+        #resource-bar {
+            position: absolute; top: 0; left: 0; width: 100%; height: 50px;
+            background: rgba(15, 23, 42, 0.85); border-bottom: 2px solid #38bdf8;
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 2000; font-family: 'Share Tech Mono', monospace; color: #f8fafc;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+        }
+        .res-item { display: flex; align-items: center; font-size: 14px; font-weight: bold; }
+        .res-icon { font-size: 18px; margin-right: 6px; }
+        .res-gain { font-size: 11px; color: #4ade80; margin-left: 6px; }
+
+        /* Modern Age 3 এবং মিলিটারি রাডারের মতো স্টাইলিশ গ্রিড ও গ্লো ব্যাকগ্রাউন্ড */
         #map { 
             height: 100vh; 
             width: 100%; 
-            background: #0d1527; /* Deep Navy Ocean Background */
+            background: 
+                linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                radial-gradient(circle, #101f3c 0%, #060b13 100%);
+            background-size: 40px 40px, 40px 40px, 100% 100%;
         }
         
-        /* দেশের নাম দেখানোর জন্য স্টাইলিশ লেবেল */
+        /* দেশের নাম দেখানোর জন্য নিয়ন ইফেক্টযুক্ত ফন্ট */
         .game-country-label, .country-label {
             background: none !important; border: none !important; box-shadow: none !important;
-            color: #f1f5f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #f1f5f9; 
+            font-family: 'Share Tech Mono', monospace !important;
             font-weight: 900; letter-spacing: 1px;
             white-space: nowrap; pointer-events: none; display: block; text-align: center;
-            text-shadow: 1px 1px 0px #1e293b, 2px 2px 4px rgba(0, 0, 0, 0.95);
+            text-shadow: 0px 0px 4px rgba(56, 189, 248, 0.6), 1px 1px 2px #000000;
+        }
+
+        /* সমুদ্রের নামের জন্য আকর্ষণীয় মিলিটারি স্টাইল ফন্ট */
+        .ocean-label-text {
+            font-family: 'Orbitron', sans-serif !important;
+            font-weight: bold;
+            font-style: italic;
+            color: rgba(147, 197, 253, 0.3);
+            letter-spacing: 4px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
         }
 
         /* পপআপ উইন্ডো স্টাইল */
@@ -54,11 +83,19 @@
     </style>
 </head>
 <body>
+    <!-- গেমপ্লে রিসোর্স ট্র্যাকার টপ বার -->
+    <div id="resource-bar">
+        <div class="res-item"><span class="res-icon">💵</span><span id="res-cash">1.0M</span> <span class="res-gain" id="rate-cash">+100/s</span></div>
+        <div class="res-item"><span class="res-icon">🛢️</span><span id="res-oil">50K</span> <span class="res-gain" id="rate-oil">+10/s</span></div>
+        <div class="res-item"><span class="res-icon">🧱</span><span id="res-steel">10K</span> <span class="res-gain" id="rate-steel">+5/s</span></div>
+        <div class="res-item"><span class="res-icon">☢️</span><span id="res-uranium">100</span> <span class="res-gain" id="rate-uranium">+0/s</span></div>
+        <div class="res-item"><span class="res-icon">🎖️</span><span id="res-manpower">150K</span> <span class="res-gain" id="rate-manpower">+50/s</span></div>
+    </div>
+
     <div id="map"></div>
 
-    <!-- Leaflet CDN JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="./leaflet.js"></script>
     <script src="./map-engine-1.js"></script>
     <script src="./map-engine-2.js"></script>
 </body>
-</html>
+    </html>
