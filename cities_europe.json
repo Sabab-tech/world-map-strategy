@@ -1372,6 +1372,111 @@
           "status": "locked"
         }
       ]
-    }
-  ]
-}
+    },
+    {
+      "name": "Liechtenstein",
+      "capital": {
+        "name": "Vaduz",
+        "type": "political",
+        "description": "National capital, royal castle seat and administrative core",
+        "lat": 47.1410,
+        "lon": 9.5209
+      },
+      "economic": [
+        {
+          "name": "Schaan",
+          "description": "Largest municipality and primary industrial-tech hub",
+          "lat": 47.1650,
+          "lon": 9.5080
+        }
+      ],
+      "military": [
+        {
+          "name": "Balzers Post",
+          "description": "Southern gateway border and security coordination post",
+          "lat": 47.0667,
+          "lon": 9.5000
+        }
+      ],
+      "secret": [
+        {
+          "name": "Alpine Vault Network",
+          "description": "High-security underground financial and digital asset vault",
+          "lat": 47.1200,
+          "lon": 9.5500,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Czechia",
+      "capital": {
+        "name": "Prague",
+        "type": "political",
+        "description": "National capital and major Central European core",
+        "lat": 50.0755,
+        "lon": 14.4378
+      },
+      "economic": [
+        {
+          "name": "Brno",
+          "description": "Central industrial, technology and manufacturing hub",
+          "lat": 49.1951,
+          "lon": 16.6068
+        }
+      ],
+      "military": [
+        {
+          "name": "Caslav Tactical Base",
+          "description": "Primary tactical air defense base and jet fighter wing",
+          "lat": 49.9142,
+          "lon": 15.3855
+        }
+      ],
+      "secret": [
+        {
+          "name": "Temelin Energy Grid",
+          "description": "High-security nuclear facility and national power grid command",
+          "lat": 49.1801,
+          "lon": 14.3777,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Lithuania",
+      "capital": {
+        "name": "Vilnius",
+        "type": "political",
+        "description": "National capital and primary cultural-administrative core",
+        "lat": 54.6872,
+        "lon": 25.2797
+      },
+      "economic": [
+        {
+          "name": "Klaipeda",
+          "description": "Crucial ice-free Baltic Sea deepwater commercial seaport",
+          "lat": 55.7033,
+          "lon": 21.1442
+        }
+      ],
+      "military": [
+        {
+          "name": "Siauliai Air Base",
+          "description": "Main base of NATO Baltic Air Policing tactical operations",
+          "lat": 55.8936,
+          "lon": 23.3944
+        }
+      ],
+      "secret": [
+        {
+          "name": "Suwalki Gap East Corridor",
+          "description": "Highly strategic land border defense and monitoring corridor",
+          "lat": 54.3000,
+          "lon": 23.5000,
+          "status": "locked"
+        }
+      ]
+     }
+    ]
+   }
