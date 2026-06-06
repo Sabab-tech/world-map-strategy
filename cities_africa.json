@@ -765,8 +765,289 @@
           "status": "locked"
         }
       ]
-    }
-  ]
+    },
+    {
+      "name": "Mozambique",
+      "capital": {
+        "name": "Maputo",
+        "type": "political",
+        "description": "National capital and southern administrative seaport center",
+        "lat": -25.9692,
+        "lon": 32.5732
+      },
+      "economic": [
+        {
+          "name": "Beira Seaport",
+          "description": "Major deepwater trade seaport and railway transit corridor",
+          "lat": -19.8436,
+          "lon": 34.8722
+        }
+      ],
+      "military": [
+        {
+          "name": "Nacala Air Force Base",
+          "description": "Primary eastern defense airfield and military command",
+          "lat": -14.4925,
+          "lon": 40.7011
+        }
+      ],
+      "secret": [
+        {
+          "name": "Mozambique Channel Grid",
+          "description": "Strategic maritime shipping and strait tracking network",
+          "lat": -15.5000,
+          "lon": 41.5000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Zambia",
+      "capital": {
+        "name": "Lusaka",
+        "type": "political",
+        "description": "National capital and primary commercial heart of Central Africa",
+        "lat": -15.4167,
+        "lon": 28.2833
+      },
+      "economic": [
+        {
+          "name": "Ndola",
+          "description": "Industrial powerhouse and mining logistics center",
+          "lat": -12.9675,
+          "lon": 28.6367
+        }
+      ],
+      "military": [
+        {
+          "name": "Mumbwa Air Base",
+          "description": "Primary military airfield and tactical defense base",
+          "lat": -14.9810,
+          "lon": 27.2790
+        }
+      ],
+      "secret": [
+        {
+          "name": "Copperbelt Strategic Corridor",
+          "description": "Heavily guarded mineral mines and security zone",
+          "lat": -12.5000,
+          "lon": 28.0000,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Mali",
+      "capital": {
+        "name": "Bamako",
+        "type": "political",
+        "description": "National capital and prominent trading river port",
+        "lat": 12.6392,
+        "lon": -8.0029
+      },
+      "economic": [
+        {
+          "name": "Kayes",
+          "description": "Western regional trading, transport and commerce hub",
+          "lat": 14.4469,
+          "lon": -11.4422
+        }
+      ],
+      "military": [
+        {
+          "name": "Gao Air Base",
+          "description": "Strategic northern aviation outpost and operations command",
+          "lat": 16.2736,
+          "lon": -0.0581
+        }
+      ],
+      "secret": [
+        {
+          "name": "Tombouctou Defense Grid",
+          "description": "Desert border surveillance and long-range radar zone",
+          "lat": 16.7667,
+          "lon": -3.0022,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Niger",
+      "capital": {
+        "name": "Niamey",
+        "type": "political",
+        "description": "National capital and central administrative hub on the Niger river",
+        "lat": 13.5116,
+        "lon": 2.1254
+      },
+      "economic": [
+        {
+          "name": "Maradi",
+          "description": "Sizable southern commercial trading and transport gate",
+          "lat": 13.5000,
+          "lon": 7.1000
+        }
+      ],
+      "military": [
+        {
+          "name": "Agadez Base 201",
+          "description": "Highly vital strategic surveillance and regional drone command airfield",
+          "lat": 16.9667,
+          "lon": 7.9833
+        }
+      ],
+      "secret": [
+        {
+          "name": "Arlit Uranium Grid",
+          "description": "Highly secure mineral uranium extraction and export security zone",
+          "lat": 18.7369,
+          "lon": 7.3855,
+          "status": "locked"
+        }
+      ]
+    },
+    {
+      "name": "Chad",
+      "capital": {
+        "name": "N'Djamena",
+        "type": "political",
+        "description": "National capital and sovereign administrative center",
+        "lat": 12.1131,
+        "lon": 15.0491
+      },
+      "economic": [
+        {
+          "name": "Moundou Port",
+          "description": "Southern industrial core and logistics marketplace",
+          "lat": 8.5667,
+          "lon": 16.0833
+        }
+      ],
+      "military": [
+        {
+          "name": "Abeche Air Base",
+          "description": "Strategic eastern regional military airfield and air defense",
+          "lat": 13.8290,
+          "lon": 20.8444
+        }
+    ],
+    "secret": [
+      {
+        "name": "Aouzou Strip Patrol",
+        "description": "Heavily fortified northern territorial monitoring sector",
+        "lat": 21.7500,
+        "lon": 17.5000,
+        "status": "locked"
+      }
+    ]
+  },
+  {
+    "name": "South Sudan",
+    "capital": {
+      "name": "Juba",
+      "type": "political",
+      "description": "National capital and sovereign administration core",
+      "lat": 4.8517,
+      "lon": 31.5714
+    },
+    "economic": [
+      {
+        "name": "Malakal",
+        "description": "Northern trade, river port and petroleum logistics hub",
+        "lat": 9.5333,
+        "lon": 31.6500
+      }
+    ],
+    "military": [
+      {
+        "name": "Wau Air Base",
+        "description": "Strategic regional military airport and air defense",
+        "lat": 7.7011,
+        "lon": 27.9806
+      }
+    ],
+    "secret": [
+      {
+        "name": "Melut Basin Energy Grid",
+        "description": "Fortified petroleum fields and strategic energy security zone",
+        "lat": 10.4500,
+        "lon": 32.2000,
+        "status": "locked"
+      }
+    ]
+  },
+  {
+    "name": "Guinea",
+    "capital": {
+      "name": "Conakry",
+      "type": "political",
+      "description": "National capital and major Atlantic commercial seaport",
+      "lat": 9.5370,
+      "lon": -13.6775
+    },
+    "economic": [
+      {
+        "name": "Kamsar Seaport",
+        "description": "Major international bauxite export and industrial shipping terminal",
+        "lat": 10.6500,
+        "lon": -14.6167
+      }
+    ],
+    "military": [
+      {
+        "name": "Kindia Base Command",
+        "description": "Primary regional military defense center and training command",
+        "lat": 10.0500,
+        "lon": -12.8500
+      }
+    ],
+    "secret": [
+      {
+        "name": "Fouta Djallon Water Grid",
+        "description": "High-security strategic water resources and basin protectorate",
+        "lat": 11.3000,
+        "lon": -12.2000,
+        "status": "locked"
+      }
+    ]
+  },
+  {
+    "name": "Mauritania",
+    "capital": {
+      "name": "Nouakchott",
+      "type": "political",
+      "description": "National capital and desert commercial core",
+      "lat": 18.0848,
+      "lon": -15.9789
+    },
+    "economic": [
+      {
+        "name": "Nouadhibou Port",
+        "description": "Major deepwater port, industrial fish export and iron ore shipping hub",
+        "lat": 20.9309,
+        "lon": -17.0375
+      }
+    ],
+    "military": [
+      {
+        "name": "Atar Air Base",
+        "description": "Strategic northern desert air defense and training wing",
+        "lat": 20.5122,
+        "lon": -13.0489
+      }
+    ],
+    "secret": [
+      {
+        "name": "Tasiast Gold Perimeter",
+        "description": "High-security desert mineral gold mine security zone",
+        "lat": 20.5200,
+        "lon": -15.5200,
+        "status": "locked"
+      }
+    ]
+  }
+]
 }
+    
   
         
