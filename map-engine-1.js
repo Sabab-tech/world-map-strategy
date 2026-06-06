@@ -78,10 +78,10 @@ try {
         return mapping[key] || name;
     };
 
-    // Modern Age 3 স্টাইলের সুন্দর রাজনৈতিক ভেক্টর কালার প্যালেট
+    // মানচিত্রের উজ্জ্বলতা বাড়াতে আরও উজ্জ্বল ও নিয়ন কালার প্যালেট সেট করা হয়েছে
     const colorPalette = [
-        '#385d75', '#416b53', '#8c4a4a', '#82693f', '#614a6b', '#3e6b68', 
-        '#9e6c4f', '#515470', '#5a733f', '#80435c', '#355c63', '#6e554d'
+        '#0284c7', '#16a34a', '#dc2626', '#ca8a04', '#7c3aed', '#0d9488', 
+        '#ea580c', '#2563eb', '#65a30d', '#db2777', '#0891b2', '#b45309'
     ];
 
     window.getCountryColor = function(name) {
@@ -112,31 +112,20 @@ try {
         return null;
     };
 
+    // জুমের সাথে দেশের নাম যেন খুবই মসৃণভাবে বড়-ছোট হয় (Smooth mathematical scaling)
     window.getFontSizeForCountry = function(config, zoom) {
         var importance = (config && config.importance) ? config.importance : 3;
         var baseSize = 9;
         if (importance >= 5) {
-            if (zoom <= 4.2) baseSize = 12;
-            else if (zoom <= 5.0) baseSize = 14;
-            else if (zoom <= 7.0) baseSize = 18;
-            else baseSize = 24;
+            baseSize = zoom * 3.2;
         } else if (importance === 4) {
-            if (zoom <= 4.2) baseSize = 10;
-            else if (zoom <= 5.0) baseSize = 12;
-            else if (zoom <= 7.0) baseSize = 15;
-            else baseSize = 19;
+            baseSize = zoom * 2.6;
         } else if (importance === 3) {
-            if (zoom <= 4.2) baseSize = 9;
-            else if (zoom <= 5.0) baseSize = 10;
-            else if (zoom <= 7.0) baseSize = 12;
-            else baseSize = 15;
+            baseSize = zoom * 2.2;
         } else {
-            // ছোট দেশের নাম ওভারল্যাপ এড়াতে সাইজ কিছুটা কমানো হলো
-            if (zoom <= 5.0) baseSize = 7.5;
-            else if (zoom <= 7.0) baseSize = 8.5;
-            else baseSize = 11;
+            baseSize = zoom * 1.8;
         }
-        return baseSize;
+        return Math.max(7.5, Math.min(baseSize, 22)); // ফন্ট সাইজ সর্বনিম্ন ৭.৫px এবং সর্বোচ্চ ২২px এর মধ্যে থাকবে
     };
 
     // ম্যাপের বাউন্ডারি ও জুম রেঞ্জ লিমিট এবং ম্যাপ ইনিশিয়ালাইজেশন
@@ -146,6 +135,12 @@ try {
         maxBounds: window.bounds, maxBoundsViscosity: 1.0, inertia: false,
         preferCanvas: true, bounceAtZoomLimits: false
     }).setView([22, 80], 3.8);
+
+    // অফলাইন টেরেন ইমেজ ব্যাকগ্রাউন্ড হিসেবে ম্যাপে সেট করা হলো
+    L.imageOverlay('./terrain-map.jpg', window.bounds, {
+        opacity: 0.85,
+        interactive: false
+    }).addTo(window.map);
 
     window.hubsGroupLayer = L.layerGroup().addTo(window.map);
 
