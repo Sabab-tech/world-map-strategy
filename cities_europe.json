@@ -1337,6 +1337,41 @@
           "status": "locked"
         }
       ]
+    },
+    {
+      "name": "Kosovo",
+      "capital": {
+        "name": "Pristina",
+        "type": "political",
+        "description": "National capital and central administrative hub",
+        "lat": 42.6629,
+        "lon": 21.1655
+      },
+      "economic": [
+        {
+          "name": "Mitrovica",
+          "description": "Northern industrial core and vital mineral mining hub",
+          "lat": 42.8901,
+          "lon": 20.8656
+        }
+      ],
+      "military": [
+        {
+          "name": "Film City Command",
+          "description": "Strategic KFOR international military command headquarters",
+          "lat": 42.6500,
+          "lon": 21.1400
+        }
+      ],
+      "secret": [
+        {
+          "name": "Gazivoda Lake Grid",
+          "description": "Highly guarded critical water and infrastructure defense perimeter",
+          "lat": 42.9200,
+          "lon": 20.6500,
+          "status": "locked"
+        }
+      ]
     }
   ]
 }
