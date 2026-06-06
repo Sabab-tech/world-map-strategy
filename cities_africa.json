@@ -1745,9 +1745,44 @@
           "status": "locked"
         }
       ]
+    },
+    {
+      "name": "Western Sahara",
+      "capital": {
+        "name": "Laayoune",
+        "type": "political",
+        "description": "De facto capital and primary administrative hub",
+        "lat": 27.1500,
+        "lon": -13.2000
+      },
+      "economic": [
+        {
+          "name": "Dakhla",
+          "description": "Crucial southern Atlantic fishing seaport and commercial gate",
+          "lat": 23.6847,
+          "lon": -15.9579
+        }
+      ],
+      "military": [
+        {
+          "name": "Smara Base",
+          "description": "Key inland military defense sector and logistical center",
+          "lat": 26.7384,
+          "lon": -11.6712
+        }
+      ],
+      "secret": [
+        {
+          "name": "Berm Defense Grid",
+          "description": "Vast sand-wall border monitoring and radar surveillance network",
+          "lat": 25.0000,
+          "lon": -12.5000,
+          "status": "locked"
+        }
+      ]
     }
   ]
-  }
+}
     
   
         
