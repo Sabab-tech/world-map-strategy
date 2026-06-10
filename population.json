@@ -1838,5 +1838,279 @@
     "urbanization_rate": 24.0,
     "male_percent": 48.7,
     "female_percent": 51.3
+  },
+  "AUSTRALIA": {
+    "population_2015": 24000000,
+    "annual_growth_rate": 1.40,
+    "birth_rate": 12.5,
+    "death_rate": 7.2,
+    "migration_rate": 6.0,
+    "urbanization_rate": 89.0,
+    "male_percent": 49.6,
+    "female_percent": 50.4
+  },
+
+  "NEW_ZEALAND": {
+    "population_2015": 4600000,
+    "annual_growth_rate": 1.10,
+    "birth_rate": 13.0,
+    "death_rate": 7.0,
+    "migration_rate": 2.0,
+    "urbanization_rate": 86.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+
+  "PAPUA_NEW_GUINEA": {
+    "population_2015": 7600000,
+    "annual_growth_rate": 2.10,
+    "birth_rate": 27.0,
+    "death_rate": 6.8,
+    "migration_rate": -0.5,
+    "urbanization_rate": 13.0,
+    "male_percent": 50.3,
+    "female_percent": 49.7
+  },
+
+  "FIJI": {
+    "population_2015": 900000,
+    "annual_growth_rate": 0.70,
+    "birth_rate": 18.0,
+    "death_rate": 6.5,
+    "migration_rate": -0.8,
+    "urbanization_rate": 56.0,
+    "male_percent": 50.0,
+    "female_percent": 50.0
+  },
+
+  "SOLOMON_ISLANDS": {
+    "population_2015": 600000,
+    "annual_growth_rate": 2.20,
+    "birth_rate": 30.0,
+    "death_rate": 7.5,
+    "migration_rate": -1.0,
+    "urbanization_rate": 23.0,
+    "male_percent": 49.8,
+    "female_percent": 50.2
+  },
+
+  "VANUATU": {
+    "population_2015": 270000,
+    "annual_growth_rate": 2.00,
+    "birth_rate": 26.0,
+    "death_rate": 6.5,
+    "migration_rate": -0.6,
+    "urbanization_rate": 26.0,
+    "male_percent": 49.7,
+    "female_percent": 50.3
+  },
+
+  "SAMOA": {
+    "population_2015": 190000,
+    "annual_growth_rate": 0.90,
+    "birth_rate": 22.0,
+    "death_rate": 6.0,
+    "migration_rate": -1.2,
+    "urbanization_rate": 20.0,
+    "male_percent": 49.6,
+    "female_percent": 50.4
+  },
+
+  "TONGA": {
+    "population_2015": 100000,
+    "annual_growth_rate": 0.80,
+    "birth_rate": 23.0,
+    "death_rate": 6.5,
+    "migration_rate": -1.5,
+    "urbanization_rate": 24.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+
+  "MICRONESIA": {
+    "population_2015": 105000,
+    "annual_growth_rate": 0.60,
+    "birth_rate": 20.0,
+    "death_rate": 6.0,
+    "migration_rate": -0.8,
+    "urbanization_rate": 22.0,
+    "male_percent": 49.4,
+    "female_percent": 50.6
+  },
+
+  "PALAU": {
+    "population_2015": 21000,
+    "annual_growth_rate": 0.50,
+    "birth_rate": 14.0,
+    "death_rate": 6.0,
+    "migration_rate": 1.0,
+    "urbanization_rate": 80.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+
+  "MARSHALL_ISLANDS": {
+    "population_2015": 53000,
+    "annual_growth_rate": 0.90,
+    "birth_rate": 24.0,
+    "death_rate": 6.5,
+    "migration_rate": -1.0,
+    "urbanization_rate": 73.0,
+    "male_percent": 49.8,
+    "female_percent": 50.2
+  },
+
+  "KIRIBATI": {
+    "population_2015": 110000,
+    "annual_growth_rate": 1.20,
+    "birth_rate": 26.0,
+    "death_rate": 7.0,
+    "migration_rate": -1.5,
+    "urbanization_rate": 56.0,
+    "male_percent": 49.7,
+    "female_percent": 50.3
+  },
+
+  "NAURU": {
+    "population_2015": 10000,
+    "annual_growth_rate": 0.40,
+    "birth_rate": 18.0,
+    "death_rate": 6.0,
+    "migration_rate": 0.5,
+    "urbanization_rate": 100.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+
+  "TUVALU": {
+    "population_2015": 11000,
+    "annual_growth_rate": 0.50,
+    "birth_rate": 20.0,
+    "death_rate": 6.0,
+    "migration_rate": -2.0,
+    "urbanization_rate": 60.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+
+  "GUAM": {
+    "population_2015": 170000,
+    "annual_growth_rate": 0.80,
+    "birth_rate": 17.0,
+    "death_rate": 6.0,
+    "migration_rate": 1.0,
+    "urbanization_rate": 94.0,
+    "male_percent": 50.0,
+    "female_percent": 50.0
+  },
+
+  "AMERICAN_SAMOA": {
+    "population_2015": 56000,
+    "annual_growth_rate": 0.60,
+    "birth_rate": 18.0,
+    "death_rate": 6.0,
+    "migration_rate": -0.5,
+    "urbanization_rate": 87.0,
+    "male_percent": 49.8,
+    "female_percent": 50.2
+  },
+
+  "NEW_CALEDONIA": {
+    "population_2015": 270000,
+    "annual_growth_rate": 1.10,
+    "birth_rate": 16.0,
+    "death_rate": 6.5,
+    "migration_rate": 0.5,
+    "urbanization_rate": 72.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+
+  "FRENCH_POLYNESIA": {
+    "population_2015": 280000,
+    "annual_growth_rate": 0.90,
+    "birth_rate": 17.0,
+    "death_rate": 6.5,
+    "migration_rate": -0.4,
+    "urbanization_rate": 64.0,
+    "male_percent": 49.4,
+    "female_percent": 50.6
+  },
+
+  "WALLIS_AND_FUTUNA": {
+    "population_2015": 11000,
+    "annual_growth_rate": 0.30,
+    "birth_rate": 14.0,
+    "death_rate": 6.0,
+    "migration_rate": -1.0,
+    "urbanization_rate": 50.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+
+  "COOK_ISLANDS": {
+    "population_2015": 18000,
+    "annual_growth_rate": 0.70,
+    "birth_rate": 16.0,
+    "death_rate": 6.0,
+    "migration_rate": -1.5,
+    "urbanization_rate": 75.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+
+  "NIUE": {
+    "population_2015": 1600,
+    "annual_growth_rate": 0.20,
+    "birth_rate": 13.0,
+    "death_rate": 6.0,
+    "migration_rate": -2.0,
+    "urbanization_rate": 70.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+
+  "TOKELAU": {
+    "population_2015": 1400,
+    "annual_growth_rate": 0.30,
+    "birth_rate": 15.0,
+    "death_rate": 6.0,
+    "migration_rate": -1.5,
+    "urbanization_rate": 100.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+
+  "NORFOLK_ISLAND": {
+    "population_2015": 2200,
+    "annual_growth_rate": 0.10,
+    "birth_rate": 10.0,
+    "death_rate": 7.0,
+    "migration_rate": 0.5,
+    "urbanization_rate": 100.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+
+  "CHRISTMAS_ISLAND": {
+    "population_2015": 2000,
+    "annual_growth_rate": 0.20,
+    "birth_rate": 12.0,
+    "death_rate": 7.0,
+    "migration_rate": 0.3,
+    "urbanization_rate": 100.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+
+  "COCOS_KEELING_ISLANDS": {
+    "population_2015": 600,
+    "annual_growth_rate": 0.10,
+    "birth_rate": 11.0,
+    "death_rate": 6.0,
+    "migration_rate": 0.2,
+    "urbanization_rate": 100.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
   }
   }
