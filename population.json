@@ -1,1 +1,132 @@
-
+{
+  "CHINA": {
+    "population_2015": 1371000000,
+    "annual_growth_rate": 0.50,
+    "birth_rate": 12.1,
+    "death_rate": 7.1,
+    "migration_rate": -0.2,
+    "urbanization_rate": 56.0,
+    "male_percent": 51.2,
+    "female_percent": 48.8
+  },
+  "JAPAN": {
+    "population_2015": 127000000,
+    "annual_growth_rate": -0.20,
+    "birth_rate": 8.0,
+    "death_rate": 10.3,
+    "migration_rate": 0.8,
+    "urbanization_rate": 91.5,
+    "male_percent": 48.9,
+    "female_percent": 51.1
+  },
+  "SOUTH_KOREA": {
+    "population_2015": 51000000,
+    "annual_growth_rate": 0.40,
+    "birth_rate": 8.6,
+    "death_rate": 5.4,
+    "migration_rate": 0.2,
+    "urbanization_rate": 82.5,
+    "male_percent": 49.9,
+    "female_percent": 50.1
+  },
+  "MONGOLIA": {
+    "population_2015": 3000000,
+    "annual_growth_rate": 1.60,
+    "birth_rate": 26.0,
+    "death_rate": 6.3,
+    "migration_rate": -1.5,
+    "urbanization_rate": 67.0,
+    "male_percent": 49.4,
+    "female_percent": 50.6
+  },
+  "NORTH_KOREA": {
+    "population_2015": 25200000,
+    "annual_growth_rate": 0.50,
+    "birth_rate": 14.2,
+    "death_rate": 9.1,
+    "migration_rate": -0.1,
+    "urbanization_rate": 60.0,
+    "male_percent": 48.8,
+    "female_percent": 51.2
+  },
+  "TAIWAN": {
+    "population_2015": 23500000,
+    "annual_growth_rate": 0.30,
+    "birth_rate": 9.0,
+    "death_rate": 7.1,
+    "migration_rate": 0.9,
+    "urbanization_rate": 78.0,
+    "male_percent": 49.7,
+    "female_percent": 50.3
+  },
+  "INDIA": {
+    "population_2015": 1310000000,
+    "annual_growth_rate": 1.20,
+    "birth_rate": 19.3,
+    "death_rate": 7.3,
+    "migration_rate": -0.4,
+    "urbanization_rate": 32.7,
+    "male_percent": 51.6,
+    "female_percent": 48.4
+  },
+  "PAKISTAN": {
+    "population_2015": 199000000,
+    "annual_growth_rate": 2.10,
+    "birth_rate": 26.4,
+    "death_rate": 7.2,
+    "migration_rate": -0.5,
+    "urbanization_rate": 36.0,
+    "male_percent": 51.3,
+    "female_percent": 48.7
+  },
+  "BANGLADESH": {
+    "population_2015": 156000000,
+    "annual_growth_rate": 1.10,
+    "birth_rate": 19.2,
+    "death_rate": 5.5,
+    "migration_rate": -0.8,
+    "urbanization_rate": 34.5,
+    "male_percent": 50.4,
+    "female_percent": 49.6
+  },
+  "SRI_LANKA": {
+    "population_2015": 21000000,
+    "annual_growth_rate": 0.90,
+    "birth_rate": 15.6,
+    "death_rate": 6.7,
+    "migration_rate": -1.0,
+    "urbanization_rate": 18.2,
+    "male_percent": 48.2,
+    "female_percent": 51.8
+  },
+  "NEPAL": {
+    "population_2015": 27300000,
+    "annual_growth_rate": 0.95,
+    "birth_rate": 20.4,
+    "death_rate": 6.5,
+    "migration_rate": -3.0,
+    "urbanization_rate": 18.6,
+    "male_percent": 48.4,
+    "female_percent": 51.6
+  },
+  "BHUTAN": {
+    "population_2015": 743000,
+    "annual_growth_rate": 1.15,
+    "birth_rate": 17.5,
+    "death_rate": 6.2,
+    "migration_rate": 0.3,
+    "urbanization_rate": 38.6,
+    "male_percent": 52.1,
+    "female_percent": 47.9
+  },
+  "AFGHANISTAN": {
+    "population_2015": 34400000,
+    "annual_growth_rate": 3.00,
+    "birth_rate": 35.4,
+    "death_rate": 7.5,
+    "migration_rate": -1.5,
+    "urbanization_rate": 24.8,
+    "male_percent": 51.1,
+    "female_percent": 48.9
+  }
+  }
