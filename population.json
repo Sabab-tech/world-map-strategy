@@ -866,3 +866,266 @@
     "male_percent": 47.8,
     "female_percent": 52.2
   },
+  "CYPRUS": {
+    "population_2015": 1160000,
+    "annual_growth_rate": 0.80,
+    "birth_rate": 11.0,
+    "death_rate": 7.0,
+    "migration_rate": 0.6,
+    "urbanization_rate": 67.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "BAHRAIN": {
+    "population_2015": 1400000,
+    "annual_growth_rate": 2.00,
+    "birth_rate": 12.5,
+    "death_rate": 2.5,
+    "migration_rate": 4.0,
+    "urbanization_rate": 89.0,
+    "male_percent": 63.0,
+    "female_percent": 37.0
+  },
+  "MALDIVES": {
+    "population_2015": 400000,
+    "annual_growth_rate": 1.70,
+    "birth_rate": 17.0,
+    "death_rate": 4.5,
+    "migration_rate": 1.5,
+    "urbanization_rate": 41.0,
+    "male_percent": 50.5,
+    "female_percent": 49.5
+  },
+
+  "HONG_KONG": {
+    "population_2015": 7300000,
+    "annual_growth_rate": 0.50,
+    "birth_rate": 8.5,
+    "death_rate": 6.2,
+    "migration_rate": 1.0,
+    "urbanization_rate": 100.0,
+    "male_percent": 46.5,
+    "female_percent": 53.5
+  },
+  "MACAU": {
+    "population_2015": 640000,
+    "annual_growth_rate": 1.20,
+    "birth_rate": 9.0,
+    "death_rate": 4.8,
+    "migration_rate": 2.5,
+    "urbanization_rate": 100.0,
+    "male_percent": 48.0,
+    "female_percent": 52.0
+  },
+
+  "PALESTINE": {
+    "population_2015": 4700000,
+    "annual_growth_rate": 2.90,
+    "birth_rate": 30.0,
+    "death_rate": 5.0,
+    "migration_rate": -1.5,
+    "urbanization_rate": 75.0,
+    "male_percent": 50.2,
+    "female_percent": 49.8
+  },
+  "PORTUGAL": {
+    "population_2015": 10300000,
+    "annual_growth_rate": 0.10,
+    "birth_rate": 8.5,
+    "death_rate": 10.8,
+    "migration_rate": 0.4,
+    "urbanization_rate": 66.0,
+    "male_percent": 48.5,
+    "female_percent": 51.5
+  },
+  "SWITZERLAND": {
+    "population_2015": 8200000,
+    "annual_growth_rate": 0.90,
+    "birth_rate": 10.2,
+    "death_rate": 8.1,
+    "migration_rate": 1.2,
+    "urbanization_rate": 74.0,
+    "male_percent": 49.6,
+    "female_percent": 50.4
+  },
+  "AUSTRIA": {
+    "population_2015": 8700000,
+    "annual_growth_rate": 0.40,
+    "birth_rate": 9.7,
+    "death_rate": 9.5,
+    "migration_rate": 0.8,
+    "urbanization_rate": 66.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "HUNGARY": {
+    "population_2015": 9800000,
+    "annual_growth_rate": -0.20,
+    "birth_rate": 9.1,
+    "death_rate": 12.5,
+    "migration_rate": -0.3,
+    "urbanization_rate": 71.0,
+    "male_percent": 47.8,
+    "female_percent": 52.2
+  },
+  "CZECHIA": {
+    "population_2015": 10500000,
+    "annual_growth_rate": 0.10,
+    "birth_rate": 10.0,
+    "death_rate": 10.3,
+    "migration_rate": 0.5,
+    "urbanization_rate": 73.0,
+    "male_percent": 49.1,
+    "female_percent": 50.9
+  },
+  "SLOVAKIA": {
+    "population_2015": 5400000,
+    "annual_growth_rate": 0.20,
+    "birth_rate": 10.5,
+    "death_rate": 9.8,
+    "migration_rate": 0.4,
+    "urbanization_rate": 54.0,
+    "male_percent": 48.9,
+    "female_percent": 51.1
+  },
+  "ROMANIA": {
+    "population_2015": 19800000,
+    "annual_growth_rate": -0.40,
+    "birth_rate": 9.0,
+    "death_rate": 11.5,
+    "migration_rate": -0.8,
+    "urbanization_rate": 54.0,
+    "male_percent": 48.0,
+    "female_percent": 52.0
+  },
+  "BULGARIA": {
+    "population_2015": 7200000,
+    "annual_growth_rate": -0.60,
+    "birth_rate": 8.8,
+    "death_rate": 12.8,
+    "migration_rate": -0.7,
+    "urbanization_rate": 74.0,
+    "male_percent": 48.2,
+    "female_percent": 51.8
+  },
+  "SERBIA": {
+    "population_2015": 7100000,
+    "annual_growth_rate": -0.50,
+    "birth_rate": 9.2,
+    "death_rate": 13.0,
+    "migration_rate": -0.6,
+    "urbanization_rate": 56.0,
+    "male_percent": 48.1,
+    "female_percent": 51.9
+  },
+  "CROATIA": {
+    "population_2015": 4200000,
+    "annual_growth_rate": -0.40,
+    "birth_rate": 9.5,
+    "death_rate": 12.2,
+    "migration_rate": -0.5,
+    "urbanization_rate": 57.0,
+    "male_percent": 48.3,
+    "female_percent": 51.7
+  },
+  "BOSNIA_AND_HERZEGOVINA": {
+    "population_2015": 3800000,
+    "annual_growth_rate": -0.60,
+    "birth_rate": 9.0,
+    "death_rate": 12.5,
+    "migration_rate": -1.0,
+    "urbanization_rate": 48.0,
+    "male_percent": 48.0,
+    "female_percent": 52.0
+  },
+  "ALBANIA": {
+    "population_2015": 2900000,
+    "annual_growth_rate": 0.20,
+    "birth_rate": 11.0,
+    "death_rate": 7.8,
+    "migration_rate": -0.8,
+    "urbanization_rate": 57.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "NORTH_MACEDONIA": {
+    "population_2015": 2100000,
+    "annual_growth_rate": 0.10,
+    "birth_rate": 11.5,
+    "death_rate": 8.5,
+    "migration_rate": -0.4,
+    "urbanization_rate": 58.0,
+    "male_percent": 49.2,
+    "female_percent": 50.8
+  },
+  "MOLDOVA": {
+    "population_2015": 3500000,
+    "annual_growth_rate": -0.50,
+    "birth_rate": 10.0,
+    "death_rate": 12.0,
+    "migration_rate": -1.5,
+    "urbanization_rate": 43.0,
+    "male_percent": 47.5,
+    "female_percent": 52.5
+  },
+  "BELARUS": {
+    "population_2015": 9500000,
+    "annual_growth_rate": -0.20,
+    "birth_rate": 11.2,
+    "death_rate": 12.0,
+    "migration_rate": -0.2,
+    "urbanization_rate": 75.0,
+    "male_percent": 46.8,
+    "female_percent": 53.2
+  },
+  "LITHUANIA": {
+    "population_2015": 2900000,
+    "annual_growth_rate": -0.60,
+    "birth_rate": 9.5,
+    "death_rate": 13.0,
+    "migration_rate": -1.0,
+    "urbanization_rate": 67.0,
+    "male_percent": 47.0,
+    "female_percent": 53.0
+  },
+  "LATVIA": {
+    "population_2015": 2000000,
+    "annual_growth_rate": -0.50,
+    "birth_rate": 9.2,
+    "death_rate": 12.8,
+    "migration_rate": -1.2,
+    "urbanization_rate": 68.0,
+    "male_percent": 46.9,
+    "female_percent": 53.1
+  },
+  "ESTONIA": {
+    "population_2015": 1300000,
+    "annual_growth_rate": -0.10,
+    "birth_rate": 10.5,
+    "death_rate": 11.0,
+    "migration_rate": 0.3,
+    "urbanization_rate": 69.0,
+    "male_percent": 47.8,
+    "female_percent": 52.2
+  },
+  "LUXEMBOURG": {
+    "population_2015": 570000,
+    "annual_growth_rate": 1.40,
+    "birth_rate": 11.5,
+    "death_rate": 7.5,
+    "migration_rate": 2.5,
+    "urbanization_rate": 91.0,
+    "male_percent": 50.0,
+    "female_percent": 50.0
+  },
+  "MALTA": {
+    "population_2015": 430000,
+    "annual_growth_rate": 0.50,
+    "birth_rate": 9.0,
+    "death_rate": 7.0,
+    "migration_rate": 1.0,
+    "urbanization_rate": 95.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  }
+  }
