@@ -1,101 +1,254 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Ultimate Political Map Strategy Engine</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Global Geopolitical Strategy Simulator</title>
     
-    <!-- মোবাইল ব্রাউজারে রিয়েল-টাইম কনসোল ও এরর ট্র্যাক করার প্লাগইন (Eruda) -->
+    <!-- গুগল ফন্টস এবং সিএসএস স্টাইল শীট লিঙ্কসমূহ -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@500;700;900&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="leaflet.css" />
+    <link rel="stylesheet" href="style.css" /> <!-- <--- সমস্ত সিএসএস ডিজাইন এখন এখানে আলাদা লোড হবে -->
+</head>
+<body>
+
+    <!-- মোবাইল ডিবাগিং টুল Eruda -->
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
     <script>eruda.init();</script>
 
-    <!-- সাই-ফাই ও মিলিটারী গেম ফন্ট ইমপোর্ট (Google Fonts) -->
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@500;800&display=swap" rel="stylesheet" />
-
-    <link rel="stylesheet" href="./leaflet.css" />
-    <style>
-        body { margin: 0; padding: 0; background: #000; overflow: hidden; }
-        
-        /* মিলিটারী স্টাইল গ্লাস-মরফিজম টপ রিসোর্স বার */
-        #resource-bar {
-            position: absolute; top: 0; left: 0; width: 100%; height: 50px;
-            background: rgba(15, 23, 42, 0.85); border-bottom: 2px solid #38bdf8;
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 2000; font-family: 'Share Tech Mono', monospace; color: #f8fafc;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-        }
-        .res-item { display: flex; align-items: center; font-size: 14px; font-weight: bold; }
-        .res-icon { font-size: 18px; margin-right: 6px; }
-        .res-gain { font-size: 11px; color: #4ade80; margin-left: 6px; }
-
-        /* Modern Age 3 এবং মিলিটারি রাডারের মতো স্টাইলিশ গ্রিড ও গ্লো ব্যাকগ্রাউন্ড */
-        #map { 
-            height: 100vh; 
-            width: 100%; 
-            background: 
-                linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
-                radial-gradient(circle, #101f3c 0%, #060b13 100%);
-            background-size: 40px 40px, 40px 40px, 100% 100%;
-        }
-        
-        /* দেশের নাম দেখানোর জন্য নিয়ন ইফেক্টযুক্ত ফন্ট */
-        .game-country-label, .country-label {
-            background: none !important; border: none !important; box-shadow: none !important;
-            color: #f1f5f9; 
-            font-family: 'Share Tech Mono', monospace !important;
-            font-weight: 900; letter-spacing: 1px;
-            white-space: nowrap; pointer-events: none; display: block; text-align: center;
-            text-shadow: 0px 0px 4px rgba(56, 189, 248, 0.6), 1px 1px 2px #000000;
-        }
-
-        /* সমুদ্রের নামের জন্য আকর্ষণীয় মিলিটারি স্টাইল ফন্ট */
-        .ocean-label-text {
-            font-family: 'Orbitron', sans-serif !important;
-            font-weight: bold;
-            font-style: italic;
-            color: rgba(147, 197, 253, 0.3);
-            letter-spacing: 4px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
-        }
-
-        /* পপআপ উইন্ডো স্টাইল */
-        .game-popup .leaflet-popup-content-wrapper {
-            background: #0f172a !important; color: #f8fafc !important;
-            border: 2px solid #38bdf8 !important; border-radius: 8px !important;
-            font-family: 'Segoe UI', Roboto, sans-serif !important; 
-            box-shadow: 0 6px 20px rgba(0,0,0,0.7) !important;
-            padding: 12px 16px !important;
-        }
-        .game-popup .leaflet-popup-tip { background: #0f172a !important; border: 2px solid #38bdf8 !important; }
-        
-        .game-popup-title { font-size: 19px; font-weight: bold; color: #ffffff; display: block; margin-bottom: 4px; }
-        .role-capital { color: #38bdf8; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-        .role-economic { color: #eab308; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-        .role-military { color: #ef4444; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-        .role-secret { color: #a855f7; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-        .game-popup-desc { font-size: 14px; color: #cbd5e1; display: block; margin-top: 6px; line-height: 1.4; }
-        .game-popup-status { color: #f87171; font-size: 12px; font-weight: bold; display: block; margin-top: 4px; }
-
-        .leaflet-zoom-animated, .leaflet-pane {
-            will-change: transform, opacity; transform-style: preserve-3d; backface-visibility: hidden;
-        }
-    </style>
-</head>
-<body>
-    <!-- গেমপ্লে রিসোর্স ট্র্যাকার টপ বার -->
+    <!-- টপ ওভাইল প্রিমিয়াম রিসোর্স বার -->
     <div id="resource-bar">
-        <div class="res-item"><span class="res-icon">💵</span><span id="res-cash">1.0M</span> <span class="res-gain" id="rate-cash">+100/s</span></div>
-        <div class="res-item"><span class="res-icon">🛢️</span><span id="res-oil">50K</span> <span class="res-gain" id="rate-oil">+10/s</span></div>
-        <div class="res-item"><span class="res-icon">🧱</span><span id="res-steel">10K</span> <span class="res-gain" id="rate-steel">+5/s</span></div>
-        <div class="res-item"><span class="res-icon">☢️</span><span id="res-uranium">100</span> <span class="res-gain" id="rate-uranium">+0/s</span></div>
-        <div class="res-item"><span class="res-icon">🎖️</span><span id="res-manpower">150K</span> <span class="res-gain" id="rate-manpower">+50/s</span></div>
+        <div class="res-item">
+            <span class="res-icon">💵</span>
+            <span class="res-val" id="res-cash">1.0M</span>
+            <span class="res-gain">+100/s</span>
+        </div>
+        <div class="res-item">
+            <span class="res-icon">🛢️</span>
+            <span class="res-val" id="res-oil">50K</span>
+            <span class="res-gain">+10/s</span>
+        </div>
+        <div class="res-item">
+            <span class="res-icon">🧱</span>
+            <span class="res-val" id="res-steel">10K</span>
+            <span class="res-gain">+5/s</span>
+        </div>
+        <div class="res-item">
+            <span class="res-icon">☢️</span>
+            <span class="res-val" id="res-uranium">100</span>
+            <span class="res-gain">+0/s</span>
+        </div>
+        <div class="res-item">
+            <span class="res-icon">🎖️</span>
+            <span class="res-val" id="res-manpower">150K</span>
+            <span class="res-gain">+50/s</span>
+        </div>
     </div>
 
+    <!-- ম্যাপ কন্টেনার -->
     <div id="map"></div>
 
-    <script src="./leaflet.js"></script>
-    <script src="./map-engine-1.js"></script>
-    <script src="./map-engine-2.js"></script>
+    <!-- সেন্ট্রাল কমান্ড হাব মোডাল উইন্ডো -->
+    <div id="command-hub-modal">
+        <!-- মোডাল হেডার -->
+        <div class="modal-header">
+            <span class="modal-title" id="modal-country-name">COMMAND HQ: GLOBAL STRATEGY</span>
+            <button class="close-btn" onclick="toggleCommandHub(false)">✕</button>
+        </div>
+
+        <!-- ১০টি ট্যাবের নেভিগেশন গ্রিড -->
+        <div class="tabs-navigation">
+            <button class="tab-btn active" onclick="switchModalTab(event, 'tab-economy')">📊 Economy</button>
+            <button class="tab-btn" onclick="switchModalTab(event, 'tab-diplomacy')">🤝 Diplomacy</button>
+            <button class="tab-btn" onclick="switchModalTab(event, 'tab-military')">🪖 Military</button>
+            <button class="tab-btn" onclick="switchModalTab(event, 'tab-technology')">🧪 Tech</button>
+            <button class="tab-btn" onclick="switchModalTab(event, 'tab-intelligence')">🕵️ Intel</button>
+            <button class="tab-btn" onclick="switchModalTab(event, 'tab-population')">👥 Population</button>
+            <button class="tab-btn" onclick="switchModalTab(event, 'tab-energy')">⚡ Energy</button>
+            <button class="tab-btn" onclick="switchModalTab(event, 'tab-internal')">🏛️ Internal</button>
+            <button class="tab-btn" onclick="switchModalTab(event, 'tab-trade')">🚛 Trade</button>
+            <button class="tab-btn" onclick="switchModalTab(event, 'tab-projects')">🚀 Projects</button>
+        </div>
+
+        <!-- মোডাল কন্টেন্ট এরিয়া -->
+        <div class="tab-content-area" id="modal-panes-container">
+            
+            <!-- ১. ইকোনমি প্যানেল -->
+            <div id="tab-economy" class="tab-pane active">
+                <h3>📈 National Economy & Treasury</h3>
+                <p>দেশের সামগ্রিক অর্থনৈতিক ইন্ডিকেটর ও জাতীয় রিজার্ভের চিত্র:</p>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>GDP Health</h4>
+                        <span id="econ-gdp">--</span>
+                    </div>
+                    <div class="info-card">
+                        <h4>National Debt</h4>
+                        <span id="econ-debt">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ২. ডিপ্লোম্যাসি প্যানেল -->
+            <div id="tab-diplomacy" class="tab-pane">
+                <h3>🤝 International Relations</h3>
+                <p>বিশ্বের অন্যান্য দেশসমূহের সাথে বর্তমান রাজনৈতিক ও বৈদেশিক কূটনৈতিক অবস্থা:</p>
+                <div class="info-grid" id="diplomacy-list">
+                    <div class="info-card">
+                        <h4>Allied Bloc</h4>
+                        <span>Friendly relations established</span>
+                    </div>
+                    <div class="info-card">
+                        <h4>Hostility Index</h4>
+                        <span>Stable / No Active Conflicts</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ৩. মিলিটারি প্যানেল -->
+            <div id="tab-military" class="tab-pane">
+                <h3>🪖 Defense & Forces Command</h3>
+                <p>সucceeded সশস্ত্র বাহিনী এবং আঞ্চলিক প্রতিরক্ষা সক্ষমতা:</p>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>Command Bases</h4>
+                        <span id="mil-army">--</span>
+                    </div>
+                    <div class="info-card">
+                        <h4>Combat Fleet</h4>
+                        <span id="mil-air">Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ৪. টেকনোলজি প্যানেল -->
+            <div id="tab-technology" class="tab-pane">
+                <h3>🧪 Research & Tech Tree</h3>
+                <p>চলমান গবেষণা এবং আপগ্রেডসমূহ এখানে ট্র্যাক করা হবে।</p>
+            </div>
+
+            <!-- ৫. ইন্টেলিজেন্স প্যানেল -->
+            <div id="tab-intelligence" class="tab-pane">
+                <h3>🕵️ Intelligence & Espionage</h3>
+                <p>বৈশ্বিক নজরদারি এবং সাইবার অপারেশন ডিরেক্টরি।</p>
+            </div>
+
+            <!-- ৬. পপুলেশন প্যানেল -->
+            <div id="tab-population" class="tab-pane">
+                <h3>👥 Population & Stability Index</h3>
+                <p>জনসংখ্যার সন্তুষ্টি হার এবং দেশের অভ্যন্তরীণ সামাজিক স্থিতিশীলতা।</p>
+            </div>
+
+            <!-- ৭. এনার্জি প্যানেল -->
+            <div id="tab-energy" class="tab-pane">
+                <h3>⚡ Power & Grid Security</h3>
+                <p>বিদ্যুৎ গ্রিড এবং কৌশলগত জ্বালানি শক্তির মজুত।</p>
+            </div>
+
+            <!-- ৮. ইন্টারনাল অ্যাফেয়ার্স প্যানেল -->
+            <div id="tab-internal" class="tab-pane">
+                <h3>🏛️ Internal Policy & Law</h3>
+                <p>অভ্যন্তরীণ রাষ্ট্রীয় আইন এবং প্রশাসনিক সিদ্ধান্তসমূহ।</p>
+            </div>
+
+            <!-- ৯. ট্রেড প্যানেল -->
+            <div id="tab-trade" class="tab-pane">
+                <h3>🚛 Import/Export & Logistics</h3>
+                <p>বাণিজ্যিক লেনদেন এবং পরিবহন নেটওয়ার্কের স্থিতি।</p>
+            </div>
+
+            <!-- ১০. প্রজেক্টস প্যানেল -->
+            <div id="tab-projects" class="tab-pane">
+                <h3>🚀 Strategic Space & Nuclear Projects</h3>
+                <p>মেগা প্রজেক্ট এবং বিশেষ পারমাণবিক কর্মসূচির উন্নয়ন পর্যায়।</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ওভাইল স্টাইলের নিচের নেভিগেশন ও কন্ট্রোল ডেক -->
+    <div id="control-deck">
+        
+        <!-- ৩টি ভাসমান অ্যাকশন বাটন -->
+        <div class="floating-action-group">
+            <div class="float-btn" id="btn-store">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+            </div>
+            <div class="float-btn" id="btn-morale">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                </svg>
+            </div>
+            <div class="float-btn" id="btn-search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+        </div>
+
+        <!-- মূল সার্কুলার নেভিগেশন ডক -->
+        <div class="nav-dock">
+            <div class="nav-btn active" id="btn-home">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+            </div>
+            <div class="nav-btn" id="btn-politics">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+                    <path d="M3 22v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <div class="nav-btn" id="btn-build">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                </svg>
+            </div>
+            <div class="nav-btn" id="btn-hq">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <line x1="12" y1="2" x2="12" y2="4"></line>
+                    <line x1="12" y1="20" x2="12" y2="22"></line>
+                    <line x1="2" y1="12" x2="4" y2="12"></line>
+                    <line x1="20" y1="12" x2="22" y2="12"></line>
+                </svg>
+            </div>
+            <div class="nav-btn" id="btn-military-dock">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                    <path d="M12 2v9M8 5h8"></path>
+                </svg>
+            </div>
+            <div class="nav-btn" id="btn-diplomacy-dock">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <polyline points="17 11 19 13 23 9"></polyline>
+                </svg>
+            </div>
+            <div class="nav-btn" id="btn-settings">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- লিফলেট এবং প্রজেক্টের স্ক্রিপ্ট সোর্সসমূহ -->
+    <script src="leaflet.js"></script>
+    <script src="map-engine-1.js"></script>
+    <script src="map-engine-2.js"></script>
+
 </body>
     </html>
