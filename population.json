@@ -691,18 +691,6 @@
     "male_percent": 49.6,
     "female_percent": 50.4
   },
-
-  "MONGOLIA": {
-    "population_2015": 3000000,
-    "annual_growth_rate": 1.60,
-    "birth_rate": 26.0,
-    "death_rate": 6.3,
-    "migration_rate": -1.5,
-    "urbanization_rate": 67.0,
-    "male_percent": 49.4,
-    "female_percent": 50.6
-  },
-
   "SINGAPORE": {
     "population_2015": 5600000,
     "annual_growth_rate": 1.20,
@@ -2112,7 +2100,7 @@
     "urbanization_rate": 100.0,
     "male_percent": 49.0,
     "female_percent": 51.0
-  }
+  },
   "KOSOVO": {
     "population_2015": 1700000,
     "annual_growth_rate": 1.20,
