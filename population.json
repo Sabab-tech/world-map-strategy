@@ -560,6 +560,309 @@
     "urbanization_rate": 76.0,
     "male_percent": 51.0,
     "female_percent": 49.0
-  }
-}
-  
+  },
+  "ITALY": {
+    "population_2015": 60500000,
+    "annual_growth_rate": -0.10,
+    "birth_rate": 8.5,
+    "death_rate": 10.5,
+    "migration_rate": 0.5,
+    "urbanization_rate": 70.0,
+    "male_percent": 48.7,
+    "female_percent": 51.3
+  },
+  "SPAIN": {
+    "population_2015": 46400000,
+    "annual_growth_rate": -0.20,
+    "birth_rate": 9.0,
+    "death_rate": 9.8,
+    "migration_rate": 0.4,
+    "urbanization_rate": 80.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "NETHERLANDS": {
+    "population_2015": 17000000,
+    "annual_growth_rate": 0.20,
+    "birth_rate": 10.5,
+    "death_rate": 8.2,
+    "migration_rate": 0.6,
+    "urbanization_rate": 91.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+  "BELGIUM": {
+    "population_2015": 11200000,
+    "annual_growth_rate": 0.30,
+    "birth_rate": 11.0,
+    "death_rate": 9.5,
+    "migration_rate": 0.7,
+    "urbanization_rate": 98.0,
+    "male_percent": 49.3,
+    "female_percent": 50.7
+  },
+  "SWEDEN": {
+    "population_2015": 9800000,
+    "annual_growth_rate": 0.90,
+    "birth_rate": 12.5,
+    "death_rate": 9.0,
+    "migration_rate": 1.5,
+    "urbanization_rate": 88.0,
+    "male_percent": 49.8,
+    "female_percent": 50.2
+  },
+  "NORWAY": {
+    "population_2015": 5200000,
+    "annual_growth_rate": 1.00,
+    "birth_rate": 12.0,
+    "death_rate": 8.0,
+    "migration_rate": 1.2,
+    "urbanization_rate": 82.0,
+    "male_percent": 50.0,
+    "female_percent": 50.0
+  },
+  "FINLAND": {
+    "population_2015": 5500000,
+    "annual_growth_rate": 0.30,
+    "birth_rate": 10.0,
+    "death_rate": 9.5,
+    "migration_rate": 0.4,
+    "urbanization_rate": 85.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "GREECE": {
+    "population_2015": 10800000,
+    "annual_growth_rate": -0.30,
+    "birth_rate": 8.8,
+    "death_rate": 11.2,
+    "migration_rate": -0.5,
+    "urbanization_rate": 78.0,
+    "male_percent": 49.1,
+    "female_percent": 50.9
+  },
+  "KAZAKHSTAN": {
+    "population_2015": 17500000,
+    "annual_growth_rate": 1.20,
+    "birth_rate": 21.0,
+    "death_rate": 7.5,
+    "migration_rate": -0.2,
+    "urbanization_rate": 54.0,
+    "male_percent": 48.7,
+    "female_percent": 51.3
+  },
+  "UZBEKISTAN": {
+    "population_2015": 31200000,
+    "annual_growth_rate": 1.40,
+    "birth_rate": 22.5,
+    "death_rate": 6.2,
+    "migration_rate": -0.4,
+    "urbanization_rate": 36.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+  "TURKMENISTAN": {
+    "population_2015": 5400000,
+    "annual_growth_rate": 1.30,
+    "birth_rate": 20.0,
+    "death_rate": 6.8,
+    "migration_rate": -0.3,
+    "urbanization_rate": 52.0,
+    "male_percent": 49.2,
+    "female_percent": 50.8
+  },
+  "KYRGYZSTAN": {
+    "population_2015": 5900000,
+    "annual_growth_rate": 1.50,
+    "birth_rate": 24.0,
+    "death_rate": 6.5,
+    "migration_rate": -0.6,
+    "urbanization_rate": 36.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "TAJIKISTAN": {
+    "population_2015": 8400000,
+    "annual_growth_rate": 2.20,
+    "birth_rate": 30.0,
+    "death_rate": 6.0,
+    "migration_rate": -1.0,
+    "urbanization_rate": 27.0,
+    "male_percent": 49.6,
+    "female_percent": 50.4
+  },
+
+  "MONGOLIA": {
+    "population_2015": 3000000,
+    "annual_growth_rate": 1.60,
+    "birth_rate": 26.0,
+    "death_rate": 6.3,
+    "migration_rate": -1.5,
+    "urbanization_rate": 67.0,
+    "male_percent": 49.4,
+    "female_percent": 50.6
+  },
+
+  "SINGAPORE": {
+    "population_2015": 5600000,
+    "annual_growth_rate": 1.20,
+    "birth_rate": 9.0,
+    "death_rate": 5.0,
+    "migration_rate": 2.0,
+    "urbanization_rate": 100.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "BRUNEI": {
+    "population_2015": 420000,
+    "annual_growth_rate": 1.10,
+    "birth_rate": 16.0,
+    "death_rate": 4.5,
+    "migration_rate": 0.8,
+    "urbanization_rate": 80.0,
+    "male_percent": 51.0,
+    "female_percent": 49.0
+  },
+  "CAMBODIA": {
+    "population_2015": 15500000,
+    "annual_growth_rate": 1.50,
+    "birth_rate": 22.0,
+    "death_rate": 6.7,
+    "migration_rate": -0.5,
+    "urbanization_rate": 22.0,
+    "male_percent": 49.2,
+    "female_percent": 50.8
+  },
+  "LAOS": {
+    "population_2015": 6800000,
+    "annual_growth_rate": 1.60,
+    "birth_rate": 23.0,
+    "death_rate": 6.9,
+    "migration_rate": -0.7,
+    "urbanization_rate": 33.0,
+    "male_percent": 49.3,
+    "female_percent": 50.7
+  },
+  "MYANMAR": {
+    "population_2015": 53000000,
+    "annual_growth_rate": 0.90,
+    "birth_rate": 18.5,
+    "death_rate": 7.2,
+    "migration_rate": -1.0,
+    "urbanization_rate": 34.0,
+    "male_percent": 49.1,
+    "female_percent": 50.9
+  },
+  "TIMOR_LESTE": {
+    "population_2015": 1200000,
+    "annual_growth_rate": 2.30,
+    "birth_rate": 30.5,
+    "death_rate": 7.0,
+    "migration_rate": -2.0,
+    "urbanization_rate": 32.0,
+    "male_percent": 50.0,
+    "female_percent": 50.0
+  },
+
+  "QATAR": {
+    "population_2015": 2400000,
+    "annual_growth_rate": 3.50,
+    "birth_rate": 9.5,
+    "death_rate": 1.2,
+    "migration_rate": 15.0,
+    "urbanization_rate": 99.0,
+    "male_percent": 75.0,
+    "female_percent": 25.0
+  },
+  "KUWAIT": {
+    "population_2015": 3900000,
+    "annual_growth_rate": 2.60,
+    "birth_rate": 12.0,
+    "death_rate": 2.8,
+    "migration_rate": 8.0,
+    "urbanization_rate": 98.0,
+    "male_percent": 60.0,
+    "female_percent": 40.0
+  },
+  "OMAN": {
+    "population_2015": 4400000,
+    "annual_growth_rate": 2.40,
+    "birth_rate": 20.0,
+    "death_rate": 3.5,
+    "migration_rate": 2.5,
+    "urbanization_rate": 78.0,
+    "male_percent": 56.0,
+    "female_percent": 44.0
+  },
+  "YEMEN": {
+    "population_2015": 27000000,
+    "annual_growth_rate": 2.90,
+    "birth_rate": 32.0,
+    "death_rate": 7.8,
+    "migration_rate": -2.0,
+    "urbanization_rate": 36.0,
+    "male_percent": 50.5,
+    "female_percent": 49.5
+  },
+
+  "JORDAN": {
+    "population_2015": 8800000,
+    "annual_growth_rate": 1.30,
+    "birth_rate": 24.0,
+    "death_rate": 4.5,
+    "migration_rate": 2.0,
+    "urbanization_rate": 91.0,
+    "male_percent": 49.8,
+    "female_percent": 50.2
+  },
+  "LEBANON": {
+    "population_2015": 6000000,
+    "annual_growth_rate": 1.00,
+    "birth_rate": 14.0,
+    "death_rate": 5.5,
+    "migration_rate": 1.5,
+    "urbanization_rate": 88.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "SYRIA": {
+    "population_2015": 18000000,
+    "annual_growth_rate": 0.50,
+    "birth_rate": 20.0,
+    "death_rate": 6.0,
+    "migration_rate": -5.0,
+    "urbanization_rate": 55.0,
+    "male_percent": 50.0,
+    "female_percent": 50.0
+  },
+
+  "ARMENIA": {
+    "population_2015": 3000000,
+    "annual_growth_rate": -0.20,
+    "birth_rate": 13.0,
+    "death_rate": 10.0,
+    "migration_rate": -1.5,
+    "urbanization_rate": 63.0,
+    "male_percent": 47.5,
+    "female_percent": 52.5
+  },
+  "AZERBAIJAN": {
+    "population_2015": 9800000,
+    "annual_growth_rate": 1.10,
+    "birth_rate": 18.0,
+    "death_rate": 6.0,
+    "migration_rate": -0.3,
+    "urbanization_rate": 55.0,
+    "male_percent": 49.2,
+    "female_percent": 50.8
+  },
+  "GEORGIA": {
+    "population_2015": 3700000,
+    "annual_growth_rate": -0.30,
+    "birth_rate": 12.5,
+    "death_rate": 11.0,
+    "migration_rate": -1.2,
+    "urbanization_rate": 57.0,
+    "male_percent": 47.8,
+    "female_percent": 52.2
+  },
