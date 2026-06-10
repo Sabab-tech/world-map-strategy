@@ -128,5 +128,36 @@
     "urbanization_rate": 24.8,
     "male_percent": 51.1,
     "female_percent": 48.9
-  }
-  }
+  },
+  "GERMANY": {
+    "population_2015": 81450000,
+    "annual_growth_rate": 0.30,
+    "birth_rate": 9.5,
+    "death_rate": 11.0,
+    "migration_rate": 1.2,
+    "urbanization_rate": 75.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "FRANCE": {
+    "population_2015": 66400000,
+    "annual_growth_rate": 0.40,
+    "birth_rate": 12.0,
+    "death_rate": 9.0,
+    "migration_rate": 0.8,
+    "urbanization_rate": 80.0,
+    "male_percent": 48.6,
+    "female_percent": 51.4
+  },
+  "UNITED_KINGDOM": {
+    "population_2015": 65000000,
+    "annual_growth_rate": 0.60,
+    "birth_rate": 12.2,
+    "death_rate": 9.2,
+    "migration_rate": 0.9,
+    "urbanization_rate": 83.0,
+    "male_percent": 49.2,
+    "female_percent": 50.8
+  },
+  
+  
