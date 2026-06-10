@@ -159,5 +159,407 @@
     "male_percent": 49.2,
     "female_percent": 50.8
   },
-  
+  "RUSSIA": {
+    "population_2015": 144000000,
+    "annual_growth_rate": -0.02,
+    "birth_rate": 11.5,
+    "death_rate": 13.0,
+    "migration_rate": 0.2,
+    "urbanization_rate": 74.0,
+    "male_percent": 46.5,
+    "female_percent": 53.5
+  },
+  "UKRAINE": {
+    "population_2015": 45000000,
+    "annual_growth_rate": -0.60,
+    "birth_rate": 10.0,
+    "death_rate": 14.5,
+    "migration_rate": -1.0,
+    "urbanization_rate": 69.0,
+    "male_percent": 46.0,
+    "female_percent": 54.0
+  },
+  "POLAND": {
+    "population_2015": 38000000,
+    "annual_growth_rate": -0.05,
+    "birth_rate": 9.8,
+    "death_rate": 10.2,
+    "migration_rate": 0.4,
+    "urbanization_rate": 60.0,
+    "male_percent": 48.5,
+    "female_percent": 51.5
+  },
+  "UNITED_STATES": {
+    "population_2015": 321000000,
+    "annual_growth_rate": 0.70,
+    "birth_rate": 12.5,
+    "death_rate": 8.2,
+    "migration_rate": 0.8,
+    "urbanization_rate": 81.0,
+    "male_percent": 49.2,
+    "female_percent": 50.8
+  },
+  "CANADA": {
+    "population_2015": 35800000,
+    "annual_growth_rate": 0.90,
+    "birth_rate": 10.5,
+    "death_rate": 7.5,
+    "migration_rate": 1.2,
+    "urbanization_rate": 82.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "MEXICO": {
+    "population_2015": 121000000,
+    "annual_growth_rate": 1.20,
+    "birth_rate": 17.0,
+    "death_rate": 5.8,
+    "migration_rate": -0.3,
+    "urbanization_rate": 79.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+  "BRAZIL": {
+    "population_2015": 204000000,
+    "annual_growth_rate": 0.80,
+    "birth_rate": 14.5,
+    "death_rate": 6.6,
+    "migration_rate": -0.1,
+    "urbanization_rate": 85.0,
+    "male_percent": 49.3,
+    "female_percent": 50.7
+  },
+  "ARGENTINA": {
+    "population_2015": 43000000,
+    "annual_growth_rate": 0.90,
+    "birth_rate": 16.0,
+    "death_rate": 7.4,
+    "migration_rate": 0.2,
+    "urbanization_rate": 92.0,
+    "male_percent": 48.9,
+    "female_percent": 51.1
+  },
+  "COLOMBIA": {
+    "population_2015": 48200000,
+    "annual_growth_rate": 1.00,
+    "birth_rate": 15.8,
+    "death_rate": 5.8,
+    "migration_rate": -0.3,
+    "urbanization_rate": 77.0,
+    "male_percent": 49.2,
+    "female_percent": 50.8
+  },
+  "PERU": {
+    "population_2015": 31200000,
+    "annual_growth_rate": 1.10,
+    "birth_rate": 18.0,
+    "death_rate": 6.1,
+    "migration_rate": -0.4,
+    "urbanization_rate": 78.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+  "CHILE": {
+    "population_2015": 17900000,
+    "annual_growth_rate": 0.90,
+    "birth_rate": 13.5,
+    "death_rate": 6.2,
+    "migration_rate": 0.3,
+    "urbanization_rate": 89.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "VENEZUELA": {
+    "population_2015": 31000000,
+    "annual_growth_rate": 1.30,
+    "birth_rate": 19.0,
+    "death_rate": 5.6,
+    "migration_rate": -2.0,
+    "urbanization_rate": 88.0,
+    "male_percent": 49.6,
+    "female_percent": 50.4
+  },
+  "ECUADOR": {
+    "population_2015": 16200000,
+    "annual_growth_rate": 1.20,
+    "birth_rate": 18.5,
+    "death_rate": 5.9,
+    "migration_rate": -0.5,
+    "urbanization_rate": 64.0,
+    "male_percent": 49.7,
+    "female_percent": 50.3
+  },
+  "BOLIVIA": {
+    "population_2015": 10600000,
+    "annual_growth_rate": 1.50,
+    "birth_rate": 22.0,
+    "death_rate": 6.8,
+    "migration_rate": -0.6,
+    "urbanization_rate": 70.0,
+    "male_percent": 49.8,
+    "female_percent": 50.2
+  },
+  "PARAGUAY": {
+    "population_2015": 6800000,
+    "annual_growth_rate": 1.40,
+    "birth_rate": 20.5,
+    "death_rate": 6.3,
+    "migration_rate": -0.3,
+    "urbanization_rate": 62.0,
+    "male_percent": 50.1,
+    "female_percent": 49.9
+  },
+  "URUGUAY": {
+    "population_2015": 3400000,
+    "annual_growth_rate": 0.30,
+    "birth_rate": 13.0,
+    "death_rate": 9.5,
+    "migration_rate": 0.2,
+    "urbanization_rate": 95.0,
+    "male_percent": 48.8,
+    "female_percent": 51.2
+  },
+  "GUYANA": {
+    "population_2015": 760000,
+    "annual_growth_rate": 0.50,
+    "birth_rate": 19.0,
+    "death_rate": 7.2,
+    "migration_rate": -0.8,
+    "urbanization_rate": 28.0,
+    "male_percent": 50.0,
+    "female_percent": 50.0
+  },
+  "SURINAME": {
+    "population_2015": 560000,
+    "annual_growth_rate": 0.80,
+    "birth_rate": 18.2,
+    "death_rate": 6.9,
+    "migration_rate": -0.5,
+    "urbanization_rate": 66.0,
+    "male_percent": 49.9,
+    "female_percent": 50.1
+  },
+
+  "CUBA": {
+    "population_2015": 11200000,
+    "annual_growth_rate": -0.10,
+    "birth_rate": 10.0,
+    "death_rate": 8.5,
+    "migration_rate": -0.4,
+    "urbanization_rate": 77.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
+  },
+  "HAITI": {
+    "population_2015": 10400000,
+    "annual_growth_rate": 1.60,
+    "birth_rate": 25.0,
+    "death_rate": 8.0,
+    "migration_rate": -1.2,
+    "urbanization_rate": 55.0,
+    "male_percent": 49.8,
+    "female_percent": 50.2
+  },
+  "DOMINICAN_REPUBLIC": {
+    "population_2015": 10200000,
+    "annual_growth_rate": 1.30,
+    "birth_rate": 21.0,
+    "death_rate": 6.4,
+    "migration_rate": -0.3,
+    "urbanization_rate": 82.0,
+    "male_percent": 49.6,
+    "female_percent": 50.4
+  },
+  "JAMAICA": {
+    "population_2015": 2900000,
+    "annual_growth_rate": 0.40,
+    "birth_rate": 14.5,
+    "death_rate": 7.8,
+    "migration_rate": -0.9,
+    "urbanization_rate": 55.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "TRINIDAD_AND_TOBAGO": {
+    "population_2015": 1350000,
+    "annual_growth_rate": 0.20,
+    "birth_rate": 13.0,
+    "death_rate": 8.5,
+    "migration_rate": -0.5,
+    "urbanization_rate": 53.0,
+    "male_percent": 49.2,
+    "female_percent": 50.8
+  },
+  "PANAMA": {
+    "population_2015": 4000000,
+    "annual_growth_rate": 1.40,
+    "birth_rate": 18.0,
+    "death_rate": 5.5,
+    "migration_rate": 0.6,
+    "urbanization_rate": 68.0,
+    "male_percent": 49.3,
+    "female_percent": 50.7
+  },
+  "COSTA_RICA": {
+    "population_2015": 4800000,
+    "annual_growth_rate": 1.20,
+    "birth_rate": 15.0,
+    "death_rate": 5.2,
+    "migration_rate": 0.4,
+    "urbanization_rate": 81.0,
+    "male_percent": 49.4,
+    "female_percent": 50.6
+  },
+  "NICARAGUA": {
+    "population_2015": 6200000,
+    "annual_growth_rate": 1.30,
+    "birth_rate": 19.5,
+    "death_rate": 5.8,
+    "migration_rate": -1.0,
+    "urbanization_rate": 59.0,
+    "male_percent": 49.7,
+    "female_percent": 50.3
+  },
+  "HONDURAS": {
+    "population_2015": 8500000,
+    "annual_growth_rate": 1.70,
+    "birth_rate": 23.0,
+    "death_rate": 6.0,
+    "migration_rate": -1.5,
+    "urbanization_rate": 56.0,
+    "male_percent": 49.9,
+    "female_percent": 50.1
+  },
+  "EL_SALVADOR": {
+    "population_2015": 6400000,
+    "annual_growth_rate": 0.60,
+    "birth_rate": 17.0,
+    "death_rate": 6.8,
+    "migration_rate": -2.0,
+    "urbanization_rate": 66.0,
+    "male_percent": 48.7,
+    "female_percent": 51.3
+  },
+
+  "GREENLAND": {
+    "population_2015": 56000,
+    "annual_growth_rate": 0.10,
+    "birth_rate": 14.0,
+    "death_rate": 8.0,
+    "migration_rate": 0.2,
+    "urbanization_rate": 87.0,
+    "male_percent": 53.0,
+    "female_percent": 47.0
+  },
+  "IRAN": {
+    "population_2015": 79100000,
+    "annual_growth_rate": 1.20,
+    "birth_rate": 18.0,
+    "death_rate": 5.5,
+    "migration_rate": -0.5,
+    "urbanization_rate": 74.0,
+    "male_percent": 50.6,
+    "female_percent": 49.4
+  },
+  "IRAQ": {
+    "population_2015": 36000000,
+    "annual_growth_rate": 2.40,
+    "birth_rate": 30.0,
+    "death_rate": 6.0,
+    "migration_rate": -1.0,
+    "urbanization_rate": 69.0,
+    "male_percent": 50.2,
+    "female_percent": 49.8
+  },
+  "SAUDI_ARABIA": {
+    "population_2015": 31500000,
+    "annual_growth_rate": 2.00,
+    "birth_rate": 19.5,
+    "death_rate": 3.2,
+    "migration_rate": 3.5,
+    "urbanization_rate": 83.0,
+    "male_percent": 57.0,
+    "female_percent": 43.0
+  },
+  "UAE": {
+    "population_2015": 9400000,
+    "annual_growth_rate": 2.50,
+    "birth_rate": 10.0,
+    "death_rate": 1.5,
+    "migration_rate": 10.0,
+    "urbanization_rate": 85.0,
+    "male_percent": 69.0,
+    "female_percent": 31.0
+  },
+  "ISRAEL": {
+    "population_2015": 8500000,
+    "annual_growth_rate": 1.80,
+    "birth_rate": 20.0,
+    "death_rate": 5.3,
+    "migration_rate": 1.5,
+    "urbanization_rate": 92.0,
+    "male_percent": 49.2,
+    "female_percent": 50.8
+  },
+  "TURKEY": {
+    "population_2015": 78000000,
+    "annual_growth_rate": 1.30,
+    "birth_rate": 16.5,
+    "death_rate": 5.8,
+    "migration_rate": 0.6,
+    "urbanization_rate": 75.0,
+    "male_percent": 50.1,
+    "female_percent": 49.9
+  },
+  "INDONESIA": {
+    "population_2015": 255000000,
+    "annual_growth_rate": 1.30,
+    "birth_rate": 18.2,
+    "death_rate": 6.3,
+    "migration_rate": -0.2,
+    "urbanization_rate": 53.0,
+    "male_percent": 50.2,
+    "female_percent": 49.8
+  },
+  "PHILIPPINES": {
+    "population_2015": 101000000,
+    "annual_growth_rate": 1.70,
+    "birth_rate": 22.0,
+    "death_rate": 6.0,
+    "migration_rate": -1.2,
+    "urbanization_rate": 47.0,
+    "male_percent": 50.0,
+    "female_percent": 50.0
+  },
+  "VIETNAM": {
+    "population_2015": 93000000,
+    "annual_growth_rate": 1.10,
+    "birth_rate": 16.0,
+    "death_rate": 5.5,
+    "migration_rate": -0.3,
+    "urbanization_rate": 34.0,
+    "male_percent": 49.7,
+    "female_percent": 50.3
+  },
+  "THAILAND": {
+    "population_2015": 68000000,
+    "annual_growth_rate": 0.30,
+    "birth_rate": 10.5,
+    "death_rate": 7.8,
+    "migration_rate": 0.2,
+    "urbanization_rate": 49.0,
+    "male_percent": 49.0,
+    "female_percent": 51.0
+  },
+  "MALAYSIA": {
+    "population_2015": 31000000,
+    "annual_growth_rate": 1.50,
+    "birth_rate": 17.0,
+    "death_rate": 5.0,
+    "migration_rate": 1.2,
+    "urbanization_rate": 76.0,
+    "male_percent": 51.0,
+    "female_percent": 49.0
+  }
+}
   
