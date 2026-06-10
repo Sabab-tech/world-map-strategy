@@ -2113,4 +2113,14 @@
     "male_percent": 49.0,
     "female_percent": 51.0
   }
+  "KOSOVO": {
+    "population_2015": 1700000,
+    "annual_growth_rate": 1.20,
+    "birth_rate": 16.0,
+    "death_rate": 7.0,
+    "migration_rate": -0.5,
+    "urbanization_rate": 61.0,
+    "male_percent": 49.5,
+    "female_percent": 50.5
   }
+}
