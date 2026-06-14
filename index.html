@@ -8,7 +8,7 @@
     <!-- গুগল ফন্টস এবং সিএসএস স্টাইল শীট লিঙ্কসমূহ -->
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@500;700;900&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="leaflet.css" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css" /> <!-- <--- সমস্ত সিএসএস কোড এখান থেকে লোড হবে -->
 </head>
 <body>
 
@@ -45,18 +45,48 @@
         </div>
     </div>
 
+    <!-- টপ ডাইনামিক ফিল্টার প্যানেলসমূহ -->
+    <div id="resource-filter-box" class="top-filter-box">
+        🔍 SELECT RESOURCE: 
+        <select id="resource-selector" onchange="window.applyResourceMapFilter(this.value)">
+            <option value="NONE">-- All Resources --</option>
+            <option value="oil">🛢️ Oil / Gas</option>
+            <option value="uranium">☢️ Uranium</option>
+            <option value="gold">💎 Precious Minerals</option>
+            <option value="port">⚓ Port Logistics</option>
+        </select>
+    </div>
+
+    <div id="relation-filter-box" class="top-filter-box">
+        🤝 RELATION MONITOR: 
+        <select id="relation-selector" onchange="window.applyRelationsMapFilter(this.value)">
+            <option value="NONE">-- Select Target Country --</option>
+        </select>
+    </div>
+
     <!-- ম্যাপ কন্টেনার -->
     <div id="map"></div>
 
+    <!-- ৩টি বিশেষ ম্যাপ কন্ট্রোল বাটন -->
+    <div id="special-map-controls">
+        <button class="special-btn" id="btn-resource-overlay" onclick="window.toggleResourceOverlay()">
+            <span>🌐</span> RESOURCE VIEW
+        </button>
+        <button class="special-btn" id="btn-relation-overlay" onclick="window.toggleRelationOverlay()">
+            <span>🤝</span> RELATION VIEW
+        </button>
+        <button class="special-btn" id="btn-main-cabinet" onclick="window.toggleMainCabinet(true)">
+            <span>🏛️</span> CABINET HQ
+        </button>
+    </div>
+
     <!-- সেন্ট্রাল কমান্ড হাব মোডাল উইন্ডো -->
     <div id="command-hub-modal">
-        <!-- মোডাল হেডার -->
         <div class="modal-header">
             <span class="modal-title" id="modal-country-name">COMMAND HQ: GLOBAL STRATEGY</span>
             <button class="close-btn" onclick="toggleCommandHub(false)">✕</button>
         </div>
 
-        <!-- ১০টি ট্যাবের নেভিগেশন গ্রিড -->
         <div class="tabs-navigation">
             <button class="tab-btn active" onclick="switchModalTab(event, 'tab-economy')">📊 Economy</button>
             <button class="tab-btn" onclick="switchModalTab(event, 'tab-diplomacy')">🤝 Diplomacy</button>
@@ -70,9 +100,7 @@
             <button class="tab-btn" onclick="switchModalTab(event, 'tab-projects')">🚀 Projects</button>
         </div>
 
-        <!-- মোডাল কন্টেন্ট এরিয়া -->
         <div class="tab-content-area" id="modal-panes-container">
-            
             <!-- ১. ইকোনমি প্যানেল -->
             <div id="tab-economy" class="tab-pane active">
                 <h3>📈 National Economy & Treasury</h3>
@@ -105,10 +133,10 @@
                 </div>
             </div>
 
-            <!-- ৩.军事 মিলিটারি প্যানেল -->
+            <!-- ৩. মিলিটারি প্যানেল -->
             <div id="tab-military" class="tab-pane">
                 <h3>🪖 Defense & Forces Command</h3>
-                <p>সশস্ত্র বাহিনী এবং আঞ্চলিক প্রতিরক্ষা সক্ষমতা:</p>
+                <p>সফটেন্যান্ট সশস্ত্র বাহিনী এবং আঞ্চলিক প্রতিরক্ষা সক্ষমতা:</p>
                 <div class="info-grid">
                     <div class="info-card">
                         <h4>Command Bases</h4>
@@ -139,7 +167,7 @@
                 <p>জনসংখ্যার সন্তুষ্টি হার এবং দেশের অভ্যন্তরীণ সামাজিক স্থিতিশীলতা।</p>
             </div>
 
-            <!-- ৭. এনার্জি প্যানেল -->
+            <!-- ७. এনার্জি প্যানেল -->
             <div id="tab-energy" class="tab-pane">
                 <h3>⚡ Power & Grid Security</h3>
                 <p>বিদ্যুৎ গ্রিড এবং কৌশলগত জ্বালানি শক্তির মজুত।</p>
@@ -162,14 +190,72 @@
                 <h3>🚀 Strategic Space & Nuclear Projects</h3>
                 <p>মেগা প্রজেক্ট এবং বিশেষ পারমাণবিক কর্মসূচির উন্নয়ন পর্যায়।</p>
             </div>
+        </div>
+    </div>
 
+    <!-- ৪ নং বাটন: সম্পূর্ণ মন্ত্রিপরিষদ প্যানেল (Full Cabinet Overlay) -->
+    <div id="cabinet-full-window">
+        <div class="cabinet-header">
+            <span style="font-size: 20px; color: #00e5ff; text-shadow: 0 0 10px #00e5ff;">🏛️ CENTRAL COMMAND CABINET</span>
+            <button class="close-btn" onclick="window.toggleMainCabinet(false)">✕ Return to Map</button>
+        </div>
+
+        <div class="cabinet-grid">
+            <!-- স্বরাষ্ট্র মন্ত্রনালয় গ্রুপ -->
+            <div class="ministry-card">
+                <div class="ai-minister-panel">
+                    <div class="ai-minister-avatar">🤵</div>
+                    <div class="ai-minister-speech">
+                        <strong>এআই স্বরাষ্ট্রমন্ত্রী:</strong> দেশের অভ্যন্তরীণ আইনশৃঙ্খলা নিয়ন্ত্রণ করার জন্য ন্যাশনাল গার্ডের সাহায্য নিন।
+                    </div>
+                </div>
+                <div class="ministry-title">🏛️ Home Affairs / স্বরাষ্ট্র</div>
+                <div class="ministry-buttons-grid">
+                    <button class="cabinet-btn"><span class="emoji">🛡️</span>National Guard</button>
+                    <button class="cabinet-btn"><span class="emoji">🚨</span>Border Security</button>
+                    <button class="cabinet-btn"><span class="emoji">🏛️</span>Cabinet Policy</button>
+                    <button class="cabinet-btn"><span class="emoji">⚖️</span>Social Order</button>
+                </div>
+            </div>
+
+            <!-- প্রতিরক্ষা মন্ত্রনালয় গ্রুপ -->
+            <div class="ministry-card">
+                <div class="ai-minister-panel">
+                    <div class="ai-minister-avatar">🪖</div>
+                    <div class="ai-minister-speech">
+                        <strong>এআই প্রতিরক্ষামন্ত্রী:</strong> আমাদের মূল সেনাবাহিনী সর্বাবস্থায় যেকোনো সীমান্ত হুমকি মোকাবিলার জন্য প্রস্তুত।
+                    </div>
+                </div>
+                <div class="ministry-title">🪖 Defense Force / প্রতিরক্ষা</div>
+                <div class="ministry-buttons-grid">
+                    <button class="cabinet-btn"><span class="emoji">🎖️</span>Active Army</button>
+                    <button class="cabinet-btn"><span class="emoji">✈️</span>Air Squadron</button>
+                    <button class="cabinet-btn"><span class="emoji">⚓</span>Navy Command</button>
+                    <button class="cabinet-btn"><span class="emoji">☢️</span>Nuclear Control</button>
+                </div>
+            </div>
+
+            <!-- অর্থ মন্ত্রনালয় গ্রুপ -->
+            <div class="ministry-card">
+                <div class="ai-minister-panel">
+                    <div class="ai-minister-avatar">👓</div>
+                    <div class="ai-minister-speech">
+                        <strong>এআই অর্থমন্ত্রী:</strong> বৈশ্বিক লেনদেন ভারসাম্য অনুযায়ী জাতীয় রাজস্বের হার বাড়ানো বা কমানো যেতে পারে।
+                    </div>
+                </div>
+                <div class="ministry-title">📈 Finance Ministry / অর্থ</div>
+                <div class="ministry-buttons-grid">
+                    <button class="cabinet-btn"><span class="emoji">💵</span>Tax Regulation</button>
+                    <button class="cabinet-btn"><span class="emoji">🏛️</span>Central Reserve</button>
+                    <button class="cabinet-btn"><span class="emoji">🚛</span>Trade Policy</button>
+                    <button class="cabinet-btn"><span class="emoji">📈</span>Investments</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- ওভাইল স্টাইলের নিচের নেভিগেশন ও কন্ট্রোল ডেক -->
     <div id="control-deck">
-        
-        <!-- ৩টি ভাসমান অ্যাকশন বাটন -->
         <div class="floating-action-group">
             <div class="float-btn" id="btn-store">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
@@ -194,7 +280,6 @@
             </div>
         </div>
 
-        <!-- মূল সার্কুলার নেভিগেশন ডক -->
         <div class="nav-dock">
             <div class="nav-btn active" id="btn-home">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
@@ -242,14 +327,13 @@
                 </svg>
             </div>
         </div>
-
     </div>
 
-    <!-- লিফলেট এবং প্রজেক্টের স্ক্রিপ্ট সোর্সসমূহ -->
+    <!-- গেমপ্লে লজিক স্ক্রিপ্টসমূহ -->
     <script src="leaflet.js"></script>
     <script src="map-engine-1.js"></script>
     <script src="map-engine-2.js"></script>
-    <script src="game-logic.js"></script> <!-- <--- আমাদের নতুন গেমপ্লে মেকানিক্স লজিক ফাইল -->
+    <script src="game-logic.js"></script>
 
 </body>
-    </html>
+        </html>
