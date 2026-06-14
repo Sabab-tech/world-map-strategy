@@ -200,8 +200,6 @@
       "trade_agreement": true, "defense_pact": false, "alliance": false,
       "sanctions": false, "embassy_level": 100, "war_state": false
     },
-    {
-  "BANGLADESH": {
 
     "INDIA": {
       "economic": 95, "political": 55, "military": 45, "intelligence": 50,
