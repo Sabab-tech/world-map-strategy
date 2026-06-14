@@ -200,3 +200,123 @@
       "trade_agreement": true, "defense_pact": false, "alliance": false,
       "sanctions": false, "embassy_level": 100, "war_state": false
     },
+    {
+  "BANGLADESH": {
+
+    "INDIA": {
+      "economic": 95, "political": 55, "military": 45, "intelligence": 50,
+      "trust": 50, "influence": 70, "dependency": 85,
+      "cultural_similarity": 85, "religion_similarity": 40, "ideology_similarity": 60,
+      "historical_relation": 65,
+      "border_tension": 60, "military_threat": 25,
+      "trade_agreement": true, "defense_pact": false, "alliance": false
+    },
+
+    "PAKISTAN": {
+      "economic": 35, "political": 30, "military": 25, "intelligence": 20,
+      "trust": 35, "influence": 30, "dependency": 20,
+      "cultural_similarity": 60, "religion_similarity": 90, "ideology_similarity": 55,
+      "historical_relation": 20,
+      "border_tension": 25, "military_threat": 10,
+      "trade_agreement": false, "defense_pact": false, "alliance": false
+    },
+
+    "CHINA": {
+      "economic": 92, "political": 70, "military": 60, "intelligence": 55,
+      "trust": 65, "influence": 75, "dependency": 80,
+      "cultural_similarity": 35, "religion_similarity": 20, "ideology_similarity": 40,
+      "historical_relation": 50,
+      "border_tension": 15, "military_threat": 20,
+      "trade_agreement": true, "defense_pact": false, "alliance": false
+    },
+
+    "USA": {
+      "economic": 85, "political": 75, "military": 60, "intelligence": 70,
+      "trust": 65, "influence": 80, "dependency": 55,
+      "cultural_similarity": 80, "religion_similarity": 50, "ideology_similarity": 85,
+      "historical_relation": 70,
+      "border_tension": 0, "military_threat": 10,
+      "trade_agreement": true, "defense_pact": false, "alliance": false
+    },
+
+    "RUSSIA": {
+      "economic": 70, "political": 70, "military": 75, "intelligence": 60,
+      "trust": 60, "influence": 55, "dependency": 45,
+      "cultural_similarity": 45, "religion_similarity": 70, "ideology_similarity": 50,
+      "historical_relation": 60,
+      "border_tension": 5, "military_threat": 15,
+      "trade_agreement": true, "defense_pact": false, "alliance": false
+    },
+
+    "JAPAN": {
+      "economic": 90, "political": 80, "military": 50, "intelligence": 55,
+      "trust": 85, "influence": 80, "dependency": 60,
+      "cultural_similarity": 75, "religion_similarity": 40, "ideology_similarity": 80,
+      "historical_relation": 70,
+      "border_tension": 0, "military_threat": 5,
+      "trade_agreement": true, "defense_pact": false, "alliance": false
+    },
+
+    "UK": { "economic": 82, "political": 75, "military": 60, "intelligence": 65, "trust": 80, "influence": 75, "dependency": 50, "cultural_similarity": 85, "religion_similarity": 50, "ideology_similarity": 85, "historical_relation": 75, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "FRANCE": { "economic": 80, "political": 70, "military": 60, "intelligence": 60, "trust": 75, "influence": 70, "dependency": 45, "cultural_similarity": 75, "religion_similarity": 50, "ideology_similarity": 80, "historical_relation": 70, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "GERMANY": { "economic": 83, "political": 75, "military": 55, "intelligence": 60, "trust": 80, "influence": 75, "dependency": 50, "cultural_similarity": 75, "religion_similarity": 50, "ideology_similarity": 80, "historical_relation": 70, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "ITALY": { "economic": 78, "political": 70, "military": 55, "intelligence": 55, "trust": 75, "influence": 70, "dependency": 45, "cultural_similarity": 70, "religion_similarity": 70, "ideology_similarity": 75, "historical_relation": 65, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "SPAIN": { "economic": 77, "political": 70, "military": 50, "intelligence": 55, "trust": 75, "influence": 70, "dependency": 45, "cultural_similarity": 70, "religion_similarity": 70, "ideology_similarity": 75, "historical_relation": 65, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "TURKEY": { "economic": 78, "political": 75, "military": 70, "intelligence": 60, "trust": 75, "influence": 70, "dependency": 60, "cultural_similarity": 80, "religion_similarity": 90, "ideology_similarity": 70, "historical_relation": 65, "border_tension": 5, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "IRAN": { "economic": 70, "political": 60, "military": 55, "intelligence": 50, "trust": 65, "influence": 60, "dependency": 45, "cultural_similarity": 60, "religion_similarity": 70, "ideology_similarity": 50, "historical_relation": 60, "border_tension": 10, "military_threat": 15, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "SAUDI_ARABIA": { "economic": 85, "political": 75, "military": 50, "intelligence": 55, "trust": 85, "influence": 80, "dependency": 90, "cultural_similarity": 60, "religion_similarity": 95, "ideology_similarity": 60, "historical_relation": 65, "border_tension": 0, "military_threat": 5, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "UAE": { "economic": 88, "political": 80, "military": 55, "intelligence": 55, "trust": 85, "influence": 80, "dependency": 90, "cultural_similarity": 70, "religion_similarity": 95, "ideology_similarity": 65, "historical_relation": 70, "border_tension": 0, "military_threat": 5, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "QATAR": { "economic": 87, "political": 80, "military": 50, "intelligence": 55, "trust": 85, "influence": 80, "dependency": 85, "cultural_similarity": 70, "religion_similarity": 95, "ideology_similarity": 65, "historical_relation": 70, "border_tension": 0, "military_threat": 5, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "KUWAIT": { "economic": 80, "political": 75, "military": 45, "intelligence": 50, "trust": 80, "influence": 75, "dependency": 85, "cultural_similarity": 70, "religion_similarity": 95, "ideology_similarity": 65, "historical_relation": 65, "border_tension": 0, "military_threat": 5, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "OMAN": { "economic": 78, "political": 75, "military": 45, "intelligence": 50, "trust": 80, "influence": 70, "dependency": 80, "cultural_similarity": 70, "religion_similarity": 95, "ideology_similarity": 65, "historical_relation": 65, "border_tension": 0, "military_threat": 5, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "ISRAEL": { "economic": 60, "political": 40, "military": 70, "intelligence": 60, "trust": 20, "influence": 50, "dependency": 30, "cultural_similarity": 30, "religion_similarity": 10, "ideology_similarity": 40, "historical_relation": 20, "border_tension": 70, "military_threat": 60, "trade_agreement": false, "defense_pact": false, "alliance": false },
+
+    "EGYPT": { "economic": 75, "political": 70, "military": 60, "intelligence": 55, "trust": 75, "influence": 70, "dependency": 55, "cultural_similarity": 80, "religion_similarity": 95, "ideology_similarity": 70, "historical_relation": 70, "border_tension": 5, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "NIGERIA": { "economic": 75, "political": 70, "military": 55, "intelligence": 50, "trust": 75, "influence": 70, "dependency": 50, "cultural_similarity": 65, "religion_similarity": 70, "ideology_similarity": 65, "historical_relation": 65, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "SOUTH_AFRICA": { "economic": 78, "political": 75, "military": 55, "intelligence": 55, "trust": 80, "influence": 75, "dependency": 55, "cultural_similarity": 70, "religion_similarity": 70, "ideology_similarity": 75, "historical_relation": 70, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "ETHIOPIA": { "economic": 70, "political": 65, "military": 50, "intelligence": 45, "trust": 70, "influence": 65, "dependency": 45, "cultural_similarity": 60, "religion_similarity": 70, "ideology_similarity": 65, "historical_relation": 60, "border_tension": 5, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "KENYA": { "economic": 75, "political": 70, "military": 50, "intelligence": 50, "trust": 75, "influence": 70, "dependency": 50, "cultural_similarity": 65, "religion_similarity": 70, "ideology_similarity": 70, "historical_relation": 65, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "MOROCCO": { "economic": 75, "political": 70, "military": 55, "intelligence": 50, "trust": 75, "influence": 70, "dependency": 50, "cultural_similarity": 70, "religion_similarity": 95, "ideology_similarity": 70, "historical_relation": 70, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "ALGERIA": { "economic": 72, "political": 65, "military": 55, "intelligence": 50, "trust": 70, "influence": 65, "dependency": 45, "cultural_similarity": 70, "religion_similarity": 95, "ideology_similarity": 70, "historical_relation": 65, "border_tension": 5, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "CANADA": { "economic": 82, "political": 75, "military": 60, "intelligence": 65, "trust": 80, "influence": 75, "dependency": 50, "cultural_similarity": 80, "religion_similarity": 60, "ideology_similarity": 85, "historical_relation": 75, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "USA": { "economic": 85, "political": 75, "military": 60, "intelligence": 70, "trust": 65, "influence": 80, "dependency": 55, "cultural_similarity": 80, "religion_similarity": 50, "ideology_similarity": 85, "historical_relation": 70, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "BRAZIL": { "economic": 78, "political": 70, "military": 55, "intelligence": 50, "trust": 75, "influence": 70, "dependency": 50, "cultural_similarity": 70, "religion_similarity": 80, "ideology_similarity": 75, "historical_relation": 70, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "ARGENTINA": { "economic": 75, "political": 70, "military": 55, "intelligence": 50, "trust": 75, "influence": 70, "dependency": 50, "cultural_similarity": 70, "religion_similarity": 80, "ideology_similarity": 75, "historical_relation": 70, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "MEXICO": { "economic": 78, "political": 70, "military": 55, "intelligence": 55, "trust": 75, "influence": 70, "dependency": 50, "cultural_similarity": 75, "religion_similarity": 80, "ideology_similarity": 75, "historical_relation": 70, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "INDONESIA": { "economic": 86, "political": 80, "military": 50, "intelligence": 55, "trust": 85, "influence": 80, "dependency": 55, "cultural_similarity": 85, "religion_similarity": 95, "ideology_similarity": 75, "historical_relation": 75, "border_tension": 0, "military_threat": 5, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "MALAYSIA": { "economic": 88, "political": 80, "military": 50, "intelligence": 55, "trust": 85, "influence": 80, "dependency": 60, "cultural_similarity": 85, "religion_similarity": 95, "ideology_similarity": 75, "historical_relation": 75, "border_tension": 0, "military_threat": 5, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "SINGAPORE": { "economic": 90, "political": 85, "military": 55, "intelligence": 60, "trust": 90, "influence": 85, "dependency": 70, "cultural_similarity": 80, "religion_similarity": 70, "ideology_similarity": 85, "historical_relation": 80, "border_tension": 0, "military_threat": 5, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "THAILAND": { "economic": 80, "political": 75, "military": 50, "intelligence": 55, "trust": 80, "influence": 75, "dependency": 55, "cultural_similarity": 75, "religion_similarity": 80, "ideology_similarity": 75, "historical_relation": 70, "border_tension": 0, "military_threat": 5, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "VIETNAM": { "economic": 82, "political": 75, "military": 60, "intelligence": 55, "trust": 80, "influence": 75, "dependency": 50, "cultural_similarity": 70, "religion_similarity": 60, "ideology_similarity": 80, "historical_relation": 70, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false },
+
+    "PHILIPPINES": { "economic": 80, "political": 75, "military": 55, "intelligence": 55, "trust": 80, "influence": 75, "dependency": 50, "cultural_similarity": 70, "religion_similarity": 80, "ideology_similarity": 75, "historical_relation": 70, "border_tension": 0, "military_threat": 10, "trade_agreement": true, "defense_pact": false, "alliance": false }
+
+  },
