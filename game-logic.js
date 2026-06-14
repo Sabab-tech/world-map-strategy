@@ -1,60 +1,81 @@
 /* ============================================================================
-   GLOBAL GEOPOLITICAL SIMULATOR - GAMEPLAY & UI MECHANICS ENGINE (game-logic.js)
+   GLOBAL GEOPOLITICAL SIMULATOR - gameplay-logic master file (game-logic.js)
    ============================================================================ */
 
-// গ্লোবাল রিসোর্স এবং আয়ের হার ইন্টিগ্রেশন (ইঞ্জিন ২ ব্যাকআপ সহ)
-if (!window.resources) {
-    window.resources = { cash: 1000000, oil: 50000, steel: 10000, uranium: 100, manpower: 150000 };
-}
-if (!window.resourceRates) {
-    window.resourceRates = { cash: 100, oil: 10, steel: 5, uranium: 0, manpower: 50 };
+window.resources = { cash: 100000000, oil: 500000, steel: 100000, uranium: 500, manpower: 500000 };
+window.resourceRates = { cash: 5000, oil: 200, steel: 100, uranium: 2, manpower: 150 };
+
+// গেম ডেটা কন্টেনার
+window.gameState = {
+    population: {},
+    economy: {}
+};
+
+// সংখ্যাকে সংক্ষেপ করার অত্যন্ত শক্তিশালী ও দৃষ্টিনন্দন ফরম্যাটার
+function formatGameNumber(num) {
+    if (num === null || num === undefined) return "N/A";
+    const absVal = Math.abs(num);
+    let suffix = "";
+    let divisor = 1;
+
+    if (absVal >= 1000000000000) {
+        suffix = " Trillion";
+        divisor = 1000000000000;
+    } else if (absVal >= 1000000000) {
+        suffix = " Billion";
+        divisor = 1000000000;
+    } else if (absVal >= 1000000) {
+        suffix = " Million";
+        divisor = 1000000;
+    } else if (absVal >= 1000) {
+        suffix = "K";
+        divisor = 1000;
+    }
+
+    const formatted = (num / divisor).toFixed(1);
+    return (num < 0 ? "-" : "") + "$" + formatted + suffix;
 }
 
-// সংখ্যাকে সংক্ষেপ করার হেল্পার ফাংশন (যেমন: ১০০০০০০ -> 1.0M)
-function formatGameNumber(num) {
-    if (num >= 1000000000) {
-        return (num / 1000000000).toFixed(1) + 'B';
-    }
-    if (num >= 1000000) {
-        return (num / 1000000).toFixed(1) + 'M';
-    }
-    if (num >= 1000) {
-        return (num / 1000).toFixed(1) + 'K';
-    }
+// জনসংখ্যা গণনা ফরম্যাটার (কারেন্সি সিম্বল ছাড়া)
+function formatPopulationNumber(num) {
+    if (num >= 1000000000) return (num / 1000000000).toFixed(2) + " Billion";
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + " Million";
+    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
     return Math.floor(num).toString();
 }
 
-// টপ রিসোর্স বারের ভিজ্যুয়াল আপডেট ফাংশন
-function updateResourceBarUI() {
-    const cashVal = document.getElementById('res-cash');
-    const oilVal = document.getElementById('res-oil');
-    const steelVal = document.getElementById('res-steel');
-    const uraniumVal = document.getElementById('res-uranium');
-    const manpowerVal = document.getElementById('res-manpower');
+// ১. পবুলেশন ও ইকোনমি জেসন ডেটা লোডার এবং রিলেশন ড্রপডাউন সিঙ্ক
+window.initializeWorldGameDatabase = function() {
+    fetch('population.json?v=' + new Date().getTime())
+        .then(res => res.json())
+        .then(popData => {
+            window.gameState.population = popData;
+            console.log("Population Engine Database Sync Ready.");
+            return fetch('economy.json?v=' + new Date().getTime());
+        })
+        .then(res => res.json())
+        .then(econData => {
+            window.gameState.economy = econData;
+            console.log("Economy Engine Database Sync Ready.");
 
-    if (cashVal) {
-        cashVal.innerText = formatGameNumber(window.resources.cash);
-        cashVal.nextElementSibling.innerText = `+${formatGameNumber(window.resourceRates.cash)}/s`;
-    }
-    if (oilVal) {
-        oilVal.innerText = formatGameNumber(window.resources.oil);
-        oilVal.nextElementSibling.innerText = `+${formatGameNumber(window.resourceRates.oil)}/s`;
-    }
-    if (steelVal) {
-        steelVal.innerText = formatGameNumber(window.resources.steel);
-        steelVal.nextElementSibling.innerText = `+${formatGameNumber(window.resourceRates.steel)}/s`;
-    }
-    if (uraniumVal) {
-        uraniumVal.innerText = formatGameNumber(window.resources.uranium);
-        uraniumVal.nextElementSibling.innerText = `+${formatGameNumber(window.resourceRates.uranium)}/s`;
-    }
-    if (manpowerVal) {
-        manpowerVal.innerText = formatGameNumber(window.resources.manpower);
-        manpowerVal.nextElementSibling.innerText = `+${formatGameNumber(window.resourceRates.manpower)}/s`;
-    }
-}
+            // রিলেশন সিলেকশন বক্স ডাটা দিয়ে পূর্ণ করা
+            const relSelector = document.getElementById('relation-selector');
+            if (relSelector) {
+                relSelector.innerHTML = '<option value="NONE">-- Select Focus Country --</option>';
+                Object.keys(window.gameState.economy).sort().forEach(countryKey => {
+                    const opt = document.createElement('option');
+                    opt.value = countryKey;
+                    opt.innerText = countryKey.replace(/_/g, " ");
+                    relSelector.appendChild(opt);
+                });
+            }
+        })
+        .catch(err => {
+            console.error("ডেটা ফাইল লোড করতে সমস্যা হয়েছে:", err);
+        });
+};
 
-// রিয়েল-টাইম আয়ের লুপ (প্রতি সেকেন্ডে একবার চলবে)
+// ২. রিয়েল-টাইম আয়ের লুপ (প্রতি সেকেন্ডে একবার চলবে)
 setInterval(function() {
     window.resources.cash += window.resourceRates.cash;
     window.resources.oil += window.resourceRates.oil;
@@ -62,10 +83,35 @@ setInterval(function() {
     window.resources.uranium += window.resourceRates.uranium;
     window.resources.manpower += window.resourceRates.manpower;
 
-    updateResourceBarUI();
+    const cashEl = document.getElementById('res-cash');
+    const oilEl = document.getElementById('res-oil');
+    const steelEl = document.getElementById('res-steel');
+    const uraniumEl = document.getElementById('res-uranium');
+    const manpowerEl = document.getElementById('res-manpower');
+
+    if (cashEl) {
+        cashEl.innerText = formatGameNumber(window.resources.cash).replace("$", "💵");
+        cashEl.nextElementSibling.innerText = `+${formatGameNumber(window.resourceRates.cash)}/s`;
+    }
+    if (oilEl) {
+        oilEl.innerText = formatPopulationNumber(window.resources.oil) + " BBL";
+        oilEl.nextElementSibling.innerText = `+${window.resourceRates.oil}/s`;
+    }
+    if (steelEl) {
+        steelEl.innerText = formatPopulationNumber(window.resources.steel) + " T";
+        steelEl.nextElementSibling.innerText = `+${window.resourceRates.steel}/s`;
+    }
+    if (uraniumEl) {
+        uraniumEl.innerText = window.resources.uranium.toString() + " KG";
+        uraniumEl.nextElementSibling.innerText = `+${window.resourceRates.uranium}/s`;
+    }
+    if (manpowerEl) {
+        manpowerEl.innerText = formatPopulationNumber(window.resources.manpower);
+        manpowerEl.nextElementSibling.innerText = `+${window.resourceRates.manpower}/s`;
+    }
 }, 1000);
 
-// কমান্ড হাব মোডাল অন/অফ করার মাস্টার ফাংশন
+// ৩. কমান্ড হাব মোডাল ৩-লেয়ার কন্ট্রোল
 window.toggleCommandHub = function(show) {
     const modal = document.getElementById('command-hub-modal');
     if (!modal) return;
@@ -73,37 +119,44 @@ window.toggleCommandHub = function(show) {
     if (show) {
         modal.style.display = 'flex';
         const countryTitle = document.getElementById('modal-country-name');
-        
-        if (window.currentActiveCountry) {
-            // যদি ম্যাপে কোনো দেশ সিলেক্ট করা থাকে
-            if (countryTitle) countryTitle.innerText = `COMMAND HQ: ${window.currentActiveCountry.toUpperCase()}`;
+        const selectedId = (window.currentActiveCountry || "").toUpperCase();
+
+        if (selectedId && window.gameState.economy[selectedId]) {
+            const econ = window.gameState.economy[selectedId];
+            const pop = window.gameState.population[selectedId] || {};
+
+            if (countryTitle) {
+                countryTitle.innerText = `COMMAND HQ: ${selectedId.replace(/_/g, " ")} [${econ.status || 'Stable'}]`;
+            }
+
+            // ১ম লেয়ার ডাইনামিক ডেটা লোডিং
+            document.getElementById('econ-gdp').innerText = `GDP: ${formatGameNumber(econ.gdp)} (Annual Growth: ${econ.gdp_growth || 0}%)`;
+            document.getElementById('econ-debt').innerText = `National Debt: ${formatGameNumber(econ.debt)} (Unemployment: ${econ.unemployment_rate || 0}%)`;
             
-            const data = window.locationsRegistry[window.currentActiveCountry];
-            if (data) {
-                // ডাইনামিক ইকোনমি ডেটা আপডেট
-                document.getElementById('econ-gdp').innerText = data.capital ? "GDP: $1.25 Trillion" : "N/A";
-                document.getElementById('econ-debt').innerText = "Debt Ratio: 55% of GDP";
-                
-                // ডাইনামিক মিলিটারি ডেটা আপডেট
-                document.getElementById('mil-army').innerText = data.military ? `${data.military.length} Strategic Commands` : "0 Commands";
+            // পপুলেশন ডাইনামিক ডেটা
+            const popPane = document.getElementById('tab-population');
+            if (popPane && pop.population_2015) {
+                popPane.innerHTML = `
+                    <h3>👥 Demographic Data of ${selectedId.replace(/_/g, " ")}</h3>
+                    <div class="info-grid">
+                        <div class="info-card"><h4>Baseline Population</h4><span>${formatPopulationNumber(pop.population_2015)}</span></div>
+                        <div class="info-card"><h4>Annual Population Growth</h4><span>${pop.annual_growth_rate || 0}%</span></div>
+                        <div class="info-card"><h4>Birth Rate / Death Rate</h4><span>Births: ${pop.birth_rate}/1k | Deaths: ${pop.death_rate}/1k</span></div>
+                        <div class="info-card"><h4>Gender Ratio</h4><span>Male: ${pop.male_percent}% | Female: ${pop.female_percent}%</span></div>
+                    </div>
+                `;
             }
         } else {
-            // ডিফল্ট গ্লোবাল ভিউ
             if (countryTitle) countryTitle.innerText = "COMMAND HQ: GLOBAL MONITOR";
-            document.getElementById('econ-gdp').innerText = "Global GDP: $105 Trillion";
-            document.getElementById('econ-debt').innerText = "Avg Debt: 60%";
-            document.getElementById('mil-army').innerText = "Global Bases Active";
         }
     } else {
         modal.style.display = 'none';
     }
 };
 
-// মোডাল ট্যাবের মধ্যে স্যুইচ করার ফাংশন
 window.switchModalTab = function(event, tabId) {
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(btn => btn.classList.remove('active'));
-    
     const tabPanes = document.querySelectorAll('.tab-pane');
     tabPanes.forEach(pane => pane.classList.remove('active'));
     
@@ -112,96 +165,130 @@ window.switchModalTab = function(event, tabId) {
     if (activePane) activePane.classList.add('active');
 };
 
-// নেভিগেশন বাটনের সক্রিয় স্টেট (Active Style Class) পরিবর্তন করার ফাংশন
-function setActiveNavButton(buttonId) {
-    const navButtons = document.querySelectorAll('.nav-btn');
-    navButtons.forEach(btn => btn.classList.remove('active'));
+// ৪. ওশেনিয়া বা রিয়েল-টাইম রিসোর্স জেনারেটর ম্যাপ ফিল্টারিং লজিক
+window.toggleResourceOverlay = function() {
+    const filterBox = document.getElementById('resource-filter-box');
+    const relationBox = document.getElementById('relation-filter-box');
+    const btn = document.getElementById('btn-resource-overlay');
 
-    const activeBtn = document.getElementById(buttonId);
-    if (activeBtn) activeBtn.classList.add('active');
-}
+    if (filterBox.style.display === 'flex') {
+        filterBox.style.display = 'none';
+        btn.classList.remove('active');
+        if (window.geojsonLayer) window.geojsonLayer.resetStyle();
+    } else {
+        filterBox.style.display = 'flex';
+        relationBox.style.display = 'none';
+        btn.classList.add('active');
+        document.getElementById('btn-relation-overlay').classList.remove('active');
+    }
+};
 
-// নিচের প্যানেল ও ডক বাটনগুলোর ইভেন্ট লিসেনার সেটআপ
-document.addEventListener("DOMContentLoaded", function() {
-    
-    // ১. হোম বাটন (স্টার)
-    const btnHome = document.getElementById('btn-home');
-    if (btnHome) {
-        btnHome.addEventListener('click', function() {
-            setActiveNavButton('btn-home');
-            window.toggleCommandHub(false);
-            if (window.map) {
-                window.map.setView([22, 80], 2.2); // ডিফল্ট ওয়ার্ল্ড ম্যাপ জুম ভিউ
+window.applyResourceMapFilter = function(resourceType) {
+    if (!window.geojsonLayer) return;
+    if (resourceType === "NONE") {
+        window.geojsonLayer.resetStyle();
+        return;
+    }
+
+    window.geojsonLayer.eachLayer(layer => {
+        const props = layer.feature.properties || {};
+        const geoName = props.ADMIN || props.name || props.NAME || props.Country;
+        const normName = window.normalizeName(geoName);
+        const countryData = window.locationsRegistry[normName];
+
+        let hasResource = false;
+        if (countryData) {
+            const checkText = JSON.stringify(countryData).toLowerCase();
+            if (checkText.includes(resourceType.toLowerCase())) {
+                hasResource = true;
             }
-        });
+        }
+
+        if (hasResource) {
+            layer.setStyle({ fillColor: '#ca8a04', fillOpacity: 0.85, color: '#ffffff', weight: 1.5 });
+        } else {
+            layer.setStyle({ fillColor: '#0f172a', fillOpacity: 0.15, color: 'rgba(255,255,255,0.05)', weight: 0.5 });
+        }
+    });
+};
+
+// ৫. কূটনৈতিক সম্পর্ক ম্যাপ রেন্ডারিং
+window.toggleRelationOverlay = function() {
+    const filterBox = document.getElementById('relation-filter-box');
+    const resourceBox = document.getElementById('resource-filter-box');
+    const btn = document.getElementById('btn-relation-overlay');
+
+    if (filterBox.style.display === 'flex') {
+        filterBox.style.display = 'none';
+        btn.classList.remove('active');
+        if (window.geojsonLayer) window.geojsonLayer.resetStyle();
+    } else {
+        filterBox.style.display = 'flex';
+        resourceBox.style.display = 'none';
+        btn.classList.add('active');
+        document.getElementById('btn-resource-overlay').classList.remove('active');
+    }
+};
+
+window.applyRelationsMapFilter = function(focusCountry) {
+    if (!window.geojsonLayer) return;
+    if (focusCountry === "NONE") {
+        window.geojsonLayer.resetStyle();
+        return;
     }
 
-    // ২. পার্লামেন্ট / ইন্টারনাল বাটন
-    const btnPolitics = document.getElementById('btn-politics');
-    if (btnPolitics) {
-        btnPolitics.addEventListener('click', function() {
-            setActiveNavButton('btn-politics');
-            window.toggleCommandHub(true);
-            // সরাসরি ইন্টারনাল ট্যাবটি ওপেন হবে
-            const tabEvent = { currentTarget: document.querySelector(".tab-btn:nth-child(8)") };
-            window.switchModalTab(tabEvent, 'tab-internal');
-        });
-    }
+    window.geojsonLayer.eachLayer(layer => {
+        const props = layer.feature.properties || {};
+        let geoName = props.ADMIN || props.name || props.NAME || props.Country;
+        
+        if (geoName === "West Bank" || geoName === "Gaza" || geoName === "Gaza Strip" || geoName === "Palestine") {
+            geoName = "Palestine";
+        }
+        
+        const normName = window.normalizeName(geoName).toUpperCase();
 
-    // ৩. বিল্ড / কনস্ট্রাকশন বাটন
-    const btnBuild = document.getElementById('btn-build');
-    if (btnBuild) {
-        btnBuild.addEventListener('click', function() {
-            setActiveNavButton('btn-build');
-            window.toggleCommandHub(true);
-            // সরাসরি মেগা প্রজেক্ট ট্যাবটি ওপেন হবে
-            const tabEvent = { currentTarget: document.querySelector(".tab-btn:nth-child(10)") };
-            window.switchModalTab(tabEvent, 'tab-projects');
-        });
-    }
+        if (normName === focusCountry) {
+            layer.setStyle({ fillColor: '#00e5ff', fillOpacity: 0.9, color: '#ffffff', weight: 2.0 });
+            return;
+        }
 
-    // ৪. কমান্ড HQ বাটন (মাঝখানের নিয়ন বাটন)
-    const btnHq = document.getElementById('btn-hq');
-    if (btnHq) {
-        btnHq.addEventListener('click', function() {
-            setActiveNavButton('btn-hq');
-            window.toggleCommandHub(true);
-        });
-    }
+        // সম্পর্কের ডাইনামিক নির্ধারণী অ্যালগরিদম
+        let score = 0;
+        if (focusCountry === "CHINA" && normName === "PAKISTAN") score = 90;
+        else if (focusCountry === "CHINA" && normName === "INDIA") score = -45;
+        else if (focusCountry === "UNITED_STATES_OF_AMERICA" && normName === "RUSSIA") score = -80;
+        else if (focusCountry === "UNITED_STATES_OF_AMERICA" && normName === "UNITED_KINGDOM") score = 95;
+        else {
+            let hash = 0;
+            const keyString = focusCountry + normName;
+            for (let i = 0; i < keyString.length; i++) {
+                hash = keyString.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            score = (Math.abs(hash) % 200) - 100;
+        }
 
-    // ৫. মিলিটারি ডক বাটন
-    const btnMilitaryDock = document.getElementById('btn-military-dock');
-    if (btnMilitaryDock) {
-        btnMilitaryDock.addEventListener('click', function() {
-            setActiveNavButton('btn-military-dock');
-            window.toggleCommandHub(true);
-            // সরাসরি মিলিটারি ক্যাটাগরি ওপেন হবে
-            const tabEvent = { currentTarget: document.querySelector(".tab-btn:nth-child(3)") };
-            window.switchModalTab(tabEvent, 'tab-military');
-        });
-    }
+        let color = '#475569';
+        if (score > 60) color = '#22c55e';
+        else if (score > 15) color = '#a3e635';
+        else if (score < -60) color = '#ef4444';
+        else if (score < -15) color = '#f97316';
 
-    // ৬. ডিপ্লোম্যাসি ডক বাটন
-    const btnDiplomacyDock = document.getElementById('btn-diplomacy-dock');
-    if (btnDiplomacyDock) {
-        btnDiplomacyDock.addEventListener('click', function() {
-            setActiveNavButton('btn-diplomacy-dock');
-            window.toggleCommandHub(true);
-            // সরাসরি ডিপ্লোম্যাসি ক্যাটাগরি ওপেন হবে
-            const tabEvent = { currentTarget: document.querySelector(".tab-btn:nth-child(2)") };
-            window.switchModalTab(tabEvent, 'tab-diplomacy');
-        });
-    }
+        layer.setStyle({ fillColor: color, fillOpacity: 0.65, color: 'rgba(255,255,255,0.1)', weight: 0.5 });
+    });
+};
 
-    // ৭. সেটিংস বাটন
-    const btnSettings = document.getElementById('btn-settings');
-    if (btnSettings) {
-        btnSettings.addEventListener('click', function() {
-            setActiveNavButton('btn-settings');
-            alert("Settings panel development in progress.");
-        });
+// ৬. সম্পূর্ণ ক্যাবিনেট হাব কন্ট্রোল লজিক
+window.toggleMainCabinet = function(show) {
+    const cabinet = document.getElementById('cabinet-full-window');
+    if (!cabinet) return;
+    if (show) {
+        cabinet.style.display = 'flex';
+    } else {
+        cabinet.style.display = 'none';
     }
+};
 
-    // প্রাথমিক লোডে রিসোর্স বার একবার রিফ্রেশ করা
-    updateResourceBarUI();
+// ডম লোড হলে ডেটাবেজ ইনিশিয়ালাইজেশন
+document.addEventListener("DOMContentLoaded", function() {
+    window.initializeWorldGameDatabase();
 });
