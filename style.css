@@ -1,8 +1,8 @@
-/* ============================================================================
+  /* ============================================================================
    GLOBAL GEOPOLITICAL SIMULATOR - MASTER STYLESHEET (style.css)
    ============================================================================ */
 
-/* মূল বডি ও ব্যাকগ্রাউন্ড */
+/* বডি ও ম্যাপ বেসিক */
 body, html { 
     margin: 0; 
     padding: 0; 
@@ -12,7 +12,6 @@ body, html {
     height: 100%;
 }
 
-/* মানচিত্রের ব্যাকগ্রাউন্ড ও গ্রিড ইফেক্ট */
 #map {
     height: 100vh;
     width: 100%;
@@ -23,7 +22,7 @@ body, html {
     background-size: 40px 40px, 40px 40px, 100% 100%;
 }
 
-/* ওভাইল স্টাইলের গাঢ় প্রিমিয়াম টপ রিসোর্স বার */
+/* ওভাইল প্রিমিয়াম টপ রিসোর্স বার */
 #resource-bar {
     position: absolute;
     top: 0;
@@ -50,15 +49,8 @@ body, html {
     text-shadow: 0 0 4px rgba(56, 189, 248, 0.3);
 }
 
-.res-icon { 
-    font-size: 18px; 
-    margin-right: 6px; 
-}
-
-.res-val { 
-    color: #f1f5f9; 
-}
-
+.res-icon { font-size: 18px; margin-right: 6px; }
+.res-val { color: #f1f5f9; }
 .res-gain {
     font-size: 10px;
     color: #22c55e;
@@ -67,7 +59,7 @@ body, html {
     text-shadow: 0 0 3px rgba(34, 197, 94, 0.3);
 }
 
-/* ওভাইল স্টাইলের নিচের নেভিগেশন ও কন্ট্রোল ডেক */
+/* ওভাইল প্রিমিয়াম বটম কন্ট্রোল ডেক */
 #control-deck {
     position: absolute;
     bottom: 15px;
@@ -81,7 +73,6 @@ body, html {
     pointer-events: none;
 }
 
-/* ৩টি ভাসমান অ্যাকশন বাটন */
 .floating-action-group {
     display: flex;
     gap: 15px;
@@ -102,11 +93,8 @@ body, html {
     transition: transform 0.1s, box-shadow 0.2s;
 }
 
-.float-btn:active { 
-    transform: scale(0.9); 
-}
+.float-btn:active { transform: scale(0.9); }
 
-/* মূল সার্কুলার নেভিগেশন ডক */
 .nav-dock {
     display: flex;
     gap: 12px;
@@ -140,11 +128,9 @@ body, html {
     transform: scale(1.08);
 }
 
-.nav-btn:active { 
-    transform: scale(0.92); 
-}
+.nav-btn:active { transform: scale(0.92); }
 
-/* দেশের নিয়ন গ্লো লেবেল */
+/* দেশের নিয়ন গ্লো লেবেল ও সমুদ্র লেবেল */
 .game-country-label, .country-label {
     background: none !important;
     border: none !important;
@@ -160,7 +146,6 @@ body, html {
     text-shadow: 0px 0px 4px rgba(56, 189, 248, 0.6), 1px 1px 2px #000000;
 }
 
-/* সমুদ্রের লেবেল ফন্ট */
 .ocean-label-text {
     font-family: 'Orbitron', sans-serif !important;
     font-weight: bold;
@@ -170,52 +155,71 @@ body, html {
     text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
 }
 
-/* গেম পপআপ উইন্ডো */
-.game-popup .leaflet-popup-content-wrapper {
-    background: #0f172a !important;
-    color: #f8fafc !important;
-    border: 2px solid #38bdf8 !important;
-    border-radius: 8px !important;
-    font-family: 'Segoe UI', Roboto, sans-serif !important; 
-    box-shadow: 0 6px 20px rgba(0,0,0,0.7) !important;
-    padding: 12px 16px !important;
+/* ৩টি বিশেষ ম্যাপ বাটন ও ওপরের ডাইনামিক ফিল্টার বক্স */
+#special-map-controls {
+    position: absolute;
+    bottom: 95px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    z-index: 2000;
+    pointer-events: auto;
 }
 
-.game-popup .leaflet-popup-tip { 
-    background: #0f172a !important; 
-    border: 2px solid #38bdf8 !important; 
+.special-btn {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border: 2px solid rgba(0, 229, 255, 0.4);
+    color: #00e5ff;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 229, 255, 0.1);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.game-popup-title { 
-    font-size: 19px; 
-    font-weight: bold; 
-    color: #ffffff; 
-    display: block; 
-    margin-bottom: 4px; 
+.special-btn:hover, .special-btn.active {
+    border-color: #00e5ff;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.6), inset 0 0 15px rgba(0, 229, 255, 0.2);
+    transform: scale(1.05);
+    background: #0f172a;
 }
 
-.role-capital { color: #38bdf8; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-.role-economic { color: #eab308; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-.role-military { color: #ef4444; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-.role-secret { color: #a855f7; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-
-.game-popup-desc { 
-    font-size: 14px; 
-    color: #cbd5e1; 
-    display: block; 
-    margin-top: 6px; 
-    line-height: 1.4; 
+.top-filter-box {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2500;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    border-radius: 6px;
+    padding: 6px 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+    font-family: 'Share Tech Mono', monospace;
+    color: #f8fafc;
+    align-items: center;
+    gap: 8px;
 }
 
-.game-popup-status { 
-    color: #f87171; 
-    font-size: 12px; 
-    font-weight: bold; 
-    display: block; 
-    margin-top: 4px; 
+.top-filter-box select {
+    background: #0f172a;
+    color: #00e5ff;
+    border: 1px solid #38bdf8;
+    padding: 4px;
+    border-radius: 4px;
+    outline: none;
+    font-family: 'Share Tech Mono', monospace;
 }
 
-/* সেন্ট্রাল কমান্ড হাব মোডাল স্টাইল */
+/* কমান্ড হাব মোডাল উইন্ডো */
 #command-hub-modal {
     display: none;
     position: absolute;
@@ -237,7 +241,6 @@ body, html {
     flex-direction: column;
 }
 
-/* মোডাল হেডার */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -265,11 +268,8 @@ body, html {
     transition: color 0.1s;
 }
 
-.close-btn:hover {
-    color: #f87171;
-}
+.close-btn:hover { color: #f87171; }
 
-/* ১০টি ট্যাবের গ্রিড প্যানেল */
 .tabs-navigation {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -299,7 +299,6 @@ body, html {
     box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
 }
 
-/* ট্যাবের কনটেন্ট এরিয়া */
 .tab-content-area {
     flex: 1;
     padding: 16px;
@@ -308,15 +307,9 @@ body, html {
     line-height: 1.6;
 }
 
-.tab-pane {
-    display: none;
-}
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
 
-.tab-pane.active {
-    display: block;
-}
-
-/* ডেটা গ্রিড লেআউট */
 .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -338,8 +331,121 @@ body, html {
     text-transform: uppercase;
 }
 
+/* ফুলস্ক্রিন ক্যাবিনেট প্যানেল ও এআই মিনিস্টার */
+#cabinet-full-window {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #090e1a 0%, #03050a 100%);
+    z-index: 4000;
+    font-family: 'Share Tech Mono', monospace;
+    color: #f8fafc;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.cabinet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(0, 229, 255, 0.4);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.cabinet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.ministry-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.ministry-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #00e5ff;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+    padding-bottom: 4px;
+}
+
+.ministry-buttons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.cabinet-btn {
+    background: #111827;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #94a3b8;
+    padding: 10px 4px;
+    border-radius: 6px;
+    font-size: 10px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.cabinet-btn:hover {
+    border-color: #00e5ff;
+    color: #00e5ff;
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+}
+
+.cabinet-btn span.emoji { font-size: 18px; }
+
+.ai-minister-panel {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(0, 229, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ai-minister-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid #00e5ff;
+    background: #111827;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+}
+
+.ai-minister-speech {
+    flex: 1;
+    font-size: 11px;
+    color: #cbd5e1;
+    line-height: 1.4;
+}
+
+/* জুম অপ্টিমাইজেশন */
 .leaflet-zoom-animated, .leaflet-pane {
     will-change: transform, opacity;
     transform-style: preserve-3d;
     backface-visibility: hidden;
-  }
+   }
